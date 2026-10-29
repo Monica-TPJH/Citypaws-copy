@@ -758,7 +758,7 @@
 
 
   /* compass */
-  #location-control{position:absolute;left:16px;bottom:130px;z-index:1000;max-width:220px;padding:10px 14px;border:1px solid #D8C7AA;border-radius:16px;background:var(--cream);color:var(--brown);font:700 12px Nunito,sans-serif;text-align:left;box-shadow:0 3px 12px #0002;cursor:pointer;}
+  #location-control{position:absolute;left:16px;bottom:130px;z-index:520;max-width:220px;padding:10px 14px;border:1px solid #D8C7AA;border-radius:16px;background:var(--cream);color:var(--brown);font:700 12px Nunito,sans-serif;text-align:left;box-shadow:0 3px 12px #0002;cursor:pointer;}
   #location-status{display:block;margin-top:3px;font-size:11px;font-weight:400;}
   .compass-btn{
     position:absolute;z-index:520;
@@ -4485,6 +4485,7 @@ function switchTab(name){
   if(bottomNav) bottomNav.style.display=hideBottomNav?'none':'block';
   const compass=document.querySelector('.compass-btn');
   if(compass) compass.style.display=(name==='map')?'block':'none';
+  document.getElementById('location-control').style.display=(name==='map')?'block':'none';
 
   if(name==='map'){
     ['social','shop','diary','ar','collection'].forEach(t=>
