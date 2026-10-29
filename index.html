@@ -758,6 +758,8 @@
 
 
   /* compass */
+  #location-control{position:absolute;left:16px;bottom:130px;z-index:1000;max-width:220px;padding:10px 14px;border:1px solid #D8C7AA;border-radius:16px;background:var(--cream);color:var(--brown);font:700 12px Nunito,sans-serif;text-align:left;box-shadow:0 3px 12px #0002;cursor:pointer;}
+  #location-status{display:block;margin-top:3px;font-size:11px;font-weight:400;}
   .compass-btn{
     position:absolute;z-index:520;
     background:none;border:none;padding:0;cursor:pointer;
@@ -2018,6 +2020,7 @@
   <!-- ══ MAP VIEW (permanent) ══ -->
   <div id="view-map">
     <div id="map"></div>
+    <button id="location-control" onclick="toggleLiveLocation()" aria-pressed="false">即時定位<span id="location-status" role="status">點擊開啟定位</span></button>
     <div class="top-bar">
       <div class="top-counters">
         <img src="assets/number memory.png" alt="counters" style="display:block;height:33px;width:auto;">
@@ -4263,7 +4266,7 @@ function spawnMarker(idx){
   const m=L.marker([p.lat,p.lng],{icon:makePinIcon(false)}).addTo(map);
   m.on('click',()=>{ if(S.walkingMode && S.targetIdx===idx) return; openPopup(idx); });
   m.on('dblclick',(e)=>{
-    if(S.walkingMode){
+    if(S.walkingMode && locationWatchId===null){
       L.DomEvent.stop(e);
       S.player.lat=PLACES[idx].lat;
       S.player.lng=PLACES[idx].lng;
@@ -4288,7 +4291,56 @@ function updatePlayerMap(){
   if(S.walkingMode) updateGpsBar();
 }
 
-function recenter(){ map.flyTo([S.player.lat,S.player.lng],17,{duration:.7}); }
+let locationWatchId=null;
+function locationStatus(message){
+  document.getElementById('location-status').textContent=message;
+  document.getElementById('location-control').setAttribute('aria-pressed',String(locationWatchId!==null));
+}
+function stopLiveLocation(){
+  if(locationWatchId!==null) navigator.geolocation.clearWatch(locationWatchId);
+  locationWatchId=null;
+  if(playerMark) playerMark.dragging.enable();
+  if(playerRing) playerRing.setRadius(PLAYER_RING_M);
+  locationStatus('定位已關閉 · 點擊開啟');
+}
+function startLiveLocation(){
+  if(locationWatchId!==null) return;
+  if(!window.isSecureContext){ locationStatus('定位需要 HTTPS 或 localhost'); return; }
+  if(!navigator.geolocation){ locationStatus('此瀏覽器不支援定位'); return; }
+  if(!map||!playerMark||!playerRing){ locationStatus('地圖尚未就緒，請稍後重試'); return; }
+  locationStatus('正在取得位置…');
+  playerMark.dragging.disable();
+  try{
+    locationWatchId=navigator.geolocation.watchPosition(pos=>{
+      const {latitude,longitude,accuracy}=pos.coords;
+      if(!Number.isFinite(latitude)||!Number.isFinite(longitude)) return;
+      S.player.lat=latitude;
+      S.player.lng=longitude;
+      updatePlayerMap();
+      if(Number.isFinite(accuracy)) playerRing.setRadius(Math.max(1,accuracy));
+      locationStatus(Number.isFinite(accuracy)?`即時定位中 · 精度約 ${Math.round(accuracy)} 米 · 點擊關閉`:'即時定位中 · 點擊關閉');
+    },error=>{
+      if(error.code===1){
+        stopLiveLocation();
+        locationStatus('定位被拒絕，請在瀏覽器設定允許後重試');
+      }else{
+        locationStatus(error.code===3?'定位逾時，正在重試 · 點擊關閉':'暫時無法取得位置，正在重試 · 點擊關閉');
+      }
+    },{enableHighAccuracy:true,maximumAge:0,timeout:20000});
+    locationStatus('正在取得位置… · 點擊關閉');
+  }catch(error){
+    stopLiveLocation();
+    locationStatus('無法啟動定位，點擊重試');
+  }
+}
+function toggleLiveLocation(){
+  if(locationWatchId===null) startLiveLocation();
+  else stopLiveLocation();
+}
+function recenter(){
+  startLiveLocation();
+  if(map) map.flyTo([S.player.lat,S.player.lng],17,{duration:.7});
+}
 
 /* ═══════════════════════════════════════════════
    DISTANCE
@@ -4341,6 +4393,7 @@ function checkProximity(){
 ═══════════════════════════════════════════════ */
 const STEP=0.000090;
 function move(dir){
+  stopLiveLocation();
   const s=STEP*S.speedMult;
   const cos=Math.cos(S.player.lat*Math.PI/180);
   if(dir==='N') S.player.lat+=s;
@@ -4354,7 +4407,7 @@ function toggleSpeed(){
   S.speedMult=S.speedMult===1?5:1;
   document.getElementById('speed-btn').textContent=`×${S.speedMult} 🐾`;
 }
-function resetPos(){ S.player={...START}; updatePlayerMap(); recenter(); }
+function resetPos(){ stopLiveLocation(); S.player={...START}; updatePlayerMap(); }
 
 
 function setProfileBtnIcon(isClose){
@@ -5711,13 +5764,7 @@ function _exitOnboarding(){
     S.anchors.forEach(a=>{ a.inRange=false; });
     setTimeout(()=>{ try{spawnNearestToast();}catch(e){} },700);
     }catch(e){ console.error('exitOnboarding',e); }
-    if(navigator.geolocation){
-      navigator.geolocation.watchPosition(pos=>{
-        S.player.lat=pos.coords.latitude;
-        S.player.lng=pos.coords.longitude;
-        updatePlayerMap();
-      },{enableHighAccuracy:true,maximumAge:5000,timeout:10000});
-    }
+    startLiveLocation();
   },350);
 }
 
