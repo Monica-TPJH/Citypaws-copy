@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/files/Sfd7ho0Eh6abmtufQJKDfn/nodes?ids=2551:12235&depth=2\")",
+      "Bash(python -c ' *)",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/images/Sfd7ho0Eh6abmtufQJKDfn?ids=2552:19591,2417:12167,2259:18271&format=png&scale=0.5\")",
+      "Bash(curl -s \"https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/0566d97d-72a8-498e-8fd9-baa91a3853b6\" -o \"C:\\\\Users\\\\noelm\\\\OneDrive\\\\Desktop\\\\CITYPAWS\\\\assets\\\\fig_foodcard_full.png\")",
+      "Bash(curl -s \"https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/5526a77b-cf4d-408e-961a-04a8621a561c\" -o \"C:\\\\Users\\\\noelm\\\\OneDrive\\\\Desktop\\\\CITYPAWS\\\\assets\\\\fig_foodcollection_home.png\")",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/files/Sfd7ho0Eh6abmtufQJKDfn/nodes?ids=2259:18271,2552:19591&depth=1\")",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/images/Sfd7ho0Eh6abmtufQJKDfn?ids=2259:18271&format=png&scale=3\")",
+      "Bash(curl -s \"https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/f7a7e047-25c8-4559-8dfc-4e9be18203d0\" -o \"C:\\\\Users\\\\noelm\\\\OneDrive\\\\Desktop\\\\CITYPAWS\\\\assets\\\\foodcard_rank1.png\")",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/files/Sfd7ho0Eh6abmtufQJKDfn?depth=5\")",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/files/Sfd7ho0Eh6abmtufQJKDfn/nodes?ids=2622:13091&depth=1\")",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/images/Sfd7ho0Eh6abmtufQJKDfn?ids=2622:13091&format=png&scale=2\")",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/images/Sfd7ho0Eh6abmtufQJKDfn?ids=2630:17239&format=png&scale=2\")",
+      "Read(//c/Users/noelm/.claude/projects/c--Users-noelm-OneDrive-Desktop-CITYPAWS/**)",
+      "Bash(grep -o 'figma.com/design/[^\"\\\\\\\\]*' \"C:\\\\Users\\\\noelm\\\\.claude\\\\projects\\\\c--Users-noelm-OneDrive-Desktop-CITYPAWS\\\\f847387d-96cb-4a73-9a85-abf07096eca1.jsonl\")",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/files/Sfd7ho0Eh6abmtufQJKDfn/nodes?ids=1746-12610\")",
+      "Bash(python3 -c ' *)",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/images/Sfd7ho0Eh6abmtufQJKDfn?ids=2651:18247&format=png&scale=2\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d\\)\")",
+      "Bash(curl -s -L \"https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/d0709fb1-bb2f-4e6d-8907-6e7ce86f0e2c\" -o \"c:\\\\Users\\\\noelm\\\\OneDrive\\\\Desktop\\\\CITYPAWS\\\\assets\\\\notecard.png\")",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/files/Sfd7ho0Eh6abmtufQJKDfn/nodes?ids=2651:18247\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(list\\(d['images'].values\\(\\)\\)[0]\\)\")",
+      "Bash(curl -s \"https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/bfdac36b-28d8-4db4-b499-c91140163c27\" -o \"c:\\\\Users\\\\noelm\\\\OneDrive\\\\Desktop\\\\CITYPAWS\\\\assets\\\\frame221.png\")",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/files/Sfd7ho0Eh6abmtufQJKDfn/nodes?ids=3318:22204&depth=4\")",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/images/Sfd7ho0Eh6abmtufQJKDfn?ids=3318:22204&format=png&scale=2\")",
+      "Bash(curl -s \"https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/3dff59d4-43ef-4a00-aa88-fc55d4376a6a\" -o \"c:\\\\Users\\\\noelm\\\\OneDrive\\\\Desktop\\\\CITYPAWS\\\\assets\\\\frame222.png\")",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/files/Sfd7ho0Eh6abmtufQJKDfn?depth=2\")",
+      "mcp__claude_ai_Figma__get_screenshot",
+      "Bash(curl -s \"https://www.figma.com/api/mcp/asset/58757178-7f62-4dd1-aa89-725ceb3c6fea\" -o \"c:\\\\Users\\\\noelm\\\\OneDrive\\\\Desktop\\\\CITYPAWS\\\\assets\\\\frame223.png\")",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/files/Sfd7ho0Eh6abmtufQJKDfn/nodes?ids=3435:22456&depth=1\")",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/files/Sfd7ho0Eh6abmtufQJKDfn/nodes?ids=3435:22456&depth=3\")",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/images/Sfd7ho0Eh6abmtufQJKDfn?ids=3435:22456&format=png&scale=2\")",
+      "Bash(del \"assets\\\\frame223_orig.png\")",
+      "Bash(curl -s -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\" \"https://api.figma.com/v1/files/Sfd7ho0Eh6abmtufQJKDfn/nodes?ids=3443:22458&depth=4\")",
+      "Bash(python -u -c ' *)",
+      "Bash(curl -s \"https://api.figma.com/v1/images/Sfd7ho0Eh6abmtufQJKDfn?ids=3496:17149&format=png&scale=2\" -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\")",
+      "Bash(curl -sL \"https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/5a6d1495-0622-4034-bb70-1e3c5e2dcf60\" -o \"C:\\\\Users\\\\noelm\\\\AppData\\\\Local\\\\Temp\\\\note_card_new.png\")",
+      "Bash(curl -s \"https://api.figma.com/v1/images/Sfd7ho0Eh6abmtufQJKDfn?ids=3760:24077&scale=3&format=png\" -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\")",
+      "Bash(curl -sL \"https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/1322621c-f9d1-4e96-84a3-383a2961133c\" -o \"c:\\\\Users\\\\noelm\\\\OneDrive\\\\Desktop\\\\CITYPAWS\\\\assets\\\\frame 252.png\")",
+      "Bash(curl -s \"https://api.figma.com/v1/images/Sfd7ho0Eh6abmtufQJKDfn?ids=3761:24078&scale=3&format=png\" -H \"X-Figma-Token: FIGMA_TOKEN_REDACTED\")",
+      "Bash(curl -sL \"https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/4ebde4d8-5cc7-4f07-bf77-6ebd01e45436\" -o \"c:\\\\Users\\\\noelm\\\\OneDrive\\\\Desktop\\\\CITYPAWS\\\\assets\\\\frame 893.png\")",
+      "Bash(curl -sL \"https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/4ebde4d8-5cc7-4f97-bf77-6ebd01e45436\" -o \"c:\\\\Users\\\\noelm\\\\OneDrive\\\\Desktop\\\\CITYPAWS\\\\assets\\\\frame 893.png\")",
+      "Bash(curl -sL \"https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/4ebde4d8-5cc7-4f9d-bf77-6ebd01e45436\" -o \"c:\\\\Users\\\\noelm\\\\OneDrive\\\\Desktop\\\\CITYPAWS\\\\assets\\\\frame 893.png\")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\noelm\\AppData\\Local\\Temp"
+    ]
+  }
+}

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>CityPaws – Genera QR</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      min-height:100vh;background:#1a1510;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      font-family:'Segoe UI',sans-serif;color:#F5ECD7;gap:20px;padding:24px;
+    }
+    h1{font-size:20px;letter-spacing:.5px;}
+    .card{
+      background:#2a201a;border-radius:16px;padding:28px;
+      display:flex;flex-direction:column;align-items:center;gap:16px;
+      width:100%;max-width:360px;
+    }
+    input{
+      width:100%;padding:10px 14px;border-radius:10px;
+      border:1.5px solid rgba(245,236,215,.2);background:#1a1510;
+      color:#F5ECD7;font-size:13px;outline:none;
+    }
+    input:focus{border-color:#A84030;}
+    button{
+      width:100%;padding:11px;border-radius:10px;border:none;
+      background:#A84030;color:white;font-size:14px;font-weight:700;cursor:pointer;
+    }
+    button:hover{background:#c04838;}
+    #qrbox{display:none;flex-direction:column;align-items:center;gap:12px;}
+    #qrbox canvas{border-radius:10px;}
+    #dl{background:#4A6741;}
+    #dl:hover{background:#5a7a50;}
+    .hint{font-size:11px;opacity:.5;text-align:center;max-width:300px;line-height:1.5;}
+    .steps{font-size:12px;opacity:.7;line-height:1.8;max-width:320px;}
+    .steps b{color:#D08878;}
+  </style>
+</head>
+<body>
+  <h1>🐾 CityPaws QR Generator</h1>
+
+  <div class="card">
+    <div class="steps">
+      <b>Come ottenere un URL pubblico:</b><br>
+      1. Vai su <b>netlify.com/drop</b><br>
+      2. Trascina la cartella <b>CITYPAWS</b><br>
+      3. Copia il link che ti dà (es. <i>xyz.netlify.app</i>)<br>
+      4. Incollalo qui sotto e genera il QR
+    </div>
+    <input id="url-input" type="url" placeholder="https://il-tuo-sito.netlify.app" value="">
+    <button onclick="generateQR()">Genera QR Code</button>
+  </div>
+
+  <div class="card" id="qrbox">
+    <div id="qrcode"></div>
+    <p class="hint" id="qr-url"></p>
+    <button id="dl" onclick="downloadQR()">⬇ Scarica immagine PNG</button>
+  </div>
+
+  <script>
+    // Pre-compila con l'URL locale se aperto via Live Server
+    const localUrl = window.location.href.replace('generate-qr.html','index.html');
+    if(localUrl.startsWith('http://192') || localUrl.startsWith('http://localhost')){
+      document.getElementById('url-input').value = localUrl;
+    }
+
+    let qrInstance = null;
+
+    function generateQR(){
+      const url = document.getElementById('url-input').value.trim();
+      if(!url){ alert('Inserisci un URL valido'); return; }
+
+      document.getElementById('qrcode').innerHTML = '';
+      document.getElementById('qrbox').style.display = 'flex';
+      document.getElementById('qr-url').textContent = url;
+
+      qrInstance = new QRCode(document.getElementById('qrcode'), {
+        text: url,
+        width: 280,
+        height: 280,
+        colorDark: '#1a1510',
+        colorLight: '#F5ECD7',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    function downloadQR(){
+      const canvas = document.querySelector('#qrcode canvas');
+      if(!canvas){ alert('Genera prima il QR'); return; }
+      const link = document.createElement('a');
+      link.download = 'citypaws-qr.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>CityPaws – QR Code</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body{
+      margin:0;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      min-height:100vh;background:#1a1510;
+      font-family:sans-serif;color:#F5ECD7;gap:24px;
+    }
+    h1{font-size:22px;letter-spacing:1px;margin:0;}
+    #qrcode canvas, #qrcode img{border-radius:12px;}
+    #url{font-size:13px;opacity:.6;word-break:break-all;max-width:320px;text-align:center;}
+  </style>
+</head>
+<body>
+  <h1>🐾 CityPaws</h1>
+  <div id="qrcode"></div>
+  <div id="url"></div>
+  <script>
+    const url = window.location.href.replace('qr.html','index.html');
+    document.getElementById('url').textContent = url;
+    new QRCode(document.getElementById('qrcode'), {
+      text: url,
+      width: 260,
+      height: 260,
+      colorDark: '#1a1510',
+      colorLight: '#F5ECD7',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  </script>
+</body>
+</html>
