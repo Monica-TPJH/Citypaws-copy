@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
   <title>CityPaws 時光貓跡</title>
   <link rel="preload" href="assets/diary.jpg" as="image">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -12,6 +12,19 @@
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
   <style>
   :root {
+    /* ── 品牌色（Primary / Secondary 色票）─────────────── */
+    --cp-red:    #9E2416;   /* P1 Bestial Red   */
+    --cp-green:  #455F42;   /* P2 Acacia Green（主題色） */
+    --cp-paper:  #FBFAEA;   /* P3 Placebo Yellow */
+    --cp-brown:  #4E3325;   /* S1 Bramble Rush  */
+    --cp-lemon:  #FFEE7D;   /* S2 Lemon Peel    */
+    /* 主題綠的深淺（取自 Acacia Green 色階） */
+    --cp-green-tint20: #6A7F68;
+    --cp-green-tint30: #7D8F7B;
+    --cp-green-tint70: #C7CFC6;
+    --cp-green-tint80: #DADFD9;
+    --cp-green-shade30:#30432E;
+    --cp-green-shade40:#293928;
     --cream:   #F5ECD7;
     --cream2:  #EDE0C8;
     --red:     #A84030;
@@ -544,20 +557,99 @@
     position:absolute;inset:0;width:100%;height:100%;
     object-fit:fill;pointer-events:none;
   }
-  #btn-l1-main{
-    position:absolute;
-    top:61.6%;left:26.9%;
-    width:46.2%;height:4.3%;
-    background:none;border:none;cursor:pointer;z-index:10;
-    touch-action:manipulation;
-  }
-  #btn-l2-main{
-    position:absolute;
-    top:67.5%;left:26.9%;
-    width:46.2%;height:4.3%;
-    background:none;border:none;cursor:pointer;z-index:10;
-    touch-action:manipulation;
-  }
+  /* 從登入圖上切出來的可互動元件（位置由 layoutAuth 依 data-rect 計算） */
+  .auth-view.show{animation:authFade .45s ease both;}
+  .auth-view [data-rect]{position:absolute;z-index:10;}
+  .auth-slice{background-repeat:no-repeat;border:none;padding:0;border-radius:14px;
+    -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+    transition:transform .18s cubic-bezier(.3,1.6,.6,1),box-shadow .2s,filter .2s;}
+  button.auth-slice{cursor:pointer;}
+  button.auth-slice:active{transform:scale(.94);}
+  /* 選中：整個框四周一圈柔和投影，下方略深 */
+  .auth-field::before{content:'';position:absolute;inset:2px 1px;border-radius:11px;z-index:-1;pointer-events:none;
+    box-shadow:0 4px 14px rgba(61,43,31,.24),0 1px 4px rgba(61,43,31,.14);opacity:0;transition:opacity .2s;}
+  .auth-field:focus-within::before{opacity:1;}
+  /* 輸入錯誤：只顯示下方的文字提示，框本身不抖動、不加紅框 */
+  .auth-field input{position:absolute;left:15.5%;right:4%;top:14%;bottom:14%;width:auto;
+    border:none;outline:none;border-radius:8px;padding:0 6px;background:transparent;
+    font:600 15px Nunito,'PingFang TC',sans-serif;color:var(--brown);caret-color:var(--red);letter-spacing:.04em;}
+  .auth-field input.has-eye{right:17%;}
+  .auth-field input::placeholder{color:transparent;}
+  /* 沒輸入時保留原圖上畫的提示字，開始輸入才蓋掉 */
+  .auth-field input:not(:placeholder-shown){background:#FAFAEB;}
+  .auth-eye{position:absolute;right:3%;top:10%;width:14%;height:80%;border:none;background:transparent;cursor:pointer;border-radius:10px;}
+  .auth-eye:active{transform:scale(.85);}
+  .auth-eye::after{content:'';position:absolute;left:22%;right:22%;top:50%;height:2.5px;border-radius:2px;background:#C98C86;
+    transform:rotate(-35deg) scaleX(0);transition:transform .2s;}
+  .auth-eye.on::after{transform:rotate(-35deg) scaleX(1);}
+  .auth-check::after{content:'✓';position:absolute;left:3.5%;top:11%;width:26%;height:78%;border-radius:50%;
+    background:var(--red);color:#FFF;font:700 14px/1 Nunito,sans-serif;display:flex;align-items:center;justify-content:center;
+    transform:scale(0);transition:transform .25s cubic-bezier(.3,1.8,.5,1);}
+  .auth-check.on::after{transform:scale(.8);}
+  .auth-check:active{transform:none;}
+  .auth-btn{box-shadow:0 0 0 0 rgba(177,80,69,.35);}
+  .auth-btn .auth-loading{position:absolute;inset:20% 8%;border-radius:8px;background:var(--auth-btn-color);display:none;align-items:center;justify-content:center;gap:8px;}
+  .auth-btn.loading .auth-loading{display:flex;}
+  .auth-btn.loading{pointer-events:none;}
+  .auth-loading i{width:8px;height:8px;border-radius:50%;background:#FAFAEB;animation:authDot .9s ease-in-out infinite;}
+  .auth-loading i:nth-child(2){animation-delay:.15s;} .auth-loading i:nth-child(3){animation-delay:.3s;}
+  .auth-msg{display:flex;align-items:center;justify-content:center;text-align:center;padding:0 8px;
+    font:700 13px/1.5 Nunito,'PingFang TC',sans-serif;color:var(--red);pointer-events:none;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;}
+  .auth-msg.show{opacity:1;transform:none;}
+  .auth-msg.ok{color:var(--green);}
+  .auth-sheet{position:absolute;inset:0;z-index:20;background:rgba(61,43,31,.35);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
+  .auth-sheet.show{opacity:1;pointer-events:auto;}
+  .auth-sheet-card{width:100%;max-height:60%;overflow:auto;background:#FAFAEB;border-radius:22px 22px 0 0;border-top:3px solid var(--red);
+    padding:22px 22px 28px;transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.9,.3,1);color:var(--brown);font:14px/1.7 Nunito,'PingFang TC',sans-serif;}
+  .auth-sheet.show .auth-sheet-card{transform:none;}
+  .auth-sheet-card h3{margin:0 0 10px;font-size:17px;color:var(--red);}
+  .auth-sheet-card .cp-btn{margin-top:16px;}
+  .tap-ripple{position:fixed;width:56px;height:56px;border-radius:50%;pointer-events:none;z-index:99999;
+    background:radial-gradient(circle,rgba(255,250,235,.9) 0%,rgba(208,136,120,.35) 60%,rgba(208,136,120,0) 72%);}
+  @keyframes authFade{from{opacity:0}to{opacity:1}}
+  /* ═════════════════════════════════════════════════════════════
+     按鈕規範 .cp-btn
+     ─ 結構：外框描邊 2px ＋ 紙色內圈 2px ＋ 填色，看起來是「雙框」
+     ─ 樣式：
+         .cp-btn--solid  主要按鈕（深綠 Acacia 30% shade），一個畫面最多一個
+         .cp-btn--soft   次要按鈕（淺綠 Acacia 20% tint）
+     ─ 尺寸（高度 / 字級 / 左右內距）：
+         --xs 24 / 11 / 10    標籤、卡片內的小動作
+         --sm 28 / 13 / 12    列表裡的操作（例：稍後探索的「出發」）
+         --md 36 / 14 / 18    一般按鈕（預設）
+         --lg 40 / 17 / 24    頁面上的主要動作
+         --xl 48 / 17 / 28    底部滿版按鈕（例：選擇完成、完成卡片）
+       加 .cp-btn--block 撐滿寬度
+     ─ 圖示：<span class="cp-btn__icon"> 放在文字前，大小是字級的 1.25 倍
+     ─ 文字：楷體、粗體、字距 .2em，紙色 #FBFAEA
+     ─ 狀態：按下縮到 .96；disabled 變灰綠不可點；鍵盤聚焦外加檸檬黃光圈
+     ═════════════════════════════════════════════════════════════ */
+  .cp-btn{--h:36px;--fs:14px;--px:18px;--fill:var(--cp-green-shade30);--edge:var(--cp-green-shade40);
+    display:inline-flex;align-items:center;justify-content:center;gap:.45em;box-sizing:border-box;
+    height:var(--h);padding:0 var(--px);border-radius:7px;cursor:pointer;white-space:nowrap;
+    background:var(--fill);color:var(--cp-paper);border:2px solid var(--cp-paper);
+    box-shadow:0 0 0 2px var(--edge),0 3px 8px rgba(61,43,31,.16);
+    font:700 var(--fs)/1 'Kaiti TC','STKaiti','PingFang TC',serif;letter-spacing:.2em;text-indent:.2em;
+    -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+    transition:transform .15s cubic-bezier(.3,1.5,.5,1),filter .15s,background-color .2s;}
+  .cp-btn:hover{filter:brightness(1.06);}
+  .cp-btn:active{transform:scale(.96);}
+  .cp-btn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--edge),0 0 0 5px var(--cp-lemon);}
+  .cp-btn:disabled,.cp-btn.is-disabled{--fill:var(--cp-green-tint70);--edge:var(--cp-green-tint80);color:#F2F4F1;cursor:not-allowed;filter:none;transform:none;}
+  .cp-btn--solid{--fill:var(--cp-green-shade30);--edge:var(--cp-green-shade40);}
+  .cp-btn--soft{--fill:var(--cp-green-tint20);--edge:var(--cp-green-tint30);}
+  .cp-btn--xs{--h:24px;--fs:11px;--px:10px;border-radius:5px;border-width:1.5px;box-shadow:0 0 0 1.5px var(--edge);}
+  .cp-btn--sm{--h:28px;--fs:13px;--px:12px;border-radius:6px;}
+  .cp-btn--md{--h:36px;--fs:14px;--px:18px;}
+  .cp-btn--lg{--h:40px;--fs:17px;--px:24px;}
+  .cp-btn--xl{--h:48px;--fs:17px;--px:28px;border-radius:9px;}
+  .cp-btn--block{display:flex;width:100%;}
+  .cp-btn__icon{flex-shrink:0;width:1.25em;height:1.25em;display:inline-flex;align-items:center;justify-content:center;
+    background:var(--cp-paper);border-radius:2px;overflow:hidden;color:var(--cp-green);font-size:1em;text-indent:0;letter-spacing:0;}
+  .cp-btn__icon img{width:100%;height:100%;object-fit:contain;}
+  .cp-btn__icon.is-bare{background:none;color:inherit;}
+
+  @keyframes authDot{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-6px);opacity:1}}
   /* ──────────────────────────────────── */
 
   #onboarding{
@@ -578,12 +670,16 @@
   #ob-track{
     display:contents; /* trasparente: le img diventano figli diretti di #onboarding */
   }
+  #onboarding{cursor:grab;user-select:none;-webkit-user-select:none;}
+  #onboarding.dragging{cursor:grabbing;}
   #ob-track img{
+    -webkit-user-drag:none;
     flex:0 0 100%;
     height:100%;
     object-fit:contain;
     object-position:center center;
     scroll-snap-align:start;
+    scroll-snap-stop:always; /* 一次只能滑一頁 */
     background:#F5ECD7;
   }
   .spl-logo-img{
@@ -613,6 +709,7 @@
   ══════════════════════════════════════ */
   #view-map{position:absolute;inset:0;}
   #map{position:absolute;inset:0;z-index:100;}
+  #map{background:#BFE9DC;}
 
   /* top bar */
   .top-bar{
@@ -759,6 +856,205 @@
 
   /* compass */
   #location-control{position:absolute;left:16px;bottom:130px;z-index:520;max-width:220px;padding:10px 14px;border:1px solid #D8C7AA;border-radius:16px;background:var(--cream);color:var(--brown);font:700 12px Nunito,sans-serif;text-align:left;box-shadow:0 3px 12px #0002;cursor:pointer;}
+  #popup-polyu-far .pf-btn{position:absolute;background:none;border:none;padding:0;cursor:pointer;z-index:3;border-radius:14px;touch-action:manipulation;}
+  #polyu-dist{position:absolute;left:32.4%;top:67.6%;width:12%;height:4.8%;z-index:2;pointer-events:none;
+    display:flex;align-items:center;background:#FDFDF6;white-space:nowrap;
+    font:700 calc(var(--pw,360px)*.027) 'Songti TC','Noto Serif TC',serif;color:#4E3325;letter-spacing:.03em;}
+  /* 一般錨點卡片的距離數字：用百分比定位，螢幕寬度不同也會停在「距離約 ___ M」的空格裡 */
+  #popup-img-wrapper #checkin-dist{left:31.6%;top:71.7%;right:auto !important;bottom:auto !important;transform:translateY(-50%);
+    font-size:calc(var(--pw,360px)*.036) !important;}
+  #pf-save2.saved::after,#pf-save.saved::after{content:'✓ 已收藏';position:absolute;right:6%;bottom:-38%;padding:3px 10px;border-radius:10px;
+    background:var(--green);color:#FFF;font:700 12px Nunito,'PingFang TC',sans-serif;animation:arCatIn .4s cubic-bezier(.3,1.5,.5,1) both;}
+  /* 引導頁頁碼 */
+  #ob-dots{position:absolute;z-index:1000;display:none;pointer-events:none;background:#FBF9EA;}
+  #ob-dots.show{display:block;}
+  #ob-dots i,#ob-dots b{position:absolute;top:50%;width:var(--d);height:var(--d);margin:calc(var(--d)/-2) 0 0 calc(var(--d)/-2);border-radius:50%;}
+  #ob-dots i{background:#FBE6E7;border:1.5px solid #E3B9B6;box-sizing:border-box;}
+  #ob-dots b{background:#BA665B;border:1.5px solid #9E4E44;box-sizing:border-box;transition:left .12s linear;}
+
+  /* 撥開雲霧 */
+  #cloud-reveal{position:absolute;inset:0;z-index:998;pointer-events:none;overflow:hidden;display:none;}
+  #cloud-reveal.show{display:block;}
+  #cloud-reveal .fog{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,#FFFDF5 0%,#F7F1E2 60%,#EFE6D2 100%);}
+  #cloud-reveal .cloud{position:absolute;width:95%;aspect-ratio:1.5;filter:blur(7px);
+    background:
+      radial-gradient(circle at 30% 62%,#FFFEF9 0 26%,transparent 27%),
+      radial-gradient(circle at 52% 44%,#FFFEF9 0 30%,transparent 31%),
+      radial-gradient(circle at 72% 60%,#FBF6EA 0 25%,transparent 26%),
+      radial-gradient(ellipse at 50% 70%,#F8F2E4 0 40%,transparent 41%);}
+  #cloud-reveal.part .fog{animation:fogOut 2.4s .4s ease-in-out forwards;}
+  #cloud-reveal.part .cloud{animation:cloudPart 2.8s cubic-bezier(.45,0,.2,1) forwards;}
+  #map.unveil{animation:mapUnveil 3.4s cubic-bezier(.3,.6,.2,1);}
+  @keyframes fogOut{to{opacity:0}}
+  @keyframes cloudPart{to{transform:translate(var(--dx),var(--dy)) scale(1.5);opacity:0}}
+  @keyframes mapUnveil{from{transform:scale(1.18);filter:blur(6px) saturate(.6)}to{transform:none;filter:none}}
+
+  /* 歡迎貓咪 */
+  #welcome-cat{position:absolute;left:12px;right:12px;bottom:150px;z-index:960;display:none;align-items:flex-end;gap:6px;cursor:pointer;}
+  #welcome-cat.show{display:flex;}
+  #welcome-cat img{width:34%;flex-shrink:0;filter:drop-shadow(0 4px 8px rgba(61,43,31,.25));animation:wcCat .7s cubic-bezier(.3,1.5,.5,1) both,wcBob 2.4s ease-in-out .7s infinite;}
+  .wc-bubble{position:relative;flex:1;margin-bottom:22%;padding:14px 16px 10px;background:#FFFDF4;border:2.5px solid var(--brown-md);border-radius:18px;
+    color:var(--brown);font:700 17px/1.45 'PingFang TC',Nunito,sans-serif;box-shadow:0 6px 16px rgba(61,43,31,.18);animation:wcBubble .45s .35s cubic-bezier(.3,1.5,.5,1) both;}
+  .wc-bubble::before{content:'';position:absolute;left:-11px;bottom:22px;width:16px;height:16px;background:#FFFDF4;
+    border-left:2.5px solid var(--brown-md);border-bottom:2.5px solid var(--brown-md);transform:rotate(45deg);}
+  .wc-bubble small{display:block;margin-top:6px;font-size:11px;font-weight:600;color:var(--brown-lt);opacity:0;transition:opacity .4s;}
+  .wc-bubble.done small{opacity:1;}
+  #welcome-cat.out{animation:wcOut .35s ease-in forwards;}
+  @keyframes wcCat{from{transform:translateY(60%) scale(.5);opacity:0}to{transform:none;opacity:1}}
+  @keyframes wcBob{0%,100%{transform:none}50%{transform:translateY(-6px) rotate(-2deg)}}
+  @keyframes wcBubble{from{transform:scale(.6);opacity:0;transform-origin:left bottom}to{transform:none;opacity:1}}
+  @keyframes wcOut{to{transform:translateY(30px);opacity:0}}
+
+  /* 食物卡收集效果 */
+  .fc-shine{display:none;}
+  #view-foodcard.fx #fc-ui-img{animation:fcCardIn .6s cubic-bezier(.2,1,.3,1) both;}
+  #view-foodcard.fx .fc-shine{display:block;position:absolute;left:7%;top:20.3%;width:86.5%;height:47.5%;z-index:3;pointer-events:none;border-radius:16px;overflow:hidden;}
+  #view-foodcard.fx .fc-shine::after{content:'';position:absolute;top:-20%;bottom:-20%;width:35%;left:-50%;
+    background:linear-gradient(105deg,transparent,rgba(255,255,240,.75),transparent);transform:skewX(-15deg);
+    animation:fcShine 1.8s .7s ease-in-out 2 both;}
+  .fc-spark{position:absolute;left:50%;top:44%;z-index:5;pointer-events:none;color:#FFD66B;text-shadow:0 0 8px rgba(255,200,80,.9);}
+  @keyframes fcCardIn{from{transform:translateY(18px) scale(.94);opacity:0}to{transform:none;opacity:1}}
+  @keyframes fcShine{0%{left:-50%}70%,100%{left:130%}}
+
+  /* 解鎖後的表情集合：從圖釘冒出來，之後輕輕浮動 */
+  .poi-sticker{transform-origin:50% 100%;animation:stickerIn .9s cubic-bezier(.3,1.5,.5,1) both,stickerFloat 3s .9s ease-in-out infinite;}
+  @keyframes stickerIn{0%{opacity:0;transform:translateY(30px) scale(.2)}60%{opacity:1}100%{transform:none}}
+  @keyframes stickerFloat{0%,100%{transform:none}50%{transform:translateY(-4px) rotate(-1deg)}}
+  .leaflet-marker-icon:focus,.leaflet-marker-icon:focus-visible{outline:none;}
+  /* 稍後探索 */
+  #f219-side-btn{position:relative;}
+  #later-badge{position:absolute;right:-3px;top:-3px;min-width:18px;height:18px;padding:0 4px;box-sizing:border-box;border-radius:9px;
+    background:var(--red);color:#FFF;font:800 11px/18px Nunito,sans-serif;text-align:center;display:none;z-index:2;}
+  #later-badge.on{display:block;}
+  #f219-side-btn.bump{animation:laterBump .5s cubic-bezier(.3,1.6,.5,1);}
+  @keyframes laterBump{40%{transform:scale(1.25)}100%{transform:none}}
+  .later-fly{position:fixed;z-index:9999;font-size:26px;pointer-events:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25));}
+  #later-sheet{position:absolute;inset:0;z-index:960;background:rgba(61,43,31,.3);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
+  #later-sheet.show{opacity:1;pointer-events:auto;}
+  .later-card{width:100%;max-height:62%;overflow:auto;background:#FAF6EA;border-radius:22px 22px 0 0;border-top:3px solid var(--cp-green);
+    padding:16px 16px 28px;box-sizing:border-box;transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.9,.3,1);}
+  #later-sheet.show .later-card{transform:none;}
+  .later-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;
+    font:700 18px 'Kaiti TC','STKaiti',serif;color:var(--brown);letter-spacing:.08em;}
+  .later-head button{border:none;background:none;font-size:18px;color:var(--brown-lt);cursor:pointer;}
+  .later-item{display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:10px;border:2px dashed #C9B9A6;border-radius:14px;background:#FFFCF5;}
+  .later-item img{width:52px;height:52px;object-fit:cover;border-radius:10px;flex-shrink:0;background:#EEE6D6;}
+  .later-item .li-txt{flex:1;min-width:0;}
+  .later-item b{display:block;font:700 15px 'Kaiti TC','STKaiti',serif;color:var(--brown);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .later-item small{font:600 12px Nunito,'PingFang TC',sans-serif;color:var(--brown-lt);}
+  .later-item .li-go{flex-shrink:0;}
+  .later-item .li-del{flex-shrink:0;border:none;background:none;color:#B9A493;font-size:16px;cursor:pointer;}
+  .later-empty{padding:28px 0;text-align:center;font:600 14px 'PingFang TC',sans-serif;color:var(--brown-lt);}
+  /* 日記抽屜 */
+  .r0-tab{position:absolute;z-index:3;background:none;border:none;padding:0;cursor:pointer;border-radius:10px 10px 0 0;touch-action:manipulation;}
+  .r0-tab:hover{background:rgba(255,236,170,.18);}
+  #r0-hint{position:absolute;left:50%;top:61%;translate:-50% 0;z-index:4;padding:8px 16px;border-radius:14px;background:#FFFDF4;
+    border:2px solid var(--cp-green);font:700 13px 'Kaiti TC','STKaiti',serif;color:var(--brown);white-space:nowrap;
+    opacity:0;pointer-events:none;transition:opacity .25s;}
+  #r0-hint.show{opacity:1;}
+  /* 抽屜拉開：座標以 recap0.png 的 962×2000 顯示比例換算成百分比 */
+  .r0-layer,#r0-page{position:absolute;left:0;top:0;width:100%;display:none;}
+  /* 只切抽屜本身（左右不含後面的照片牆），後排只留到 5.11 標籤下緣 */
+  #r0-back{clip-path:polygon(8.5% 66.5%,90.5% 66.5%,91% 74%,45.7% 74%,42.6% 72.5%,8% 72.5%);z-index:2;}
+  /* 前排（5.13 以下）沿著 5.13 文件夾的外框切，座標取自 recap0.png 1261×2622 */
+  #r0-front{clip-path:polygon(4.36% 76.85%,48.5% 76.85%,50.75% 74.07%,82.47% 74.07%,84.7% 76.73%,92.8% 76.73%,94.5% 100%,3% 100%);z-index:4;}
+  /* 抽出來的那一頁：只露出到前排文件夾上緣為止，不會從標籤之間的縫透出來 */
+  #r0-page{z-index:3;height:100%;pointer-events:none;
+    clip-path:polygon(0 0,100% 0,100% 76.73%,92.8% 76.73%,84.7% 76.73%,82.47% 74.07%,50.75% 74.07%,48.5% 76.85%,0 76.85%);}
+  #r0-pagebox{position:absolute;left:3.6%;top:9.2%;width:90.6%;pointer-events:none;filter:drop-shadow(0 6px 12px rgba(61,43,31,.18));}
+  #r0-base{transition:opacity .5s ease;}
+  #r0-wrap.open #r0-base{opacity:0;pointer-events:none;}
+  #r0-wrap.open.closing #r0-base{opacity:1;}
+  #r0-wrap.open .r0-layer,#r0-wrap.open #r0-page{display:block;}
+  #r0-wrap.open #r0-back{animation:r0BackUp .9s cubic-bezier(.3,.8,.25,1) both;}
+  #r0-wrap.open #r0-pagebox{animation:r0PageUp .9s cubic-bezier(.3,.8,.25,1) both;}
+  #r0-wrap.closing #r0-back{animation:r0BackUp .6s cubic-bezier(.5,0,.7,.4) reverse both;}
+  #r0-wrap.closing #r0-pagebox{animation:r0PageUp .6s cubic-bezier(.5,0,.7,.4) reverse both;}
+  @keyframes r0BackUp{from{transform:none}to{transform:translateY(-50%)}}
+  @keyframes r0PageUp{from{transform:translateY(52.4%)}to{transform:none}}
+  @keyframes r0WallOut{from{opacity:1}to{opacity:0}}
+  #r0-wrap.open .r0-tab,#r0-wrap.open #r0-pull-hint{display:none;}
+  /* 「點擊拉開抽屜」：深綠粗框 + 內圈虛線的紙條，右邊一條捲曲虛線箭頭指向抽屜 */
+  #r0-pull-hint{position:absolute;left:6%;top:52.5%;z-index:3;padding:10px 26px 10px 30px;border-radius:14px;background:#FBFAEA;
+    border:3px solid var(--cp-green);box-shadow:inset 0 0 0 4px #FBFAEA,inset 0 0 0 5.5px rgba(69,95,66,.55);
+    font:700 15px 'Kaiti TC','STKaiti',serif;color:#5A4639;letter-spacing:.2em;pointer-events:none;
+    animation:r0Hint 2s ease-in-out infinite;}
+  #r0-pull-hint::after{content:'';position:absolute;left:calc(100% + 4px);top:30%;width:70px;height:46px;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 46'%3E%3Cpath d='M2 8 C20 2 40 4 48 14 C54 22 44 30 38 24 C33 18 44 14 52 22 L62 36' fill='none' stroke='%237D8F7B' stroke-width='2.5' stroke-dasharray='6 5' stroke-linecap='round'/%3E%3Cpath d='M54 36 L64 40 L63 29' fill='%237D8F7B' stroke='%237D8F7B' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat;}
+  @keyframes r0Hint{0%,100%{transform:none}50%{transform:translateY(-4px)}}
+  /* 一天打卡完的日記頁：加上貓咪對話框 */
+  #tab-diary .day-done-cat{position:absolute;inset:0;margin:auto;width:min(100%, calc(100vh * 411 / 874));height:auto;
+    pointer-events:none;display:none;align-self:center;}
+  #tab-diary.day-done .day-done-cat{display:block;animation:wcBubble .5s .3s cubic-bezier(.3,1.5,.5,1) both;}
+  #nav-btn-diary.has-new::after{content:'';position:absolute;right:6%;top:4%;width:12px;height:12px;border-radius:50%;
+    background:var(--red);border:2px solid #FAFAEB;animation:newDot 1.6s ease-in-out infinite;}
+  @keyframes newDot{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+  /* 冰室裡可以點的兩個地方：上方浮著的標籤 + 一圈一圈擴散的點擊提示 */
+  #btn-vending::before,#btn-board::before{position:absolute;left:50%;bottom:calc(100% + 6px);translate:-50% 0;white-space:nowrap;
+    padding:5px 12px 5px 10px;border-radius:14px;background:#FFFDF4;border:2.5px solid var(--cp-green);color:#4E3B30;
+    font:700 13px 'Kaiti TC','STKaiti','PingFang TC',serif;letter-spacing:.08em;box-shadow:0 3px 8px rgba(61,43,31,.2);
+    animation:hotLabel 1.8s ease-in-out infinite;pointer-events:none;}
+  #btn-vending::before{content:'👆 扭一顆';}
+  /* 記憶牆一開始大半在畫面左邊外面，標籤和光圈放在它靠右的那一側才看得到 */
+  #btn-board::before{content:'👆 記憶牆';bottom:auto;top:30%;left:calc(100% - 12px);translate:0 0;}
+  #btn-board::after{left:calc(100% - 26px);top:62%;}
+  #btn-vending::after,#btn-board::after{content:'';position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;
+    border-radius:50%;border:3px solid rgba(255,255,255,.95);box-shadow:0 0 0 3px rgba(227,155,46,.55),0 0 14px rgba(255,214,107,.9);
+    animation:hotRing 1.8s ease-out infinite;pointer-events:none;}
+  @keyframes hotLabel{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes hotRing{0%{transform:scale(.5);opacity:1}80%,100%{transform:scale(1.6);opacity:0}}
+  /* 結算動畫 */
+  #r2-fx{position:absolute;inset:0;z-index:2;pointer-events:none;}
+  #r2-fx div{position:absolute;background-repeat:no-repeat;}
+  #r2-wrap.fx #r2-base{clip-path:inset(0 0 26.9% 0);}
+  #r2-fx .r2-panel{animation:r2PanelUp .65s cubic-bezier(.2,.9,.3,1) both;}
+  #r2-fx .r2-cover{z-index:1;}
+  #r2-fx .r2-num{z-index:2;display:flex;align-items:center;justify-content:center;
+    font:700 calc(var(--rw,400px)*.034) 'Songti TC','Noto Serif TC',serif;color:#586F55;}
+  #r2-fx .r2-num.pop{animation:r2NumPop .35s cubic-bezier(.3,1.8,.5,1);}
+  #r2-fx .r2-item{z-index:2;animation:r2ItemIn .5s cubic-bezier(.3,1.6,.5,1) both;}
+  #r2-fx .r2-ok{z-index:2;animation:r2ItemIn .5s cubic-bezier(.3,1.5,.5,1) both;}
+  #r2-fx .r2-shine{z-index:3;border-radius:50%;background:radial-gradient(circle,rgba(255,238,125,.75),rgba(255,238,125,0) 70%);
+    animation:r2Shine .7s ease-out both;}
+  @keyframes r2PanelUp{from{transform:translateY(100%)}to{transform:none}}
+  @keyframes r2NumPop{50%{transform:scale(1.35)}}
+  @keyframes r2ItemIn{0%{opacity:0;transform:translateY(14px) scale(.3)}100%{opacity:1;transform:none}}
+  @keyframes r2Shine{0%{opacity:0;transform:scale(.3)}40%{opacity:1}100%{opacity:0;transform:scale(1.4)}}
+  /* 日記頁：乾淨底圖 + 打卡點一個一個出現（座標為 frame-recap.png 的 1206×2622 像素） */
+  .dd{position:relative;aspect-ratio:1206/2622;}
+  .dd>img{position:absolute;display:block;pointer-events:none;}
+  .dd>.dd-base{left:0;top:0;width:100%;height:100%;}
+  .dd .dd-pt{opacity:0;}
+  .dd.play .dd-pt.p{animation:ddPin .6s cubic-bezier(.3,1.5,.5,1) both;transform-origin:50% 100%;}
+  .dd.play .dd-pt.a{animation:ddArrow .5s ease-out both;}
+  .dd.shown .dd-pt{opacity:1;}
+  @keyframes ddPin{0%{opacity:0;transform:translateY(-28px) scale(.6)}60%{opacity:1}100%{opacity:1;transform:none}}
+  @keyframes ddArrow{0%{opacity:1;clip-path:var(--from)}100%{opacity:1;clip-path:inset(0 0 0 0)}}
+  /* ── 日記編輯示範 ── */
+  #ed-root{position:absolute;inset:0;z-index:3;pointer-events:none;}
+  #ed-root>*{position:absolute;}
+  #ed-panel{left:0;top:71.6%;width:100%;height:25.4%;background-repeat:no-repeat;background-size:100% auto;pointer-events:none;}
+  .ed-hit{position:absolute;background:none;border:none;padding:0;cursor:pointer;pointer-events:auto;border-radius:10px;-webkit-tap-highlight-color:transparent;}
+  /* 蓋住設計稿上「已選中」的格子，換成未選中的樣子（白底淺框 + 同一張貼紙） */
+  .ed-mask{position:absolute;pointer-events:none;border-radius:9px;background:#FDFDF7;box-sizing:border-box;
+    border:3px solid #DCE0DA;display:flex;align-items:center;justify-content:center;transition:opacity .25s;}
+  .recap-wrap .ed-mask img{max-width:72%;max-height:72%;object-fit:contain;}
+  .ed-mask.off{opacity:0;}
+  .ed-hit.pulse::after{content:'';position:absolute;inset:-4px;border-radius:12px;border:3px solid var(--cp-lemon);
+    animation:edPulse 1.3s ease-in-out infinite;}
+  @keyframes edPulse{0%,100%{opacity:.2;transform:scale(.96)}50%{opacity:1;transform:scale(1.04)}}
+  #ed-stickers{inset:0;}
+  .ed-stk{position:absolute;pointer-events:auto;touch-action:none;cursor:grab;user-select:none;-webkit-user-drag:none;
+    filter:drop-shadow(0 4px 8px rgba(61,43,31,.28));transition:filter .2s;}
+  .ed-stk.dragging{cursor:grabbing;filter:drop-shadow(0 10px 16px rgba(61,43,31,.35));}
+  .ed-stk.placed{filter:none;cursor:default;}
+  .ed-ghost{position:absolute;border:2.5px dashed var(--cp-green);border-radius:14px;background:rgba(255,238,125,.18);pointer-events:none;
+    animation:edPulse 1.3s ease-in-out infinite;}
+  #ed-hint{left:50%;top:66.5%;translate:-50% 0;white-space:nowrap;padding:6px 14px;border-radius:14px;background:var(--cp-paper);
+    border:2px solid var(--cp-green);font:700 13px 'Kaiti TC','STKaiti',serif;color:var(--cp-brown);letter-spacing:.08em;
+    opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 3px 8px rgba(61,43,31,.15);}
+  #ed-hint.show{opacity:1;}
+  #location-control.mock-hidden{display:none !important;}
   #location-status{display:block;margin-top:3px;font-size:11px;font-weight:400;}
   .compass-btn{
     position:absolute;z-index:520;
@@ -837,7 +1133,7 @@
     position:absolute;
     top:var(--gps-btn-top);left:var(--gps-btn-left);
     width:var(--gps-btn-w);height:var(--gps-btn-h);
-    background:rgba(255,0,0,0.35);border:none;cursor:pointer;border-radius:6px;
+    background:none;border:none;cursor:pointer;border-radius:6px;
   }
 
   /* ── FRAME 222 – popup compagno navigazione (basso-destra) ── */
@@ -861,15 +1157,27 @@
     z-index:850;
     display:none;pointer-events:none;
   }
-  #arrival-overlay.show{display:block;}
-  #arrival-overlay img{display:block;width:min(100vw,364px);height:auto;}
+  #arrival-overlay.show{display:block;pointer-events:auto;cursor:pointer;}
+  #arrival-overlay img{display:block;width:min(100vw,364px);height:auto;position:relative;z-index:1;}
+  #arrival-overlay::before{content:'';position:absolute;left:50%;top:50%;width:150%;aspect-ratio:2.2;translate:-50% -50%;border-radius:50%;
+    background:radial-gradient(ellipse,rgba(255,236,170,.75) 0%,rgba(255,236,170,.25) 45%,transparent 70%);opacity:0;}
+  #arrival-overlay.show::before{animation:arrGlow 1.4s .2s ease-out both,arrGlowPulse 2s 1.6s ease-in-out infinite;}
+  #arrival-overlay.show img{animation:arrIn .9s cubic-bezier(.3,1.45,.5,1) both,arrBob 1.8s .9s ease-in-out infinite;}
+  #arrival-overlay.out img{animation:arrOut .5s ease-in forwards;}
+  #arrival-overlay.out::before{animation:arrOutGlow .5s ease-in forwards;}
+  @keyframes arrIn{0%{opacity:0;transform:translateY(40px) scale(.55) rotate(-4deg)}60%{opacity:1}100%{transform:none}}
+  @keyframes arrBob{0%,100%{transform:none}50%{transform:translateY(-5px)}}
+  @keyframes arrOut{to{opacity:0;transform:translateY(-16px) scale(.92)}}
+  @keyframes arrGlow{from{opacity:0;scale:.5}to{opacity:1;scale:1}}
+  @keyframes arrGlowPulse{0%,100%{opacity:1}50%{opacity:.6}}
+  @keyframes arrOutGlow{from{opacity:1}to{opacity:0}}
 
   /* ── STORE PANNABILE ── */
   #store-pan-wrap{
     position:absolute;inset:0;
     overflow:hidden;
     display:flex;align-items:center;justify-content:center;
-    background:white;
+    background:#F5ECD7; /* 冰室圖片外圍是透明的（原本的 jpg 是黑底），用奶油色墊底 */
     cursor:grab;touch-action:none;
   }
   #store-pan-wrap:active{cursor:grabbing;}
@@ -1039,6 +1347,21 @@
     width:100%;height:auto;display:block;
     pointer-events:none;position:relative;z-index:2;
   }
+  #nw-mine{display:none;}
+  #nw-mine.show{display:block;}
+  #nw-mine>*{position:absolute;z-index:3;}
+  /* 位置以寬度換算（原圖 920 寬的座標），插入新卡片後高度會變 */
+  #nw-mine .nw-photo{left:23.6%;top:calc(var(--nww)*.6685);width:15.8%;height:calc(var(--nww)*.1587);object-fit:cover;background:#FFFCF8;border-radius:2px;}
+  #nw-mine .nw-avatar{left:42.1%;top:calc(var(--nww)*.6717);width:6.3%;aspect-ratio:1;border-radius:50%;background:#FAFAEB;
+    border:2px solid #B9A493;box-sizing:border-box;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+  #nw-mine .nw-avatar img{width:115%;height:115%;object-fit:cover;}
+  #nw-mine .nw-name{left:49.3%;top:calc(var(--nww)*.6848);width:40%;height:calc(var(--nww)*.0457);background:#FFFCF8;display:flex;align-items:center;
+    font:700 calc(var(--nww,400px)*.03) 'Kaiti TC','STKaiti',serif;color:#4E3325;letter-spacing:.04em;}
+  #nw-mine .nw-text{left:42%;top:calc(var(--nww)*.7457);width:47.5%;height:calc(var(--nww)*.0739);margin:0;background:#FFFCF8;
+    font:600 calc(var(--nww,400px)*.0235)/1.65 'Kaiti TC','STKaiti',serif;color:#6B5A4E;letter-spacing:.06em;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  #nw-card-wrap{max-height:100%;overflow-y:auto;scrollbar-width:none;}
+  #nw-card-wrap::-webkit-scrollbar{display:none;}
   #btn-nw-back{
     position:absolute;
     top:var(--diary-back-top);left:var(--diary-back-left);
@@ -1185,13 +1508,41 @@
   ══════════════════════════════════════ */
   #view-ar{
     position:absolute;inset:0;z-index:800;
-    background:#000;display:none;
+    background:#F6F1E3;display:none;
   }
+  /* 相框：蓋住 photo-frame.png 上畫的框（位置與原圖一致），照片/鏡頭放在框內 */
+  #ar-polaroid{position:absolute;left:6.86%;top:21.24%;width:86.2%;height:45.2%;z-index:3;
+    border-radius:14px;background:var(--frame-color,#FDFBE8);box-shadow:0 4px 14px rgba(61,43,31,.12);
+    transition:background-color .35s ease;}
+  #ar-polaroid.pop{animation:arFramePop .4s cubic-bezier(.3,1.6,.5,1);}
+  #ar-window{position:absolute;left:3.9%;top:3.45%;width:92.2%;height:81.6%;overflow:hidden;border-radius:6px;background:#E9E3D3;}
+  #ar-window .ar-bg{opacity:1;}
+  .ar-frame-foot{position:absolute;left:5%;right:5%;bottom:0;height:15%;display:flex;align-items:center;justify-content:space-between;
+    font:700 clamp(13px,4.2vw,18px) 'Songti TC','Noto Serif TC',serif;color:var(--frame-ink,#9B8F86);letter-spacing:.04em;transition:color .35s;}
+  #ar-cat{position:absolute;right:3%;bottom:0;width:38%;z-index:2;filter:drop-shadow(0 3px 6px rgba(0,0,0,.18));
+    cursor:grab;touch-action:none;user-select:none;-webkit-user-drag:none;transition:filter .2s,scale .2s;}
+  #ar-cat.dragging{cursor:grabbing;scale:1.06;filter:drop-shadow(0 8px 14px rgba(0,0,0,.28));}
+  #ar-cat.in{animation:arCatIn .6s cubic-bezier(.3,1.5,.5,1) both;}
+  #view-ar.confirm #ar-cat{display:none;}
+  #ar-flash{position:absolute;inset:0;background:#FFF;opacity:0;pointer-events:none;z-index:3;}
+  #ar-flash.go{animation:arFlash .45s ease-out;}
+  /* 色票按鈕直接疊在 photo-frame.png 畫好的色圈上 */
+  #ar-swatches{position:absolute;left:14.9%;top:12.5%;width:70.2%;height:6.5%;z-index:4;}
+  #view-ar.confirm #ar-swatches{display:none;}
+  #ar-swatches button{position:absolute;top:17.5%;height:65%;aspect-ratio:1;translate:-50% 0;border-radius:50%;
+    border:2px solid var(--cp-green-tint20);padding:0;cursor:pointer;background:var(--c);box-shadow:0 0 0 5px #F8F9EC;
+    transition:scale .2s cubic-bezier(.3,1.6,.5,1),box-shadow .2s;}
+  #ar-swatches button:active{scale:.85;}
+  #ar-swatches button.on{scale:1.06;box-shadow:0 0 0 3px #F8F9EC,0 0 0 5px var(--cp-green-tint20);}
+  @keyframes arFramePop{0%{transform:scale(1)}40%{transform:scale(1.025)}100%{transform:scale(1)}}
+  @keyframes arCatIn{0%{opacity:0;transform:translateY(40%) scale(.4) rotate(-12deg)}100%{opacity:1;transform:none}}
+  @keyframes arFlash{0%{opacity:.9}100%{opacity:0}}
   #view-ar.show{display:block;}
   #ar-video{
     position:absolute;inset:0;width:100%;height:100%;
     object-fit:cover;z-index:1;display:none;
   }
+  #view-ar.confirm #ar-video{display:none !important;}
   .ar-bg{
     position:absolute;inset:0;
     background-size:cover;background-position:center;
@@ -1438,13 +1789,15 @@
   }
   /* nasconde il placeholder immagine rotta finché nessuna emoji è scelta */
   #view-emoji-select:not(.emoji-picked) #emi-selected img{ display:none; }
+  /* 版面固定：左邊是表情格，右邊是文字欄（跟設計稿一致） */
   #emi-text-box{
     position:absolute;
     left:41.04%;top:32.2%;
     width:43.53%;height:19.75%;
-    z-index:3;pointer-events:none;
-    font-family:'Nunito',sans-serif;font-size:14px;font-weight:bold;
-    color:#4E3325;line-height:1.5;
+    z-index:3;pointer-events:auto;
+    background:transparent;border:none;outline:none;resize:none;padding:0;box-sizing:border-box;
+    font-family:'Kaiti TC','STKaiti','Songti TC',serif;font-size:14px;font-weight:700;letter-spacing:.06em;
+    color:#4E3325;line-height:1.7;
     overflow:hidden;display:flex;align-items:flex-start;
     white-space:pre-wrap;word-break:break-word;
   }
@@ -1466,7 +1819,7 @@
   #emi-keyboard-wrap::-webkit-scrollbar{display:none;}
   .emi-grid{
     display:grid;grid-template-columns:repeat(4,1fr);
-    gap:6px;padding:14.18% 2% 20px;box-sizing:border-box;
+    gap:6px;padding:14.18% 2% 96px;box-sizing:border-box;
   }
   .emi-btn{
     background:none;border:none;cursor:pointer;
@@ -1475,10 +1828,23 @@
   .emi-btn:active{background:rgba(255,255,255,.15);}
   .emi-btn.picked{outline:2px solid #c9a978;}
   .emi-btn img{width:100%;height:auto;display:block;}
-  /* emoji picked: hide keyboard, show confirm overlay */
-  #view-emoji-select.emoji-picked #emi-keyboard-area{display:none;}
-  #emi-card-confirm{position:absolute;inset:0;z-index:10;display:none;cursor:pointer;}
-  #view-emoji-select.emoji-picked #emi-card-confirm{display:block;}
+  /* 選了表情：鍵盤保留，可以換表情或繼續打字 */
+  /* 用紙張底色蓋住卡片圖上畫的透明格子佔位 */
+  #view-emoji-select.emoji-picked #emi-selected{background:#FCFBEF;border-radius:10px;}
+  #emi-selected{pointer-events:auto !important;cursor:pointer;}
+  /* 「選擇完成」只把表情鍵盤收下去 */
+  #emi-keyboard-area,#emi-done-bar{transition:transform .35s cubic-bezier(.3,.8,.3,1);}
+  #view-emoji-select.kb-hidden #emi-keyboard-area,#view-emoji-select.kb-hidden #emi-done-bar{transform:translateY(105%);pointer-events:none;}
+  /* 和「選擇完成」同款的墨綠雙框按鈕，剛好蓋住卡片下方原本的橫幅 */
+  #emi-flip-btn{position:absolute;left:7.5%;top:81.6%;width:89.5%;--h:auto;height:5.4%;z-index:4;display:none;}
+  #view-emoji-select.kb-hidden #emi-flip-btn{display:flex;animation:flipBtnIn .4s .15s cubic-bezier(.3,1.5,.5,1) both;}
+  @keyframes flipBtnIn{from{opacity:0;transform:translateY(10px) scale(.92)}to{opacity:1;transform:none}}
+  #emi-text-box::placeholder{color:rgba(78,51,37,.35);}
+  #view-emoji-select.emoji-picked #emi-selected img{animation:emiPop .35s cubic-bezier(.3,1.6,.5,1);}
+  @keyframes emiPop{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+  /* 底部的「選擇完成」：固定在表情鍵盤最下面，樣式跟 App 其他雙框按鈕一致 */
+  #emi-done-bar{position:absolute;left:50%;bottom:0;translate:-50% 0;width:min(100%,402px);z-index:3;box-sizing:border-box;
+    padding:14px 18px 20px;background:linear-gradient(to bottom,rgba(250,250,235,0),rgb(250,250,235) 30%);}
 
   /* ══════════════════════════════════════
      NOTE RESULT VIEW (HISTORY CARD)
@@ -1513,6 +1879,10 @@
     object-fit:cover;
     transform:rotate(var(--note-photo-rot));
     z-index:1;
+  }
+  #note-photo.framed,#emi-user-photo.framed,#nr-photo.framed{
+    left:76.3%;top:19.5%;width:31.5%;height:auto;object-fit:fill;z-index:3;
+    transform:translate(-50%,-50%) rotate(10deg);border-radius:6px;box-shadow:0 3px 8px rgba(61,43,31,.25);
   }
   #nr-note-text{
     display:none;
@@ -1797,6 +2167,8 @@
     flex-shrink:0;
   }
   .recap-wrap img{width:100%;height:auto;display:block;pointer-events:none;position:relative;z-index:2;}
+  .recap-wrap #ed-root img{position:static;z-index:auto;width:auto;height:auto;}
+  .recap-wrap #ed-root img.ed-stk{position:absolute;pointer-events:auto;display:block;}
 
   /* ── DIARY 1 OVERLAY ── */
   #view-diary1{
@@ -1893,12 +2265,22 @@
 <body>
 <div id="app">
   <div id="schermata-recap0">
-    <div style="position:relative;width:min(100%,calc(100vh * 420 / 874));">
-      <img src="assets/recap0.png?v=1780408764" alt="" style="width:100%;height:auto;display:block;">
+    <div id="r0-wrap" style="position:relative;width:min(100%,calc(100vh * 420 / 874));">
+      <img id="r0-base" src="assets/recap0.png?v=1780408764" alt="" style="width:100%;height:auto;display:block;">
+      <!-- 拉開抽屜時用的三層：後排文件夾、抽出來的那一頁、前排文件夾（都是同一張圖切出來的） -->
+      <img class="r0-layer" id="r0-back" src="assets/recap0.png?v=1780408764" alt="" onclick="event.stopPropagation();closeDrawer()">
+      <div id="r0-page" onclick="event.stopPropagation()"><div id="r0-pagebox" class="dd"></div></div>
+      <img class="r0-layer" id="r0-front" src="assets/recap0.png?v=1780408764" alt="" onclick="event.stopPropagation();closeDrawer()">
+      <div id="r0-pull-hint">點擊拉開抽屜</div>
 
-      <!-- scheda in basso → apre recap2 (loop) -->
-      <button onclick="event.stopPropagation();openRecapMain()"
-              style="position:absolute;top:var(--r0-card-top);left:var(--r0-card-left);width:var(--r0-card-w);height:var(--r0-card-h);background:none;border:none;cursor:pointer;z-index:3;touch-action:manipulation;"></button>
+      <!-- 抽屜裡的日期文件夾：點哪一個就把那份抽出來 -->
+      <button class="r0-tab" style="left:47.3%;top:66.75%;width:28.6%;height:3.25%" onclick="event.stopPropagation();pullDiary(this,'2026.5.10')" aria-label="2026.5.10"></button>
+      <button class="r0-tab" style="left:52.5%;top:70%;width:31.7%;height:3.25%" onclick="event.stopPropagation();pullDiary(this,'2026.5.11')" aria-label="2026.5.11"></button>
+      <button class="r0-tab" style="left:10.4%;top:72.5%;width:34.3%;height:4.6%" onclick="event.stopPropagation();pullDiary(this,'2026.5.12')" aria-label="2026.5.12"></button>
+      <button class="r0-tab" style="left:50.4%;top:75.75%;width:33.3%;height:3.25%" onclick="event.stopPropagation();pullDiary(this,'2026.5.13')" aria-label="2026.5.13"></button>
+      <button class="r0-tab" style="left:22.3%;top:78.75%;width:32.7%;height:2.5%" onclick="event.stopPropagation();pullDiary(this,'2026.5.14')" aria-label="2026.5.14"></button>
+      <button class="r0-tab" style="left:49.9%;top:79.5%;width:33.8%;height:3.75%" onclick="event.stopPropagation();pullDiary(this,'2026.5.15')" aria-label="2026.5.15"></button>
+      <div id="r0-hint"></div>
     </div>
   </div>
 
@@ -1989,15 +2371,32 @@
   </div>
 
   <!-- ══ LOGIN SCREEN 1 ══ -->
-  <div id="view-login1">
-    <img class="login-bg" src="assets/login1.png" alt="Login Screen 1">
-    <button id="btn-l1-main" onclick="showLogin2()"></button>
+  <div id="view-login1" class="auth-view" data-img="assets/login1.png" style="--auth-btn-color:#B15045">
+    <img class="login-bg" src="assets/login1.png" alt="CityPaws 登入">
+    <div class="auth-slice auth-field" data-rect="146,640,512,88"><input id="l1-phone" type="tel" inputmode="numeric" maxlength="11" placeholder="手機號碼" autocomplete="tel"></div>
+    <div class="auth-slice auth-field" data-rect="146,752,512,88"><input id="l1-pwd" class="has-eye" type="password" placeholder="輸入密碼" autocomplete="current-password"><button class="auth-eye" type="button" aria-label="顯示密碼"></button></div>
+    <button class="auth-slice" data-rect="338,858,126,38" onclick="authForgot()" aria-label="忘記密碼"></button>
+    <div class="auth-msg" id="l1-msg" data-rect="120,930,564,100" role="status"></div>
+    <button class="auth-slice auth-btn" id="btn-l1-main" data-rect="218,1068,368,80" onclick="authLogin()" aria-label="登錄"><span class="auth-loading"><i></i><i></i><i></i></span></button>
+    <button class="auth-slice" data-rect="428,1205,106,40" onclick="showAuth('view-login2')" aria-label="立刻注冊"></button>
   </div>
 
   <!-- ══ LOGIN SCREEN 2 ══ -->
-  <div id="view-login2">
-    <img class="login-bg" src="assets/login2.png" alt="Login Screen 2">
-    <button id="btn-l2-main" onclick="startOnboarding()"></button>
+  <div id="view-login2" class="auth-view" data-img="assets/login2.png" style="--auth-btn-color:#A83A2D">
+    <img class="login-bg" src="assets/login2.png" alt="CityPaws 注冊">
+    <div class="auth-slice auth-field" data-rect="146,640,512,88"><input id="l2-name" type="text" maxlength="20" placeholder="用戶名" autocomplete="nickname"></div>
+    <div class="auth-slice auth-field" data-rect="146,752,512,88"><input id="l2-phone" type="tel" inputmode="numeric" maxlength="11" placeholder="手機號碼" autocomplete="tel"></div>
+    <div class="auth-slice auth-field" data-rect="146,864,512,88"><input id="l2-pwd" class="has-eye" type="password" placeholder="輸入密碼" autocomplete="new-password"><button class="auth-eye" type="button" aria-label="顯示密碼"></button></div>
+    <div class="auth-slice auth-field" data-rect="146,976,512,88"><input id="l2-pwd2" class="has-eye" type="password" placeholder="確認密碼" autocomplete="new-password"><button class="auth-eye" type="button" aria-label="顯示密碼"></button></div>
+    <button class="auth-slice auth-check" id="l2-agree" data-rect="200,1078,130,44" onclick="this.classList.toggle('on');this.classList.remove('err');document.getElementById('l2-msg').classList.remove('show')" aria-label="我同意條款"></button>
+    <button class="auth-slice" data-rect="330,1082,102,36" onclick="authSheet('terms')" aria-label="服務條款"></button>
+    <button class="auth-slice" data-rect="472,1082,126,36" onclick="authSheet('privacy')" aria-label="隱私權政策"></button>
+    <div class="auth-msg" id="l2-msg" data-rect="100,1122,604,52" role="status"></div>
+    <button class="auth-slice auth-btn" id="btn-l2-main" data-rect="218,1176,368,80" onclick="authRegister()" aria-label="建立賬號"><span class="auth-loading"><i></i><i></i><i></i></span></button>
+    <button class="auth-slice" data-rect="418,1312,104,40" onclick="showAuth('view-login1')" aria-label="立刻登入"></button>
+    <div class="auth-sheet" id="auth-sheet" onclick="if(event.target===this)this.classList.remove('show')">
+      <div class="auth-sheet-card"><h3 id="auth-sheet-title"></h3><div id="auth-sheet-body"></div><button class="cp-btn cp-btn--solid cp-btn--lg cp-btn--block" onclick="document.getElementById('auth-sheet').classList.remove('show')">我知道了</button></div>
+    </div>
   </div>
 
   <!-- ══ ONBOARDING ══ -->
@@ -2010,6 +2409,26 @@
       <img src="assets/hm5.jpg" loading="lazy" alt="">
       <img src="assets/hm6.jpg" loading="lazy" alt="">
     </div>
+  </div>
+  <!-- 引導頁的頁碼點：獨立固定，不跟圖片一起滑（蓋住圖片裡原本畫的點） -->
+  <div id="ob-dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><b></b></div>
+
+  <!-- 進入地圖：撥開雲霧 -->
+  <div id="cloud-reveal" aria-hidden="true">
+    <div class="fog"></div>
+    <div class="cloud" style="left:-30%;top:-8%;--dx:-130%;--dy:-20%"></div>
+    <div class="cloud" style="left:35%;top:-12%;--dx:120%;--dy:-30%"></div>
+    <div class="cloud" style="left:-35%;top:22%;--dx:-140%;--dy:0%"></div>
+    <div class="cloud" style="left:40%;top:28%;--dx:140%;--dy:5%"></div>
+    <div class="cloud" style="left:-25%;top:55%;--dx:-130%;--dy:20%"></div>
+    <div class="cloud" style="left:30%;top:62%;--dx:130%;--dy:30%"></div>
+    <div class="cloud" style="left:5%;top:38%;--dx:0%;--dy:140%"></div>
+  </div>
+
+  <!-- 第一次進入地圖的貓咪歡迎語 -->
+  <div id="welcome-cat" role="status" onclick="closeWelcomeCat()">
+    <img src="assets/Lucky1.png" alt="">
+    <div class="wc-bubble"><span id="wc-text"></span><small>點一下開始探索 🐾</small></div>
   </div>
 
   <!-- ══ TOAST (top) ══ -->
@@ -2043,7 +2462,7 @@
       <div class="shop-side-btns" id="shop-side-btns">
         <button class="shop-side-btn" id="mem-side-btn" onclick="openDiary1()"><img src="assets/Memoryicon.png" style="width:100%;height:100%;object-fit:contain;display:block;"></button>
         <button class="shop-side-btn" id="inv-side-btn" onclick="openShopModal('inventario')"><img src="assets/inventaryicon.png" style="width:100%;height:100%;object-fit:contain;display:block;"></button>
-        <button class="shop-side-btn" id="f219-side-btn"><img src="assets/frame-star.png" style="width:100%;height:100%;object-fit:contain;display:block;"></button>
+        <button class="shop-side-btn" id="f219-side-btn" onclick="openLaterList()" aria-label="稍後探索"><span id="later-badge"></span><img src="assets/frame-star.png" style="width:100%;height:100%;object-fit:contain;display:block;"></button>
       </div>
     </div>
     <button class="compass-btn" onclick="recenter()">
@@ -2070,10 +2489,10 @@
         </div>
       </div>
     </div>
-    <div class="tab-screen" id="tab-shop" style="padding:0;overflow:hidden;background:white;">
+    <div class="tab-screen" id="tab-shop" style="padding:0;overflow:hidden;background:#F5ECD7;">
       <!-- immagine store pannabile -->
       <div id="store-pan-wrap">
-        <img id="store-bg-img" src="assets/frame186.jpg" alt="store">
+        <img id="store-bg-img" src="assets/frame186.png" alt="store">
       </div>
       <button id="btn-vending" onclick="openShopModal('minigioco')"></button>
       <button id="btn-board" onclick="openDiary1()"></button>
@@ -2287,7 +2706,8 @@
       </div>
     </div>
     <div class="tab-screen" id="tab-diary" style="background:#F5ECD7 url('assets/diary.jpg') center/cover no-repeat;padding:0;overflow:hidden;align-items:center;justify-content:center;">
-      <img src="assets/frame-recap.png?v=1780420554" style="width:min(100%, calc(100vh * 411 / 874));height:auto;display:block;pointer-events:none;">
+      <div class="dd" id="td-day" style="width:min(100%, calc(100vh * 411 / 874));pointer-events:none;"></div>
+      <img class="day-done-cat" src="assets/frame-recap0.png" alt="">
     </div>
     <div class="tab-screen" id="tab-ar" style="background:#FAF4E8;padding:0;">
       <div style="position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;">
@@ -2330,8 +2750,10 @@
 
     <!-- ══ RECAP2 ══ -->
     <div id="view-recap2">
-      <div class="recap-wrap">
-        <img src="assets/frame-recap2.png?v=1780418217" alt="">
+      <div class="recap-wrap" id="r2-wrap">
+        <img id="r2-base" src="assets/frame-recap2.png?v=1780418217" alt="">
+        <!-- 今日漫步完成：結算動畫（面板滑上來 → 數字跳動 → 探險一個個彈出 → 確認） -->
+        <div id="r2-fx"></div>
         <!-- bottone verde Conferma → apre recap3 -->
         <!-- bottone top-right → apre recap6 direttamente -->
         <button onclick="event.stopPropagation();apriRecap6()"
@@ -2348,9 +2770,12 @@
         <!-- bottone top-right → apre recap6 direttamente -->
         <button onclick="event.stopPropagation();apriRecap6()"
                 style="position:absolute;top:var(--recap3-tr-top);left:var(--recap3-tr-left);width:var(--recap3-tr-w);height:var(--recap3-tr-h);background:none;border:none;cursor:pointer;z-index:4;touch-action:manipulation;"></button>
-        <!-- bottone zona emoji → apre recap4 – sposta con le variabili in :root -->
-        <button onclick="event.stopPropagation();addRecap4()"
-                style="position:absolute;top:var(--recap3-emoji-top);left:var(--recap3-emoji-left);width:var(--recap3-emoji-w);height:var(--recap3-emoji-h);background:none;border:none;cursor:pointer;z-index:3;touch-action:manipulation;"></button>
+        <!-- 編輯示範：點面板上的貼紙 → 拖到地圖上 → 吸附到設計稿的位置；分頁和面板都切自設計稿圖片 -->
+        <div id="ed-root" onclick="event.stopPropagation()">
+          <div id="ed-panel"></div>
+          <div id="ed-stickers"></div>
+          <div id="ed-hint"></div>
+        </div>
       </div>
     </div>
 
@@ -2383,7 +2808,7 @@
     <div id="view-recap5-1">
       <div class="recap-wrap">
         <img src="assets/frame-recap5-1.png?v=1780421637" alt="">
-        <button onclick="event.stopPropagation();document.getElementById('view-recap5-1').style.display='none';openRecap5();"
+        <button onclick="event.stopPropagation();document.getElementById('view-recap5-1').style.display='none';document.getElementById('view-recap3').style.display='flex';edShowTab('custom');"
                 style="position:absolute;top:var(--diary-back-top);left:var(--diary-back-left);width:var(--diary-back-w);height:var(--diary-back-h);background:none;border:none;cursor:pointer;z-index:3;touch-action:manipulation;-webkit-appearance:none;appearance:none;"></button>
         <!-- primo riquadro → apre recap5.2 -->
         <button onclick="event.stopPropagation();openRecap5_2()"
@@ -2729,6 +3154,13 @@
     <div id="nw-bg"></div>
     <div id="nw-card-wrap">
       <img id="nw-ui-img" src="assets/frame%20893.png" alt="">
+      <!-- 自己剛留的言：蓋在「剛剛」那張卡上（原圖 920×2000 座標換成百分比） -->
+      <div id="nw-mine">
+        <img class="nw-photo" alt="">
+        <span class="nw-avatar"><img alt=""></span>
+        <span class="nw-name"></span>
+        <p class="nw-text"></p>
+      </div>
       <button id="btn-nw-back" onclick="closeNoteWindow()"></button>
     </div>
   </div>
@@ -2743,8 +3175,17 @@
       <button id="popup-cam-btn" onclick="event.stopPropagation();startCheckin()"
         style="display:none;position:absolute;bottom:var(--cb-cam-bottom);right:var(--cb-cam-right);width:var(--cb-cam-w);height:var(--cb-cam-h);background:none;border:none;cursor:pointer;touch-action:manipulation;z-index:2;">
       </button>
+      <!-- 理工大學：未到達卡片（checkinpolyu.png） -->
+      <div id="popup-polyu-far" style="display:none">
+        <span id="polyu-dist"></span>
+        <button class="pf-btn" style="left:19.8%;top:75.7%;width:24.4%;height:9.4%" onclick="event.stopPropagation();closePopup()" aria-label="下次吧"></button>
+        <button class="pf-btn" style="left:46.9%;top:75.2%;width:32.4%;height:10.2%" onclick="event.stopPropagation();startWalking()" aria-label="喵，出發"></button>
+        <button class="pf-btn" id="pf-save" style="left:60.3%;top:8.8%;width:39.5%;height:15.2%" onclick="event.stopPropagation();toggleSave()" aria-label="稍後探索"></button>
+      </div>
       <!-- bottoni overlay -->
       <div id="popup-overlay-btns">
+        <!-- 稍後探索（一般錨點卡片右上角） -->
+        <button class="pf-btn" id="pf-save2" style="position:absolute;left:60.3%;top:8.8%;width:39.5%;height:15.2%;background:none;border:none;cursor:pointer;z-index:3;" onclick="event.stopPropagation();toggleSave()" aria-label="稍後探索"></button>
         <!-- bottone grigio: chiudi -->
         <button onclick="event.stopPropagation();closePopup()"
           style="position:absolute;bottom:var(--cb-close-bottom);left:var(--cb-close-left);width:var(--cb-close-w);height:var(--cb-close-h);background:none;border:none;cursor:pointer;touch-action:manipulation;z-index:1;">
@@ -2785,9 +3226,17 @@
          style="position:fixed;opacity:0;width:70px;height:70px;display:none;z-index:9999;cursor:pointer"
          onchange="onCamInput(event)">
   <div id="view-ar">
-    <video id="ar-video" autoplay playsinline muted></video>
-    <div class="ar-bg" id="ar-bg"></div>
     <img id="photo-ui-img" src="assets/photo-frame.png?v=1780556523" alt="">
+    <div id="ar-swatches" role="radiogroup" aria-label="相框顏色"></div>
+    <div id="ar-polaroid">
+      <div id="ar-window">
+        <video id="ar-video" autoplay playsinline muted></video>
+        <div class="ar-bg" id="ar-bg"></div>
+        <img id="ar-cat" alt="">
+        <div id="ar-flash"></div>
+      </div>
+      <div class="ar-frame-foot"><span>時光貓跡 🐾</span><span id="ar-date"></span></div>
+    </div>
     <button id="ar-exit-btn" onclick="exitAR()"></button>
     <button id="ar-shutter" onclick="takePhoto()"></button>
     <button id="ar-flip-btn" onclick="flipCamera()"></button>
@@ -2828,10 +3277,12 @@
     <div id="emi-card-area">
       <img id="emi-card-img" src="assets/frame%20890.png" alt="">
       <img id="emi-user-photo" src="" alt="">
-      <div id="emi-selected"><img id="emi-selected-img" src="" alt=""></div>
-      <div id="emi-text-box"></div>
-      <div id="emi-card-confirm" style="cursor:pointer;touch-action:manipulation;" onclick="submitWithEmoji()"></div>
+      <div id="emi-selected" onclick="setEmojiKeyboard(true)"><img id="emi-selected-img" src="" alt=""></div>
+      <!-- 鍵盤收起後，蓋住卡片圖上的橫幅，換成「完成卡片」按鈕；點了翻面 -->
+      <button id="emi-flip-btn" class="cp-btn cp-btn--solid cp-btn--xl" onclick="submitWithEmoji()">完成卡片</button>
+      <textarea id="emi-text-box" maxlength="200" placeholder="想說點什麼？"></textarea>
     </div>
+    <div id="emi-done-bar"><button class="cp-btn cp-btn--solid cp-btn--xl cp-btn--block" onclick="setEmojiKeyboard(false)">選擇完成</button></div>
     <!-- keyboard: overlay anchored to bottom -->
     <div id="emi-keyboard-area">
       <div id="emi-keyboard-wrap">
@@ -2885,7 +3336,8 @@
     <div id="fc-bg"></div>
     <div id="fc-card-wrap">
       <img id="fc-ui-img" src="assets/frame%20892.png" alt="">
-      <button id="btn-fc-green" onclick="closeFoodcard()"></button>
+      <div class="fc-shine" aria-hidden="true"></div>
+      <button id="btn-fc-green" onclick="collectFoodcard()"></button>
     </div>
   </div>
 
@@ -2896,6 +3348,14 @@
 
   <div id="poi-notif">
     <img src="assets/notification.png" alt="notification">
+  </div>
+
+  <!-- 稍後探索清單 -->
+  <div id="later-sheet" onclick="if(event.target===this)closeLaterList()">
+    <div class="later-card">
+      <div class="later-head"><span>⭐ 稍後探索</span><button onclick="closeLaterList()" aria-label="關閉">✕</button></div>
+      <div id="later-list"></div>
+    </div>
   </div>
 </div><!-- /#app -->
 
@@ -3729,8 +4189,7 @@ const UserProfile=({user,onClose})=>{
       const pts=user.trailPoints||[];
       const mid=pts[Math.floor(pts.length/2)]||[22.305,114.174];
       const m=L.map(div,{center:mid,zoom:15,zoomControl:false,attributionControl:false});
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-        {subdomains:'abcd',maxZoom:19}).addTo(m);
+      addFakeMap(m);
 
       /* bloom + fog canvases attached to map container */
       const bc=document.createElement('canvas');
@@ -3924,7 +4383,7 @@ if(socialRoot) ReactDOM.createRoot(socialRoot).render(<SocialApp/>);
 // ═══════════════════════════════════════════════════════════
 
 // Posizione iniziale del giocatore
-const START = { lat: 22.30530, lng: 114.179319 };
+const START = { lat: 22.30321, lng: 114.17519 };  // 理工大學西南方約 500 米
 
 const PLACES = [
   {
@@ -4141,7 +4600,7 @@ const anchorMarks=[];
 const stickerMarks=[];
 
 /* ── ZOOM SOGLIA STICKER – modifica qui ── */
-const POI_STICKER_ZOOM = 17;
+const POI_STICKER_ZOOM = 14;  // 地圖最小縮放就是 15，解鎖後的表情集合一直可見
 /* ──────────────────────────────────────── */
 
 /* ── STICKER 252 – modifica qui ─────────────────────── */
@@ -4159,7 +4618,7 @@ function addStickerMark(idx){
   const m=L.marker([p.lat,p.lng],{
     icon:L.divIcon({
       className:'',
-      html:`<img src="assets/frame%20252.png" style="width:${w}px;height:${h}px;display:block;" draggable="false">`,
+      html:`<img class="poi-sticker" src="assets/frame%20252.png" style="width:${w}px;height:${h}px;display:block;" draggable="false">`,
       iconSize:[w,h],
       iconAnchor:[ax, ay]
     }),
@@ -4205,13 +4664,31 @@ function metersToPixels(lat,meters){
   return meters/(40075016.686*Math.cos(lat*Math.PI/180)/Math.pow(2,map.getZoom()+8));
 }
 
+// 模擬地圖：一張插畫地圖圖片，按尖沙咀／紅磡的大致經緯度鋪在 Leaflet 上
+const FAKE_MAP_BOUNDS=[[22.2894,114.1519],[22.3346,114.1944]];
+// 插畫地圖上手描的步行路線（座標是 1750×2000 顯示尺寸上的像素），沿著圖上畫的馬路走
+const FAKE_MAP_ROUTES={
+  polyu:[[958,1390],[958,1401],[1000,1403],[1018,1418],[1040,1380],[1060,1335],[1075,1305],[1100,1300],[1127,1298]]
+};
+function fakeMapLatLng([x,y]){
+  const [[s,w],[n,e]]=FAKE_MAP_BOUNDS;
+  return [n-(n-s)*y/2000, w+(e-w)*x/1750];
+}
+function addFakeMap(m){
+  L.imageOverlay('assets/fakemap.jpg',FAKE_MAP_BOUNDS).addTo(m);
+  m.setMaxBounds(L.latLngBounds(FAKE_MAP_BOUNDS).pad(.05));
+  m.setMinZoom(14.5);
+}
+
 function initMap(){
-  map=L.map('map',{center:[S.player.lat,S.player.lng],zoom:17,zoomControl:false,attributionControl:true});
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
-   maxZoom:19,
-    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(map);
+  map=L.map('map',{center:[S.player.lat,S.player.lng],zoom:16,maxZoom:18.5,zoomSnap:0.25,zoomDelta:0.5,wheelPxPerZoomLevel:90,zoomControl:false,attributionControl:false});
+  addFakeMap(map);
   map.on('zoomend', updateStickerVisibility);
+  map.on('moveend', ()=>setTimeout(checkVisibleAnchors,300));
+  const wake=()=>{ if(S.quietAfterCheckin){ S.quietAfterCheckin=false; setTimeout(checkVisibleAnchors,400); } };
+  map.on('dragstart',wake);
+  map.getContainer().addEventListener('wheel',wake,{passive:true});
+  map.getContainer().addEventListener('touchstart',e=>{ if(e.touches.length>1) wake(); },{passive:true});
 
   const _dotSz = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--player-dot-size')) || 14;
   const _dotGlow = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--player-dot-glow')) || 30;
@@ -4232,10 +4709,7 @@ function initMap(){
     S.player.lat=ll.lat;
     S.player.lng=ll.lng;
     playerRing.setLatLng(ll);
-    if(routeLine&&S.targetIdx!=null){
-      const t=PLACES[S.targetIdx];
-      routeLine.setLatLngs([[ll.lat,ll.lng],[t.lat,t.lng]]);
-    }
+    if(routeLine&&S.targetIdx!=null) setRoute(remainingRoute());
     map.panTo(ll,{animate:false});
     checkProximity();
     if(S.walkingMode) updateGpsBar();
@@ -4286,10 +4760,54 @@ function updatePlayerMap(){
   playerMark.setLatLng(ll);
   playerRing.setLatLng(ll);
   if(routeLine&&S.targetIdx!=null) scheduleRouteUpdate();
-  map.panTo(ll,{animate:true,duration:.25});
+  // 縮放動畫進行中不要跟隨，否則會打斷動畫讓底圖錯位
+  if(!map._cpFlying) map.panTo(ll,{animate:!S.walkingMode});
   checkProximity();
   if(S.walkingMode) updateGpsBar();
 }
+
+// 模擬定位：true 時不呼叫瀏覽器定位，改用 START 附近的假座標
+const MOCK_LOCATION=true;
+// 導航中會沿著路線自動往目的地走（每 0.2 秒 3 米，約 15 m/s 的示範速度）
+const MOCK_WALK_SPEED=15;   // 示範步行速度（米/秒），每一幀都移動，畫面才會順
+const mockPos={lat:START.lat,lng:START.lng};
+function mockStep(dist){
+  if(!S.walkingMode||S.targetIdx==null) return;
+  const t=PLACES[S.targetIdx];
+  // 依序沿著路線點走，S.routeIdx 是下一個要到的點
+  const pts=[...(S.routePath||[]),[t.lat,t.lng]];
+  if(S.routeIdx==null) S.routeIdx=0;
+  let left=dist;
+  while(left>0&&S.routeIdx<pts.length){
+    const [la,lo]=pts[S.routeIdx], d=hav(mockPos.lat,mockPos.lng,la,lo);
+    if(d<=left){ mockPos.lat=la; mockPos.lng=lo; left-=d; S.routeIdx++; }
+    else{ const k=left/d; mockPos.lat+=(la-mockPos.lat)*k; mockPos.lng+=(lo-mockPos.lng)*k; left=0; }
+  }
+}
+const mockGeolocation={
+  watchPosition(onSuccess){
+    // 重新開始模擬定位時，從玩家目前的位置接著走（鍵盤/拖動移動過也不會被拉回舊位置）
+    if(S.player){ mockPos.lat=S.player.lat; mockPos.lng=S.player.lng; }
+    let last=null, prevT=null;
+    const w={on:true};
+    const frame=t=>{
+      if(!w.on) return;
+      const dt=prevT==null?0:Math.min(.1,(t-prevT)/1000); prevT=t;
+      mockStep(MOCK_WALK_SPEED*dt);
+      // 沒在導航時位置不變就不重複回報，免得地圖一直被拉回中心
+      if(!(last&&last.lat===mockPos.lat&&last.lng===mockPos.lng)){
+        last={...mockPos};
+        onSuccess({coords:{latitude:mockPos.lat,longitude:mockPos.lng,accuracy:12}});
+      }
+      requestAnimationFrame(frame);
+    };
+    setTimeout(()=>requestAnimationFrame(frame),600);
+    return w;
+  },
+  clearWatch(w){ if(w) w.on=false; }
+};
+const geo=()=>MOCK_LOCATION?mockGeolocation:navigator.geolocation;
+if(MOCK_LOCATION) document.getElementById('location-control').classList.add('mock-hidden');
 
 let locationWatchId=null;
 function locationStatus(message){
@@ -4297,7 +4815,7 @@ function locationStatus(message){
   document.getElementById('location-control').setAttribute('aria-pressed',String(locationWatchId!==null));
 }
 function stopLiveLocation(){
-  if(locationWatchId!==null) navigator.geolocation.clearWatch(locationWatchId);
+  if(locationWatchId!==null) geo().clearWatch(locationWatchId);
   locationWatchId=null;
   if(playerMark) playerMark.dragging.enable();
   if(playerRing) playerRing.setRadius(PLAYER_RING_M);
@@ -4305,20 +4823,21 @@ function stopLiveLocation(){
 }
 function startLiveLocation(){
   if(locationWatchId!==null) return;
-  if(!window.isSecureContext){ locationStatus('定位需要 HTTPS 或 localhost'); return; }
-  if(!navigator.geolocation){ locationStatus('此瀏覽器不支援定位'); return; }
+  if(!MOCK_LOCATION&&!window.isSecureContext){ locationStatus('定位需要 HTTPS 或 localhost'); return; }
+  if(!geo()){ locationStatus('此瀏覽器不支援定位'); return; }
   if(!map||!playerMark||!playerRing){ locationStatus('地圖尚未就緒，請稍後重試'); return; }
   locationStatus('正在取得位置…');
   playerMark.dragging.disable();
   try{
-    locationWatchId=navigator.geolocation.watchPosition(pos=>{
+    locationWatchId=geo().watchPosition(pos=>{
       const {latitude,longitude,accuracy}=pos.coords;
       if(!Number.isFinite(latitude)||!Number.isFinite(longitude)) return;
       S.player.lat=latitude;
       S.player.lng=longitude;
       updatePlayerMap();
-      if(Number.isFinite(accuracy)) playerRing.setRadius(Math.max(1,accuracy));
-      locationStatus(Number.isFinite(accuracy)?`即時定位中 · 精度約 ${Math.round(accuracy)} 米 · 點擊關閉`:'即時定位中 · 點擊關閉');
+      if(Number.isFinite(accuracy)&&!MOCK_LOCATION) playerRing.setRadius(Math.max(1,accuracy));
+      if(S.walkingMode) return;
+      locationStatus(Number.isFinite(accuracy)?`${MOCK_LOCATION?'模擬':'即時'}定位中 · 精度約 ${Math.round(accuracy)} 米 · 點擊關閉`:'即時定位中 · 點擊關閉');
     },error=>{
       if(error.code===1){
         stopLiveLocation();
@@ -4339,7 +4858,7 @@ function toggleLiveLocation(){
 }
 function recenter(){
   startLiveLocation();
-  if(map) map.flyTo([S.player.lat,S.player.lng],17,{duration:.7});
+  if(map) map.flyTo([S.player.lat,S.player.lng],16,{duration:.7});
 }
 
 /* ═══════════════════════════════════════════════
@@ -4361,7 +4880,7 @@ function checkProximity(){
     // ── 300m: notifica ogni volta che il player entra nella zona ──
     const wasInRange = a.inRange;
     a.inRange = d <= 300;
-    if(!S.walkingMode && (a.status==='spawned'||a.status==='walking'||a.status==='near') && a.inRange && !wasInRange){
+    if(!S.walkingMode && !S.quietAfterCheckin && S.mapReady && (a.status==='spawned'||a.status==='walking'||a.status==='near') && a.inRange && !wasInRange){
       const p=PLACES[idx];
       const ds=Math.round(d)+'m';
       showToast('Anchor nearby!',`${p.name.replace('\n',' ')} — ${ds} away. Come check it out!`);
@@ -4371,8 +4890,14 @@ function checkProximity(){
     if((a.status==='spawned'||a.status==='walking')&&d<=30){
       a.status='near';
       if(S.targetIdx===idx){
-        if(routeLine){ map.removeLayer(routeLine); routeLine=null; }
+        clearRoute();
         S.walkingMode=false;
+        // 模擬定位：到達時直接站到點位上
+        if(MOCK_LOCATION){
+          const p=PLACES[idx];
+          mockPos.lat=S.player.lat=p.lat; mockPos.lng=S.player.lng=p.lng;
+          playerMark.setLatLng([p.lat,p.lng]); playerRing.setLatLng([p.lat,p.lng]);
+        }
         _showArrivedBar();
         _showArrivalOverlay(idx);
       } else if(S.currentPopup===idx){
@@ -4441,6 +4966,7 @@ function toggleProfile(){
 }
 
 function openRecapMain(){
+  setTimeout(()=>playDiaryDay(document.getElementById('td-day'),350),0);
   chiudiDiaryFlow();
   var td=document.getElementById('tab-diary');
   if(td){
@@ -4462,6 +4988,16 @@ function chiudiDiaryFlow(){
 }
 
 function switchTab(name){
+  // 換分頁時把朋友頁裡打開的「世界」等子頁一起關掉，不然會疊在新分頁上
+  const _sg=document.getElementById('view-social-global'); if(_sg&&name!=='social') _sg.style.display='none';
+  if(name==='diary'&&S.dayCompletePending){
+    S.dayCompletePending=false;
+    document.getElementById('nav-btn-diary').classList.remove('has-new');
+    openDayComplete();
+    const nav=document.getElementById('nav-bar-img');
+    if(nav) nav.src=_mapShopState==='shop'?'assets/navtabdiary2.png':'assets/Navtabdiary1.png';
+    return;
+  }
   chiudiDiaryFlow();
   ['social','shop','diary','ar','collection'].forEach(t=>{
     document.getElementById('tab-'+t).classList.toggle('show', t===name);
@@ -4474,7 +5010,7 @@ function switchTab(name){
       diary:  fromShop?'assets/navtabdiary2.png':'assets/Navtabdiary1.png',
       social: fromShop?'assets/navtabsocial2.png':'assets/Navtabsocial1.png',
     };
-    navImg.src=navSrcs[name]||'assets/NavigationTab.png?v=4';
+    navImg.src=navSrcs[name]||NAV_MAP_SRC;
   }
   const sim=document.getElementById('sim-panel');
   const topBar=document.querySelector('.top-bar');
@@ -4510,6 +5046,7 @@ function switchTab(name){
     /* mostra recap0 immediatamente come prima pagina */
     var r0=document.getElementById('schermata-recap0');
     if(r0) r0.style.display='flex';
+    document.getElementById('r0-wrap').classList.remove('open','closing');
     _showUI();
     document.getElementById('tab-diary').onclick=null;
   } else {
@@ -4646,7 +5183,70 @@ function _navClose(){
 function _showRecap(n){
   [2,3,4,5].forEach(i=>{ var el=document.getElementById('view-recap'+i); if(el) el.style.display=(i===n?'flex':'none'); });
 }
+/* 一天的打卡完成：先出現今日日記頁 + 貓咪「來看看今日收獲」，點一下進入今日漫步完成（圖2） */
+function openDayComplete(){
+  hideToast();
+  openRecapMain();
+  document.getElementById('shop-side-btns').style.display='none';
+  const _c=document.querySelector('.compass-btn'); if(_c) _c.style.display='none';
+  const td=document.getElementById('tab-diary');
+  td.classList.add('day-done');
+  _showUI();
+}
+/* 今日漫步完成的結算動畫：所有元件都從 frame-recap2.png 切出來，位置用原圖像素 */
+const R2_W=1211, R2_H=2627, R2_SRC='assets/frame-recap2.png?v=1780418217';
+function r2Box(el,[x,y,w,h],slice){
+  Object.assign(el.style,{left:x/R2_W*100+'%',top:y/R2_H*100+'%',width:w/R2_W*100+'%',height:h/R2_H*100+'%'});
+  if(slice){
+    el.style.backgroundImage=`url('${R2_SRC}')`;
+    el.style.backgroundSize=`${R2_W/w*100}% ${R2_H/h*100}%`;
+    el.style.backgroundPosition=`${x/((R2_W-w)||1)*100}% ${y/((R2_H-h)||1)*100}%`;
+  }
+  return el;
+}
+function r2El(cls,rect,slice,bg){
+  const el=document.createElement('div'); el.className=cls;
+  r2Box(el,rect,slice); if(bg) el.style.background=bg;
+  return el;
+}
+function countUp(el,from,to,fmt,dur){
+  const t0=performance.now();
+  (function step(t){
+    const k=Math.min(1,(t-t0)/dur), v=Math.round(from+(to-from)*(1-Math.pow(1-k,3)));
+    if(el.textContent!==fmt(v)){ el.textContent=fmt(v); el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+    if(k<1) requestAnimationFrame(step);
+  })(t0);
+}
+function playRecap2Fx(){
+  const wrap=document.getElementById('r2-wrap'), fx=document.getElementById('r2-fx');
+  fx.innerHTML=''; wrap.classList.add('fx');
+  wrap.style.setProperty('--rw',wrap.clientWidth+'px');
+  const PANEL=[0,1915,R2_W,R2_H-1915];
+  const panel=r2El('r2-panel',PANEL,true); fx.appendChild(panel);
+  // 面板上的元件先蓋住，之後一個個出現（蓋子跟著面板一起滑上來）
+  const inPanel=(r)=>[r[0],r[1]-PANEL[1],r[2],r[3]];
+  const inner=document.createElement('div'); inner.style.cssText='position:absolute;inset:0';
+  panel.appendChild(inner);
+  const pr=(r)=>{ const [x,y,w,h]=inPanel(r); return {left:x/PANEL[2]*100+'%',top:y/PANEL[3]*100+'%',width:w/PANEL[2]*100+'%',height:h/PANEL[3]*100+'%'}; };
+  const cover=(r,bg)=>{ const d=document.createElement('div'); d.className='r2-cover'; Object.assign(d.style,{position:'absolute',background:bg},pr(r)); inner.appendChild(d); return d; };
+  const sliceIn=(cls,r,delay)=>{ const d=r2El(cls,r,true); Object.assign(d.style,pr(r)); d.style.animationDelay=delay+'ms'; inner.appendChild(d); return d; };
+  const NUM8=[1025,2065,45,52], NUMT=[850,2135,135,52], ITEMS=[230,355,475,600,722,845,972], OK=[462,2468,276,126];
+  cover(NUM8,'#FDFDF7'); cover(NUMT,'#ECEFEC');
+  ITEMS.forEach(c=>cover([c-62,2342,124,100],'#ECEFEC'));
+  cover(OK,'#ECEFEC');
+  const n8=document.createElement('div'); n8.className='r2-num'; Object.assign(n8.style,{position:'absolute'},pr(NUM8)); inner.appendChild(n8);
+  const nt=document.createElement('div'); nt.className='r2-num'; Object.assign(nt.style,{position:'absolute'},pr(NUMT)); inner.appendChild(nt);
+  n8.textContent='0'; nt.textContent='2/60';
+  setTimeout(()=>{ countUp(n8,0,8,v=>String(v),900); countUp(nt,2,10,v=>v+'/60',900); },650);
+  ITEMS.forEach((c,i)=>{
+    const d=1650+i*170;
+    sliceIn('r2-item',[c-62,2342,124,100],d);
+    const sh=document.createElement('div'); sh.className='r2-shine'; Object.assign(sh.style,{position:'absolute'},pr([c-70,2322,140,140])); sh.style.animationDelay=d+'ms'; inner.appendChild(sh);
+  });
+  sliceIn('r2-ok',OK,1650+ITEMS.length*170+150);
+}
 function openRecap2(){
+  var _td=document.getElementById('tab-diary'); if(_td) _td.classList.remove('day-done');
   /* chiude recap0 */
   var r0=document.getElementById('schermata-recap0');
   if(r0){ r0.style.display='none'; r0.style.pointerEvents=''; }
@@ -4655,13 +5255,96 @@ function openRecap2(){
   if(td) td.classList.add('show');
   /* mostra view-recap2 sopra tab-diary (background:transparent) */
   var v2=document.getElementById('view-recap2');
-  if(v2) v2.style.display='flex';
+  if(v2){ v2.style.display='flex'; requestAnimationFrame(playRecap2Fx); }
   _showUI();
   /* nasconde navigation tab */
   var bn=document.querySelector('.bottom-nav');
   if(bn) bn.style.display='none';
 }
+/* ── 日記編輯示範（座標是 frame-recap3/4/5 的 1206×2622 原圖像素）── */
+const ED_W=1206, ED_H=2622;
+const ED_PANELS={emoji:'assets/frame-recap3.png?v=1780552840',food:'assets/frame-recap4.png?v=1780552742',custom:'assets/frame-recap5.png?v=1780552742'};
+const ED_TABS={emoji:[92,1924,321,92],food:[442,1924,318,92],custom:[789,1924,321,92]};
+// 每個分頁可以選的貼紙：面板上的格子、對應的貼紙圖、最後要放的位置
+const ED_ITEMS={
+  emoji:[{tile:[135,2095,166,162],img:'stk-cat-big',to:[207,635,283,260]},{tile:[907,2095,166,162],img:'stk-cat-star',to:[825,691,158,155]}],
+  food:[{tile:[325,2095,167,162],img:'stk-toast',to:[495,1382,171,130]},{tile:[907,2095,166,162],img:'stk-bean',to:[641,1180,120,269]}],
+  custom:[]
+};
+const edPct=([x,y,w,h])=>({left:x/ED_W*100+'%',top:y/ED_H*100+'%',width:w/ED_W*100+'%',height:h/ED_H*100+'%'});
+let edTab='emoji', edPlaced=new Set();
+function edHint(t){ const h=document.getElementById('ed-hint'); h.textContent=t||''; h.classList.toggle('show',!!t); }
+function edShowTab(tab){
+  edTab=tab;
+  const root=document.getElementById('ed-root'), panel=document.getElementById('ed-panel');
+  // 表情分頁直接用底圖；其他分頁蓋上對應設計稿的面板
+  panel.style.backgroundImage=tab==='emoji'?'none':`url('${ED_PANELS[tab]}')`;
+  panel.style.backgroundPosition='0 100%';
+  panel.style.backgroundSize=`100% ${ED_H/(ED_H*0.254)*100}%`;
+  panel.style.backgroundPosition=`0 ${0.716/(1-0.254)*100}%`;
+  root.querySelectorAll('.ed-hit,.ed-mask').forEach(e=>e.remove());
+  Object.entries(ED_TABS).forEach(([k,r])=>{
+    const b=document.createElement('button'); b.className='ed-hit'; Object.assign(b.style,edPct(r));
+    b.onclick=()=>edShowTab(k); root.appendChild(b);
+  });
+  if(tab==='custom'){
+    const plus=document.createElement('button'); plus.className='ed-hit'; Object.assign(plus.style,edPct([135,2092,215,316]));
+    plus.onclick=()=>openRecap5_1(); root.appendChild(plus);
+  }
+  let next=null;
+  ED_ITEMS[tab].forEach(it=>{
+    const done=edPlaced.has(it.img);
+    const m=document.createElement('div'); m.className='ed-mask'+(done?' off':''); Object.assign(m.style,edPct(it.tile));
+    m.innerHTML=`<img src="assets/diary/${it.img}.png" alt="">`; root.appendChild(m);
+    const b=document.createElement('button'); b.className='ed-hit'; Object.assign(b.style,edPct(it.tile));
+    if(!done){ b.onclick=()=>edPick(it,b,m); if(!next){ next=b; } }
+    root.appendChild(b);
+  });
+  root.querySelectorAll('.ed-hit.pulse').forEach(e=>e.classList.remove('pulse'));
+  if(next){ next.classList.add('pulse'); edHint(tab==='emoji'?'點一下貼紙加到地圖上':'再選幾個食物貼紙'); }
+  else edHint('');
+}
+function edPick(it,btn,mask){
+  btn.onclick=null; btn.classList.remove('pulse'); mask.classList.add('off');
+  const layer=document.getElementById('ed-stickers'), wrap=layer.getBoundingClientRect();
+  const k=wrap.width/ED_W, [tx,ty,tw,th]=it.to, [sx,sy,sw,sh]=it.tile;
+  const el=document.createElement('img'); el.className='ed-stk'; el.src=`assets/diary/${it.img}.png`; el.alt='';
+  Object.assign(el.style,{left:tx*k+'px',top:ty*k+'px',width:tw*k+'px',height:th*k+'px'});
+  layer.appendChild(el);
+  // 從格子飛出來，停在地圖中間偏一點（還沒放到最後位置）
+  const startX=(sx+sw/2-(tx+tw/2))*k, startY=(sy+sh/2-(ty+th/2))*k;
+  const restX=(603-(tx+tw/2))*k*.55, restY=(1150-(ty+th/2))*k*.55+60*k;
+  let pos={x:restX,y:restY};
+  el.style.transform=`translate(${pos.x}px,${pos.y}px)`;
+  el.animate([{transform:`translate(${startX}px,${startY}px) scale(.35)`,opacity:.4},{transform:`translate(${pos.x}px,${pos.y}px) scale(1.08)`,offset:.75},{transform:`translate(${pos.x}px,${pos.y}px)`}],
+    {duration:550,easing:'cubic-bezier(.3,1.2,.5,1)'});
+  const ghost=document.createElement('div'); ghost.className='ed-ghost';
+  Object.assign(ghost.style,{left:tx*k-6+'px',top:ty*k-6+'px',width:tw*k+12+'px',height:th*k+12+'px'});
+  setTimeout(()=>{ layer.insertBefore(ghost,el); edHint('按住貼紙拖到虛線框'); },450);
+  el.addEventListener('pointerdown',e=>{
+    if(el.classList.contains('placed')) return;
+    e.preventDefault(); el.setPointerCapture(e.pointerId); el.classList.add('dragging');
+    const sx0=e.clientX, sy0=e.clientY, p0={...pos};
+    const mv=ev=>{ pos={x:p0.x+ev.clientX-sx0,y:p0.y+ev.clientY-sy0}; el.style.transform=`translate(${pos.x}px,${pos.y}px) scale(1.05)`; };
+    const up=()=>{
+      el.removeEventListener('pointermove',mv); el.removeEventListener('pointerup',up); el.classList.remove('dragging');
+      // 放開就吸附到設計好的位置
+      el.animate([{transform:`translate(${pos.x}px,${pos.y}px) scale(1.05)`},{transform:'translate(0,0) scale(1.06)',offset:.7},{transform:'none'}],
+        {duration:420,easing:'cubic-bezier(.3,1.3,.5,1)'});
+      el.style.transform='none'; el.classList.add('placed'); ghost.remove();
+      edPlaced.add(it.img);
+      const left=ED_ITEMS[edTab].filter(x=>!edPlaced.has(x.img));
+      if(left.length){ edShowTab(edTab); }
+      else{ edHint(''); const order=['emoji','food','custom']; setTimeout(()=>edShowTab(order[order.indexOf(edTab)+1]||'custom'),650); }
+    };
+    el.addEventListener('pointermove',mv); el.addEventListener('pointerup',up);
+  });
+}
+function edReset(){
+  edPlaced=new Set(); document.getElementById('ed-stickers').innerHTML=''; edShowTab('emoji');
+}
 function openRecap3(){
+  edReset();
   _hideUI();
   clearTimeout(window._recapTimer);
   /* mostra solo recap3, nasconde 4 e 5 */
@@ -4794,6 +5477,30 @@ function closeShopModal(name){
   }
 }
 
+/* 地圖導航列：冰室鑰匙孔後面那塊深綠圓底換成暖黃色 */
+let NAV_MAP_SRC='assets/NavigationTab.png?v=4';
+addEventListener('load',async function(){
+  try{
+    const im=await loadImg('assets/NavigationTab.png?v=4');
+    const c=document.createElement('canvas'); c.width=im.width; c.height=im.height;
+    const ctx=c.getContext('2d'); ctx.drawImage(im,0,0);
+    const d=ctx.getImageData(0,0,c.width,c.height), px=d.data, k=im.width/804;
+    const Y=[246,205,92];
+    // 只換底欄上緣（y=154）以上、鑰匙孔那一塊凸出來的深綠圓底；底欄本身保持綠色
+    const barTop=Math.round(154*k);
+    for(let y=0;y<barTop;y++) for(let x=0;x<Math.round(300*k);x++){
+      const i=(y*c.width+x)*4, r=px[i],g=px[i+1],b=px[i+2];
+      if(!px[i+3]||!(g>r+8&&g>b&&r<110&&g<140)) continue;       // 只換深綠色
+      const l=(.3*r+.59*g+.11*b)/88;                            // 保留紙張紋理明暗
+      for(let j=0;j<3;j++) px[i+j]=Math.min(255,Y[j]*l);
+    }
+    ctx.putImageData(d,0,0);
+    NAV_MAP_SRC=await new Promise(ok=>c.toBlob(b=>ok(URL.createObjectURL(b)),'image/png'));
+    const nav=document.getElementById('nav-bar-img');
+    if(nav&&nav.src.includes('NavigationTab.png')) nav.src=NAV_MAP_SRC;
+  }catch(e){ console.warn('nav tint',e); }
+});
+
 let _mapShopState='map';
 function toggleMapShop(){
   chiudiDiaryFlow();
@@ -4869,8 +5576,33 @@ function hideToast(){
     }
     _dragging=false;
   });
-  el.addEventListener('click',()=>hideToast());
+  el.addEventListener('click',()=>{
+    hideToast();
+    if(_toastAnchor!=null&&!S.walkingMode) openPopup(_toastAnchor);
+  });
 })();
+
+/* 畫面上一出現還沒解鎖的錨點（鎖頭），就跳出「附近有可探索的錨點」，點一下打開卡片去導航 */
+let _toastAnchor=null;
+const _seenAnchors=new Set();
+function checkVisibleAnchors(){
+  // 歡迎貓咪關掉之前（含撥雲動畫期間）不提醒
+  if(!map||!S.mapReady||S.quietAfterCheckin||S.walkingMode||S.currentPopup!=null) return;
+  const sz=map.getSize();
+  const onScreen=ll=>{ const pt=map.latLngToContainerPoint(ll); return pt.x>12&&pt.x<sz.x-12&&pt.y>40&&pt.y<sz.y-40; };
+  let pick=null, best=Infinity;
+  S.anchors.forEach((a,i)=>{
+    if(a.status==='hidden'||a.status==='done'||!anchorMarks[i]||!map.hasLayer(anchorMarks[i])) return;
+    const ll=[PLACES[i].lat,PLACES[i].lng];
+    if(!onScreen(ll)){ _seenAnchors.delete(i); return; }  // 離開畫面後再出現會再提醒
+    if(_seenAnchors.has(i)) return;
+    const d=distTo(i); if(d<best){ best=d; pick=i; }
+  });
+  if(pick==null) return;
+  _seenAnchors.add(pick);
+  _toastAnchor=pick;
+  showToast();
+}
 
 let mtTmr;
 function showMini(ico,txt){
@@ -4893,8 +5625,8 @@ function spawnAnchor(idx, silent=false){
     const d=distTo(idx);
     const ds=d>=1000?(d/1000).toFixed(1)+' km':Math.round(d)+'m';
     showToast('New Anchor discovered!',`${p.name.replace('\n',' ')} is ${ds} away!`);
-    map.flyTo([p.lat,p.lng],16,{duration:1.1});
-    setTimeout(()=>map.flyTo([S.player.lat,S.player.lng],17,{duration:.9}),2200);
+    map.flyTo([p.lat,p.lng],15,{duration:1.1});
+    setTimeout(()=>map.flyTo([S.player.lat,S.player.lng],16,{duration:.9}),2200);
   }
 }
 
@@ -4911,17 +5643,56 @@ function spawnNearestToast(){
   const p=PLACES[nearestIdx];
   const ds=nearestDist>=1000?(nearestDist/1000).toFixed(1)+' km':Math.round(nearestDist)+'m';
   showToast('New Anchor discovered!',`${p.name.replace('\n',' ')} is ${ds} away!`);
-  map.flyTo([p.lat,p.lng],16,{duration:1.1});
-  setTimeout(()=>map.flyTo([S.player.lat,S.player.lng],17,{duration:.9}),2200);
+  map.flyTo([p.lat,p.lng],15,{duration:1.1});
+  setTimeout(()=>map.flyTo([S.player.lat,S.player.lng],16,{duration:.9}),2200);
 }
 
 /* ═══════════════════════════════════════════════
    ANCHOR POPUP
 ═══════════════════════════════════════════════ */
-function openNoteWindow(){
-  const photo=S.targetIdx!=null?PLACES[S.targetIdx].img:'';
+/* 留言板：在最上面插入一張自己的「剛剛」卡片，原本的留言（紳士雞…）往下排 */
+const NW_SRC='assets/frame%20893.png', NW_BLOCK=[572,826]; // 920×2000 座標中「剛剛」那一段
+let _nwWithMine=null;
+async function boardWithExtraCard(){
+  if(_nwWithMine) return _nwWithMine;
+  const im=await loadImg(NW_SRC), k=im.width/920;
+  const y0=Math.round(NW_BLOCK[0]*k), y1=Math.round(NW_BLOCK[1]*k), bh=y1-y0;
+  const c=document.createElement('canvas'); c.width=im.width; c.height=im.height+bh;
+  const ctx=c.getContext('2d');
+  ctx.drawImage(im,0,0,im.width,y1,0,0,im.width,y1);                       // 頂部 + 新的「剛剛」卡
+  ctx.drawImage(im,0,y0,im.width,im.height-y0,0,y1,im.width,im.height-y0); // 原本的卡片整段往下移
+  // 原本那張改成「今天」，「剛剛」只留給自己的新卡
+  ctx.fillStyle='#FDFBF4'; ctx.fillRect(60*k,y1+(600-572)*k,70*k,40*k);
+  ctx.fillStyle='#4E3325'; ctx.font=`700 ${22*k}px 'Kaiti TC','STKaiti',serif`; ctx.textBaseline='middle';
+  ctx.fillText('今天',68*k,y1+(621-572)*k);
+  _nwWithMine=await new Promise(ok=>c.toBlob(b=>ok(URL.createObjectURL(b)),'image/png'));
+  return _nwWithMine;
+}
+async function openNoteWindow(idx){
+  const mine=idx!=null&&S.myNotes&&S.myNotes[idx];
+  const photo=mine?mine.photo:(idx!=null?PLACES[idx].img:'');
   if(photo) document.getElementById('nw-bg').style.backgroundImage=`url('${photo}')`;
+  const box=document.getElementById('nw-mine');
+  box.classList.toggle('show',!!mine);
+  const ui=document.getElementById('nw-ui-img');
+  ui.src=mine?await boardWithExtraCard():NW_SRC;
+  if(mine){
+    box.querySelector('.nw-photo').src=mine.photo;
+    box.querySelector('.nw-avatar img').src=mine.emoji?`assets/emoji/${mine.emoji}.png`:'assets/emoji/01.png';
+    box.querySelector('.nw-name').textContent=mine.name;
+    box.querySelector('.nw-text').textContent=mine.text||'（只留下了一個表情）';
+  }
+  const wrap=document.getElementById('nw-card-wrap');
   document.getElementById('view-note-window').classList.add('show');
+  wrap.scrollTop=0;
+  requestAnimationFrame(()=>wrap.style.setProperty('--nww',wrap.clientWidth+'px'));
+}
+/* 打卡完成時記下這次的留言 */
+function saveMyNote(idx){
+  let acc=null; try{ acc=JSON.parse(localStorage.getItem('cp_account')||'null'); }catch(e){}
+  S.myNotes=S.myNotes||{};
+  S.myNotes[idx]={photo:S.photos[0]||PLACES[idx].img,text:S.noteText==='✨ No words needed.'?'':S.noteText,
+    emoji:S.selectedEmoji||null,name:(acc&&acc.name)||'我'};
 }
 function closeNoteWindow(){
   document.getElementById('view-note-window').classList.remove('show');
@@ -4930,14 +5701,14 @@ function closeNoteWindow(){
 function openPopup(idx){
   if(S.walkingMode) return;
   if(S.anchors[idx].status==='done'){
-    openNoteWindow();
+    openNoteWindow(idx);
     return;
   }
   S.currentPopup=idx;
   renderPopup(idx);
   document.getElementById('anchor-popup').classList.add('show');
   const p=PLACES[idx];
-  map.flyTo([p.lat,p.lng],17,{duration:.7});
+  map.flyTo([p.lat,p.lng],16,{duration:.7});
 }
 
 function renderPopup(idx){
@@ -4960,7 +5731,7 @@ function renderPopup(idx){
     imgSrc=isArrival?'assets/arrive.png':(p.id==='western_market'?'assets/arrivewesternmarket.png?v=1780557053':'assets/arriveinformation.png');
     showCam=true; showOverlay=false; showDist=false;
   } else if(isArrival){
-    imgSrc='assets/arrive.png';            showCam=true;  showOverlay=false; showDist=false;
+    imgSrc='assets/checkinpolyu.png';      showCam=false; showOverlay=false; showDist=false;
   } else {
     imgSrc=p.id==='western_market'?'assets/checkinwesternmarket.png?v=1780557053':'assets/checkin.png';
     showCam=false; showOverlay=true; showDist=true;
@@ -4969,6 +5740,11 @@ function renderPopup(idx){
   mainImg.style.transform='';
   mainImg.style.transformOrigin='';
   document.getElementById('popup-overlay-btns').style.display=showOverlay?'':'none';
+  const polyuFar=isArrival&&!near;
+  document.getElementById('popup-polyu-far').style.display=polyuFar?'':'none';
+  document.getElementById('polyu-dist').textContent=dist>=1000?(dist/1000).toFixed(1)+' km':Math.round(dist)+' M';
+  document.getElementById('pf-save').classList.toggle('saved',!!a.saved);
+  document.getElementById('pf-save2').classList.toggle('saved',!!a.saved);
   document.getElementById('checkin-dist').style.display=showDist?'':'none';
   document.getElementById('popup-cam-btn').style.display=showCam?'block':'none';
 
@@ -4989,6 +5765,51 @@ function renderPopup(idx){
   document.getElementById('popup-btns-near').classList.toggle('hidden',!near);
 }
 
+new ResizeObserver(([e])=>e.target.style.setProperty('--pw',e.contentRect.width+'px'))
+  .observe(document.getElementById('popup-img-wrapper'));
+
+/* ── 稍後探索清單 ── */
+const PLACE_ZH={polyu:'香港理工大學',hung_hom:'紅磡站',tst:'尖沙咀海濱長廊',western_market:'西港城'};
+function updateLaterBadge(){
+  const n=S.anchors.filter(a=>a.saved&&a.status!=='done').length, b=document.getElementById('later-badge');
+  b.textContent=n; b.classList.toggle('on',n>0);
+}
+/* 收藏時一顆星星從卡片飛進右側的「稍後探索」按鈕 */
+function flyToLater(fromEl){
+  const btn=document.getElementById('f219-side-btn');
+  const a=(fromEl&&fromEl.offsetParent?fromEl:document.getElementById('anchor-popup')).getBoundingClientRect(), t=btn.getBoundingClientRect();
+  const star=document.createElement('span'); star.className='later-fly'; star.textContent='⭐';
+  const x0=a.left+a.width/2, y0=a.top+a.height/2;
+  Object.assign(star.style,{left:x0+'px',top:y0+'px'});
+  document.body.appendChild(star);
+  star.animate([
+    {transform:'translate(-50%,-50%) scale(1)'},
+    {transform:`translate(calc(-50% + ${(t.left+t.width/2-x0)*.5}px),calc(-50% + ${(t.top-y0)*.5-60}px)) scale(1.4)`,offset:.45},
+    {transform:`translate(calc(-50% + ${t.left+t.width/2-x0}px),calc(-50% + ${t.top+t.height/2-y0}px)) scale(.5)`,opacity:.6}
+  ],{duration:750,easing:'cubic-bezier(.4,0,.3,1)'}).onfinish=()=>{
+    star.remove();
+    btn.classList.remove('bump'); void btn.offsetWidth; btn.classList.add('bump');
+  };
+}
+function openLaterList(){
+  const list=document.getElementById('later-list');
+  const items=S.anchors.map((a,i)=>({a,i})).filter(({a})=>a.saved&&a.status!=='done')
+    .sort((x,y)=>distTo(x.i)-distTo(y.i));
+  list.innerHTML=items.length?'':'<div class="later-empty">還沒有收藏的錨點<br>在錨點卡片上點「稍後探索」就會出現在這裡 🐾</div>';
+  items.forEach(({i})=>{
+    const p=PLACES[i], d=distTo(i);
+    const row=document.createElement('div'); row.className='later-item';
+    row.innerHTML=`<img src="assets/poilocked.png" alt="" style="object-fit:contain;background:none"><div class="li-txt"><b></b><small>${d>=1000?(d/1000).toFixed(1)+' km':Math.round(d)+' m'} · 步行約 ${etaMins(d)} 分鐘</small></div>
+      <button class="li-go cp-btn cp-btn--solid cp-btn--sm">出發</button><button class="li-del" aria-label="移除">✕</button>`;
+    row.querySelector('b').textContent=PLACE_ZH[p.id]||p.name.replace('\n',' ');
+    row.querySelector('.li-go').onclick=()=>{ closeLaterList(); openPopup(i); };
+    row.querySelector('.li-del').onclick=()=>{ S.anchors[i].saved=false; updateLaterBadge(); openLaterList(); };
+    list.appendChild(row);
+  });
+  document.getElementById('later-sheet').classList.add('show');
+}
+function closeLaterList(){ document.getElementById('later-sheet').classList.remove('show'); }
+
 function closePopup(){
   document.getElementById('anchor-popup').classList.remove('show');
   S.currentPopup=null;
@@ -5000,6 +5821,8 @@ function popupBd(e){ if(e.target===document.getElementById('anchor-popup')) clos
 function toggleSave(){
   if(S.currentPopup==null) return;
   S.anchors[S.currentPopup].saved=!S.anchors[S.currentPopup].saved;
+  if(S.anchors[S.currentPopup].saved) flyToLater([...document.querySelectorAll('#pf-save,#pf-save2')].find(b=>b.offsetParent));
+  updateLaterBadge();
   renderPopup(S.currentPopup);
   saveState();
 }
@@ -5023,6 +5846,43 @@ function startWalking(){
 
 let _routeAbort=null;
 let _routeDebounce=null;
+let routeCasing=null;
+
+/* 路線外觀：像一般導航 App 的藍色實線，深藍描邊 */
+function setRoute(latlngs){
+  if(!routeLine){
+    routeCasing=L.polyline(latlngs,{color:'#1A5FCC',weight:10,opacity:1,lineJoin:'round',lineCap:'round',interactive:false}).addTo(map);
+    routeLine=L.polyline(latlngs,{color:'#4B8EF5',weight:6,opacity:1,lineJoin:'round',lineCap:'round',interactive:false}).addTo(map);
+  }else{
+    routeLine.setLatLngs(latlngs); routeCasing.setLatLngs(latlngs);
+  }
+}
+function clearRoute(){
+  [routeLine,routeCasing].forEach(l=>l&&map.removeLayer(l));
+  routeLine=routeCasing=null;
+  S.routePath=null; S.routeIdx=null;
+}
+/* 只畫還沒走的那一段：找出玩家最靠近的路段，從玩家位置接到該路段之後的點
+   （不管是模擬步行、鍵盤移動還是真實 GPS，走過的線都會消失） */
+function remainingRoute(){
+  const t=PLACES[S.targetIdx], me=[S.player.lat,S.player.lng];
+  const path=S.routePath&&S.routePath.length?S.routePath:[[t.lat,t.lng]];
+  if(path.length<2) return [me,...path];
+  const cos=Math.cos(me[0]*Math.PI/180);
+  let best=0, bestD=Infinity;
+  for(let i=0;i<path.length-1;i++){
+    const [ay,ax]=path[i], [by,bx]=path[i+1];
+    const vx=(bx-ax)*cos, vy=by-ay, wx=(me[1]-ax)*cos, wy=me[0]-ay;
+    const k=Math.max(0,Math.min(1,(wx*vx+wy*vy)/((vx*vx+vy*vy)||1)));
+    const d=(wx-vx*k)**2+(wy-vy*k)**2;
+    if(d<bestD){ bestD=d; best=i; }
+  }
+  return [me,...path.slice(best+1)];
+}
+function demoRoute(idx){
+  const path=FAKE_MAP_ROUTES[PLACES[idx].id];
+  return path?path.map(fakeMapLatLng):null;
+}
 
 async function fetchRoute(fLat,fLng,tLat,tLng,signal){
   try{
@@ -5037,7 +5897,8 @@ async function fetchRoute(fLat,fLng,tLat,tLng,signal){
 
 function _applyRoute(coords){
   if(!coords||!routeLine) return;
-  routeLine.setLatLngs(coords);
+  S.routePath=coords;
+  setRoute(remainingRoute());
 }
 
 /* avvia subito una fetch, cancella quella precedente */
@@ -5046,24 +5907,36 @@ async function refreshRoute(){
   if(_routeAbort){ _routeAbort.abort(); }
   _routeAbort=new AbortController();
   const t=PLACES[S.targetIdx];
-  const coords=await fetchRoute(S.player.lat,S.player.lng,t.lat,t.lng,_routeAbort.signal);
+  const coords=demoRoute(S.targetIdx)||await fetchRoute(S.player.lat,S.player.lng,t.lat,t.lng,_routeAbort.signal);
   _applyRoute(coords);
 }
 
 /* per GPS: fetch immediata + ricalcolo dopo 900ms se posizione cambia ancora */
 function scheduleRouteUpdate(){
   if(!routeLine||S.targetIdx==null) return;
+  if(MOCK_LOCATION||demoRoute(S.targetIdx)){ setRoute(remainingRoute()); return; } // 固定路線只需裁掉走過的部分
   refreshRoute();
   clearTimeout(_routeDebounce);
   _routeDebounce=setTimeout(refreshRoute,900);
 }
 
+/* 導航時只留目的地，其他錨點和表情集合先藏起來 */
+function showOtherAnchors(show,keepIdx){
+  [anchorMarks,stickerMarks].forEach(list=>list.forEach((m,i)=>{
+    if(!m||i===keepIdx) return;
+    if(show){ if(list===stickerMarks) return; if(!map.hasLayer(m)) m.addTo(map); }
+    else if(map.hasLayer(m)) map.removeLayer(m);
+  }));
+  if(show) updateStickerVisibility();
+}
+
 async function enterWalking(idx){
+  showOtherAnchors(false,idx);
   S.walkingMode=true;
   S.targetIdx=idx;
   S.anchors[idx].status='walking';
   const t=PLACES[idx];
-  if(routeLine){ map.removeLayer(routeLine); routeLine=null; }
+  clearRoute();
   document.getElementById('nav-bar-img').closest('.bottom-nav').style.display='none';
   document.getElementById('profile-icon-wrap').style.display='none';
   document.getElementById('icon-cluster').style.display='none';
@@ -5073,15 +5946,20 @@ async function enterWalking(idx){
   const _tc=document.querySelector('.top-counters'); if(_tc) _tc.style.display='none';
   _companionMilestone=null;
   updateGpsBar();
+  map._cpFlying=true;
   map.fitBounds(L.latLngBounds([[S.player.lat,S.player.lng],[t.lat,t.lng]]),{padding:[70,70]});
+  // 像導航 App：先看一眼全程，再拉近跟著自己走
+  setTimeout(()=>{
+    if(!S.walkingMode){ map._cpFlying=false; return; }
+    map.once('moveend',()=>{ map._cpFlying=false; });
+    map.flyTo([S.player.lat,S.player.lng],17,{duration:1});
+  },1400);
   /* fetch percorso reale subito, poi disegna */
   if(_routeAbort){ _routeAbort.abort(); }
   _routeAbort=new AbortController();
-  const coords=await fetchRoute(S.player.lat,S.player.lng,t.lat,t.lng,_routeAbort.signal);
-  const latlngs=coords||[[S.player.lat,S.player.lng],[t.lat,t.lng]];
-  routeLine=L.polyline(latlngs,{
-    color:'#4A6FD9',weight:5,opacity:.9,lineJoin:'round',lineCap:'round'
-  }).addTo(map);
+  const coords=demoRoute(idx)||await fetchRoute(S.player.lat,S.player.lng,t.lat,t.lng,_routeAbort.signal);
+  S.routePath=coords||[[t.lat,t.lng]]; S.routeIdx=0;
+  setRoute(remainingRoute());
 }
 
 let _companionMilestone=null;
@@ -5135,19 +6013,29 @@ function _showArrivalOverlay(idx){
   );
   /* mostra overlay */
   const el=document.getElementById('arrival-overlay');
+  el.classList.remove('out');
   el.style.display='block';
   el.classList.add('show');
-  setTimeout(()=>{
-    el.classList.remove('show');
-    el.style.display='none';
+  /* 停留一下再淡出，接著開到達卡片；點橫幅可以直接跳過等待 */
+  let done=false;
+  const finish=()=>{
+    if(done) return; done=true;
+    clearTimeout(arrT);
+    el.classList.add('out');
     setTimeout(()=>{
+      el.classList.remove('show','out');
+      el.style.display='none';
       _restoreNavBar();
+      S.currentPopup=null;
       openPopup(idx);
-    },350);
-  },1000);
+    },450);
+  };
+  const arrT=setTimeout(finish,2400);
+  el.onclick=finish;
 }
 
 function _restoreNavBar(){
+  showOtherAnchors(true);
   const wrap=document.getElementById('gpsbar-wrap');
   wrap.style.display='none';
   document.getElementById('gpsbar-img').src='assets/frame221.png';
@@ -5174,7 +6062,7 @@ function cancelWalking(){
   const idx=S.targetIdx;
   S.walkingMode=false; S.targetIdx=null;
   if(idx!=null&&S.anchors[idx].status==='walking') S.anchors[idx].status='spawned';
-  if(routeLine){ map.removeLayer(routeLine); routeLine=null; }
+  clearRoute();
   _restoreNavBar();
   recenter();
 }
@@ -5271,6 +6159,98 @@ function stopCamera(){
   _hideCamInput();
 }
 
+/* ── 相框顏色 + 隨機貓咪合照 ── */
+const FRAME_COLORS=[
+  {c:'#F7EBDB',ink:'#9B8F86'},{c:'#FFFFFF',ink:'#9B8F86'},{c:'#FDFBE8',ink:'#9B8F86'},
+  {c:'#8FA08C',ink:'#F6F4E8'},{c:'#44613F',ink:'#F3EEDF'},{c:'#5A4639',ink:'#F3EEDF'}
+];
+S.frameColor=S.frameColor||FRAME_COLORS[2];
+let arCatSrc='';
+function initArFrame(){
+  const bar=document.getElementById('ar-swatches');
+  FRAME_COLORS.forEach(fc=>{
+    const b=document.createElement('button');
+    b.type='button'; b.style.setProperty('--c',fc.c);
+    b.style.left=[10.5,26.2,42.0,57.8,73.7,89.5][FRAME_COLORS.indexOf(fc)]+'%';
+    b.setAttribute('aria-label','相框顏色 '+fc.c);
+    b.onclick=()=>setFrameColor(fc);
+    bar.appendChild(b);
+  });
+  const d=new Date();
+  document.getElementById('ar-date').textContent=`${d.getFullYear()}年${String(d.getMonth()+1).padStart(2,'0')}月${String(d.getDate()).padStart(2,'0')}日`;
+  setFrameColor(S.frameColor,true);
+}
+function setFrameColor(fc,silent){
+  S.frameColor=fc;
+  const pol=document.getElementById('ar-polaroid');
+  pol.style.setProperty('--frame-color',fc.c);
+  pol.style.setProperty('--frame-ink',fc.ink);
+  document.querySelectorAll('#ar-swatches button').forEach((b,i)=>b.classList.toggle('on',FRAME_COLORS[i]===fc));
+  if(silent) return;
+  pol.classList.remove('pop'); void pol.offsetWidth; pol.classList.add('pop');
+}
+/* 特定地點的專屬貓咪；其他地點從 25 隻表情貓裡隨機 */
+const PLACE_CATS={polyu:['assets/cats/polyu-1.png','assets/cats/polyu-2.png','assets/cats/polyu-3.png']};
+function pickArCat(){
+  const placeId=S.targetIdx!=null?PLACES[S.targetIdx].id:null;
+  const pool=PLACE_CATS[placeId]||Array.from({length:25},(_,i)=>`assets/emoji/${String(i+1).padStart(2,'0')}.png`);
+  let src;
+  do{ src=pool[Math.floor(Math.random()*pool.length)]; }while(src===arCatSrc&&pool.length>1);
+  arCatSrc=src;
+  const cat=document.getElementById('ar-cat');
+  cat.style.left=cat.style.top=cat.style.right=cat.style.bottom='';
+  cat.classList.remove('in');
+  cat.src=arCatSrc;
+  void cat.offsetWidth; cat.classList.add('in');
+}
+const loadImg=src=>new Promise((ok,no)=>{ const im=new Image(); im.onload=()=>ok(im); im.onerror=no; im.src=src; });
+/* 把畫面裁成和相框窗口一樣的比例，再把貓咪畫在同一位置 */
+async function composeArPhoto(src,sw,sh,mirror){
+  const win=document.getElementById('ar-window').getBoundingClientRect();
+  const W=1080, H=Math.round(W*win.height/win.width);
+  const canvas=document.createElement('canvas'); canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  const k=Math.max(W/sw,H/sh), dw=sw*k, dh=sh*k;
+  ctx.save();
+  if(mirror){ ctx.translate(W,0); ctx.scale(-1,1); }
+  ctx.drawImage(src,(W-dw)/2,(H-dh)/2,dw,dh);
+  ctx.restore();
+  try{
+    const cat=await loadImg(arCatSrc);
+    const r=document.getElementById('ar-cat').getBoundingClientRect(), f=W/win.width;
+    const cw=r.width*f, ch=cw*cat.height/cat.width;
+    ctx.drawImage(cat,(r.left-win.left)*f,(r.top-win.top)*f,cw,ch);
+  }catch(e){}
+  return canvas.toDataURL('image/jpeg',0.9);
+}
+/* 貓咪可以在相框窗口內拖動擺位，拍照時按擺好的位置合成 */
+(function(){
+  const cat=document.getElementById('ar-cat'), win=document.getElementById('ar-window');
+  let d=null;
+  cat.addEventListener('pointerdown',e=>{
+    const c=cat.getBoundingClientRect();
+    d={dx:e.clientX-c.left,dy:e.clientY-c.top};
+    cat.classList.remove('in');
+    cat.classList.add('dragging');
+    cat.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  cat.addEventListener('pointermove',e=>{
+    if(!d) return;
+    const w=win.getBoundingClientRect(), c=cat.getBoundingClientRect();
+    const x=Math.min(Math.max(e.clientX-d.dx-w.left,0),w.width-c.width);
+    const y=Math.min(Math.max(e.clientY-d.dy-w.top,0),w.height-c.height);
+    Object.assign(cat.style,{left:x+'px',top:y+'px',right:'auto',bottom:'auto'});
+  });
+  const end=()=>{ d=null; cat.classList.remove('dragging'); };
+  cat.addEventListener('pointerup',end);
+  cat.addEventListener('pointercancel',end);
+})();
+function flashAr(){
+  const f=document.getElementById('ar-flash');
+  f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
+}
+
 function startCheckin(){
   const idx=S.currentPopup;
   if(idx==null) return;
@@ -5280,6 +6260,7 @@ function startCheckin(){
   currentFacingMode='environment';
   document.getElementById('ar-shutter').classList.remove('disabled');
   document.getElementById('view-ar').classList.add('show');
+  pickArCat();
   startCamera(PLACES[idx].img);
 }
 
@@ -5288,29 +6269,26 @@ function onCamInput(e){
   if(!file) return;
   e.target.value='';
   const reader=new FileReader();
-  reader.onload=ev=>_savePhoto(ev.target.result);
+  reader.onload=async ev=>{
+    const im=await loadImg(ev.target.result);
+    _savePhoto(await composeArPhoto(im,im.naturalWidth,im.naturalHeight,false));
+  };
   reader.readAsDataURL(file);
 }
 
-function takePhoto(){
+async function takePhoto(){
   if(S.photos.length>=1) return;
   const video=document.getElementById('ar-video');
+  flashAr();
 
   if(cameraStream && video.readyState>=2){
-    const canvas=document.createElement('canvas');
-    canvas.width=video.videoWidth||390;
-    canvas.height=video.videoHeight||300;
-    const ctx=canvas.getContext('2d');
-    if(currentFacingMode==='user'){
-      ctx.translate(canvas.width,0);
-      ctx.scale(-1,1);
-    }
-    ctx.drawImage(video,0,0,canvas.width,canvas.height);
-    _savePhoto(canvas.toDataURL('image/jpeg',0.88));
+    _savePhoto(await composeArPhoto(video,video.videoWidth||390,video.videoHeight||300,currentFacingMode==='user'));
   } else {
     const bgUrl=document.getElementById('ar-bg').style.backgroundImage
       .replace(/^url\(['"]?/,'').replace(/['"]?\)$/,'');
-    if(bgUrl) _savePhoto(bgUrl);
+    if(!bgUrl) return;
+    const im=await loadImg(bgUrl);
+    _savePhoto(await composeArPhoto(im,im.naturalWidth,im.naturalHeight,false));
   }
 }
 
@@ -5322,6 +6300,7 @@ function _savePhoto(photoUrl){
   bg.style.backgroundImage=`url('${photoUrl}')`;
   bg.style.display='block';
   document.getElementById('ar-video').style.display='none';
+  document.getElementById('view-ar').classList.add('confirm');
   document.getElementById('photo-ui-img').src=(S.targetIdx!=null&&PLACES[S.targetIdx].id==='western_market')?'assets/westernmarketphoto-confirm.png?v=1780556523':'assets/photo-confirm.png';
   document.getElementById('ar-shutter').style.display='none';
   document.getElementById('ar-flip-btn').style.display='none';
@@ -5333,6 +6312,8 @@ function _savePhoto(photoUrl){
 
 function retakePhotoFromConfirm(){
   S.photos=[];
+  document.getElementById('view-ar').classList.remove('confirm');
+  pickArCat();
   document.getElementById('photo-ui-img').src='assets/photo-frame.png?v=1780556523';
   document.getElementById('ar-shutter').style.display='';
   document.getElementById('ar-shutter').classList.remove('disabled');
@@ -5351,6 +6332,7 @@ function exitAR(){
   stopCamera();
   /* reset confirm state */
   S.photos=[];
+  document.getElementById('view-ar').classList.remove('confirm');
   document.getElementById('photo-ui-img').src='assets/photo-frame.png?v=1780556523';
   document.getElementById('ar-shutter').style.display='';
   document.getElementById('ar-shutter').classList.remove('disabled');
@@ -5378,7 +6360,9 @@ function retakePhoto(){
   S.photos=[];
   currentFacingMode='environment';
   document.getElementById('ar-shutter').classList.remove('disabled');
+  document.getElementById('view-ar').classList.remove('confirm');
   document.getElementById('view-ar').classList.add('show');
+  pickArCat();
   const idx=S.targetIdx;
   if(idx!=null) startCamera(PLACES[idx].img);
 }
@@ -5403,9 +6387,10 @@ function submitNote(){
   document.getElementById('view-polaroid').classList.remove('show');
   const photo=S.photos[0]||(S.targetIdx!=null?PLACES[S.targetIdx].img:'');
   document.getElementById('note-bg').style.backgroundImage=`url('${photo}')`;
-  document.getElementById('note-photo').src=photo;
+  setCardPhoto('note-photo',photo);
   document.getElementById('note-ta-input').value='';
   document.getElementById('note-card-img').src=(S.targetIdx!=null&&PLACES[S.targetIdx].id==='western_market')?'assets/westernmarketnote.png?v=1780556523':'assets/frame%20888.png';
+  tintCard('note-card-img');
   document.getElementById('view-note').classList.add('show');
   setTimeout(()=>document.getElementById('note-ta-input').focus(),300);
 }
@@ -5427,12 +6412,11 @@ let selectedEmoji=null;
 
 function openEmojiSelect(){
   document.getElementById('note-ta-input').blur();
-  const text=document.getElementById('note-ta-input').value.trim()||'✨ No words needed.';
-  S.noteText=text;
+  const text=document.getElementById('note-ta-input').value.trim();
   const photo=S.photos[0]||(S.targetIdx!=null?PLACES[S.targetIdx].img:'');
   document.getElementById('emi-bg').style.backgroundImage=`url('${photo}')`;
-  document.getElementById('emi-user-photo').src=photo;
-  document.getElementById('emi-text-box').textContent=text;
+  setCardPhoto('emi-user-photo',photo);
+  document.getElementById('emi-text-box').value=text;
   selectedEmoji=null;
   document.getElementById('emi-selected-img').src='';
   const grid=document.getElementById('emi-grid');
@@ -5449,26 +6433,40 @@ function openEmojiSelect(){
     grid.querySelectorAll('.emi-btn').forEach(b=>b.classList.remove('picked'));
   }
   document.getElementById('emi-card-img').src=(S.targetIdx!=null&&PLACES[S.targetIdx].id==='western_market')?'assets/westernmarketemoji.png?v=1780556523':'assets/frame%20890.png';
+  tintCard('emi-card-img');
   document.getElementById('view-note').classList.remove('show');
   const es=document.getElementById('view-emoji-select');
-  es.classList.remove('emoji-picked');
+  es.classList.remove('emoji-picked','kb-hidden');
   es.classList.add('show');
 }
 
 let _emojiTimer=null;
+function setEmojiKeyboard(show){
+  document.getElementById('view-emoji-select').classList.toggle('kb-hidden',!show);
+  if(!show) document.getElementById('emi-text-box').blur();
+}
+/* 選表情不會自動送出：可以換表情、再點一次取消，也可以接著打字，按「完成卡片」才送出 */
 function pickEmoji(n,btn){
+  const es=document.getElementById('view-emoji-select');
+  document.querySelectorAll('.emi-btn').forEach(b=>b.classList.remove('picked'));
+  if(selectedEmoji===n){
+    selectedEmoji=null;
+    es.classList.remove('emoji-picked');
+    return;
+  }
   selectedEmoji=n;
   document.getElementById('emi-selected-img').src=`assets/emoji/${n}.png`;
-  document.querySelectorAll('.emi-btn').forEach(b=>b.classList.remove('picked'));
   if(btn) btn.classList.add('picked');
-  document.getElementById('view-emoji-select').classList.add('emoji-picked');
-  clearTimeout(_emojiTimer);
-  _emojiTimer=setTimeout(submitWithEmoji,2000);
+  es.classList.remove('emoji-picked'); void es.offsetWidth;
+  es.classList.add('emoji-picked');
 }
 
 function submitWithEmoji(){
   clearTimeout(_emojiTimer);
   S.selectedEmoji=selectedEmoji;
+  const ta=document.getElementById('emi-text-box');
+  ta.blur();
+  S.noteText=ta.value.trim()||(selectedEmoji?'':'✨ No words needed.');
   /* cattura e salva automaticamente la schermata emoji card */
   if(typeof html2canvas!=='undefined'){
     html2canvas(document.getElementById('emi-card-area'),{useCORS:true,allowTaint:true,scale:2}).then(canvas=>{
@@ -5490,7 +6488,7 @@ function submitWithEmoji(){
   }
   const photo=S.photos[0]||(S.targetIdx!=null?PLACES[S.targetIdx].img:'');
   document.getElementById('nr-bg').style.backgroundImage=`url('${photo}')`;
-  document.getElementById('nr-photo').src=photo;
+  setCardPhoto('nr-photo',photo);
   document.getElementById('nr-note-text').textContent=S.noteText;
   const _isWM=S.targetIdx!=null&&PLACES[S.targetIdx].id==='western_market';
   document.getElementById('nr-ui-img').src=_isWM?'assets/storywasternmarket.png?v=1780557477':'assets/FRAME%20899.png?v=1780464563';
@@ -5501,8 +6499,11 @@ function submitWithEmoji(){
   const nr=document.getElementById('view-note-result');
 
   /* prima metà: ruota solo il frame 890 da 0° a 90° */
-  cardFront.style.transition='transform 0.32s ease-in';
-  cardFront.style.transform='perspective(800px) rotateY(90deg)';
+  // 按鈕先淡出，只讓卡片本身翻面
+  const fbtn=document.getElementById('emi-flip-btn');
+  fbtn.animate([{opacity:1},{opacity:0}],{duration:180,fill:'forwards'}).onfinish=function(){ setTimeout(()=>this.cancel(),600); };
+  cardFront.style.transition='transform 0.45s ease-in';
+  cardFront.style.transform='perspective(800px) rotateY(90deg) scale(.96)';
 
   setTimeout(()=>{
     /* al punto di taglio: scambia le schermate */
@@ -5517,35 +6518,103 @@ function submitWithEmoji(){
 
     /* seconda metà: ruota il frame 899 da -90° a 0° */
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      cardBack.style.transition='transform 0.32s ease-out';
+      cardBack.style.transition='transform 0.5s cubic-bezier(.2,.9,.3,1.15)';
       cardBack.style.transform='perspective(800px) rotateY(0deg)';
-      setTimeout(()=>{ cardBack.style.transition=''; cardBack.style.transform=''; },320);
+      setTimeout(()=>{ cardBack.style.transition=''; cardBack.style.transform=''; },500);
     }));
-  },320);
+  },450);
 }
 
 function sendNote(){
+  S.selectedEmoji=null;
   const ta=document.getElementById('note-ta-input');
   S.noteText=ta.value.trim()||'✨ No words needed.';
   ta.blur();
   document.getElementById('view-note').classList.remove('show');
   const photo=S.photos[0]||(S.targetIdx!=null?PLACES[S.targetIdx].img:'');
   document.getElementById('nr-bg').style.backgroundImage=`url('${photo}')`;
-  document.getElementById('nr-photo').src=photo;
+  setCardPhoto('nr-photo',photo);
   document.getElementById('nr-note-text').textContent=S.noteText;
   document.getElementById('view-note-result').classList.add('show');
 }
 
+async function framedPhotoCanvas(url){
+  const im=await loadImg(url);
+  const W=Math.round(im.width/0.922), H=Math.round(im.height/0.816);
+  const c=document.createElement('canvas'); c.width=W; c.height=H;
+  const ctx=c.getContext('2d');
+  ctx.fillStyle=S.frameColor.c; ctx.fillRect(0,0,W,H);
+  ctx.drawImage(im,Math.round(W*0.039),Math.round(H*0.0345));
+  ctx.fillStyle=S.frameColor.ink; ctx.textBaseline='middle';
+  ctx.font=`700 ${Math.round(W*0.045)}px 'Songti TC','Noto Serif TC',serif`;
+  ctx.textAlign='left'; ctx.fillText('時光貓跡 🐾',W*0.05,H*0.925);
+  ctx.textAlign='right'; ctx.fillText(document.getElementById('ar-date').textContent,W*0.95,H*0.925);
+  return c;
+}
+async function framedPhotoBlob(url){
+  const c=await framedPhotoCanvas(url);
+  return new Promise(ok=>c.toBlob(ok,'image/jpeg',0.92));
+}
+/* 卡片底色跟拍照時選的相框顏色：只換卡身的棕色（保留紙張紋理的明暗），
+   避開左上角錨點標籤和卡片下方的按鈕 */
+const TINTABLE_CARDS=['frame%20888.png','frame%20890.png'];
+const GREEN_FRAMES=['#8FA08C','#44613F'];
+const _tintCache=new Map();
+async function recolorCard(src,fc){
+  const key=src+'|'+fc.c;
+  if(_tintCache.has(key)) return _tintCache.get(key);
+  const im=await loadImg(src);
+  const c=document.createElement('canvas'); c.width=im.width; c.height=im.height;
+  const ctx=c.getContext('2d'); ctx.drawImage(im,0,0);
+  const data=ctx.getImageData(0,0,c.width,c.height), px=data.data;
+  const hex=fc.c.replace('#',''), T=[0,2,4].map(i=>parseInt(hex.substr(i,2),16)), dim=1;
+  const L0=89, W=c.width, H=c.height;
+  const bx1=W*.44, by0=H*.19, by1=H*.273, yMax=H*.8;
+  for(let y=0;y<yMax;y++) for(let x=0;x<W;x++){
+    if(x<bx1&&y>by0&&y<by1) continue;
+    const i=(y*W+x)*4, r=px[i], g=px[i+1], b=px[i+2];
+    if(!px[i+3]||!(r>=g&&g>=b&&r-b>=12&&r-b<=48&&r<=128)) continue;
+    const k=(.3*r+.59*g+.11*b)/L0*dim;
+    px[i]=Math.min(255,T[0]*k); px[i+1]=Math.min(255,T[1]*k); px[i+2]=Math.min(255,T[2]*k);
+  }
+  ctx.putImageData(data,0,0);
+  const url=await new Promise(ok=>c.toBlob(b=>ok(URL.createObjectURL(b)),'image/png'));
+  _tintCache.set(key,url);
+  return url;
+}
+async function tintCard(id){
+  const el=document.getElementById(id), src=el.getAttribute('src');
+  if(!S.photos[0]||!TINTABLE_CARDS.some(n=>src.includes(n))) return;
+  // 只有綠色相框會把卡片換成綠色，其他顏色維持原本的咖啡色
+  if(!GREEN_FRAMES.includes(S.frameColor.c)) return;
+  try{ el.src=await recolorCard(src,{c:'#55704C'}); }catch(e){}
+}
+
+/* 卡片右上角的小拍立得：用拍照時選的相框顏色，蓋住卡片圖上原本畫的棕色框 */
+let _framedCache={url:null,color:null,data:null};
+async function setCardPhoto(id,photo){
+  const el=document.getElementById(id);
+  el.src=photo; el.classList.remove('framed');
+  if(!photo||photo!==S.photos[0]) return;
+  try{
+    if(_framedCache.url!==photo||_framedCache.color!==S.frameColor){
+      const c=await framedPhotoCanvas(photo);
+      _framedCache={url:photo,color:S.frameColor,data:c.toDataURL('image/jpeg',0.9)};
+    }
+    el.src=_framedCache.data; el.classList.add('framed');
+  }catch(e){}
+}
 async function savePhoto(){
   const url=S.photos[0]; if(!url) return;
   try{
-    const blob=await(await fetch(url)).blob();
+    const blob=await framedPhotoBlob(url);
+    const dl=URL.createObjectURL(blob);
     const file=new File([blob],'citypaws.jpg',{type:'image/jpeg'});
     if(navigator.share&&navigator.canShare({files:[file]})){
       await navigator.share({files:[file],title:'CityPaws'});
     } else {
       const a=document.createElement('a');
-      a.href=url; a.download='citypaws.jpg'; a.click();
+      a.href=dl; a.download='citypaws.jpg'; a.click();
     }
   }catch(e){ console.warn('save photo:',e); }
 }
@@ -5594,7 +6663,48 @@ function readLater(){
 function showFoodcard(){
   const _isWM=S.targetIdx!=null&&PLACES[S.targetIdx].id==='western_market';
   document.getElementById('fc-ui-img').src=_isWM?'assets/foodwesternmarket.png?v=1780556849':'assets/frame%20892.png';
-  document.getElementById('view-foodcard').classList.add('show');
+  const view=document.getElementById('view-foodcard');
+  view.classList.remove('fx'); void view.offsetWidth;
+  view.classList.add('show','fx');
+  setTimeout(()=>burstSparks(document.getElementById('fc-card-wrap'),22),450);
+}
+function burstSparks(host,n){
+  for(let i=0;i<n;i++){
+    const sp=document.createElement('span');
+    sp.className='fc-spark';
+    sp.textContent=Math.random()<.6?'✦':'✧';
+    sp.style.fontSize=10+Math.random()*16+'px';
+    host.appendChild(sp);
+    const a=Math.random()*Math.PI*2, r=110+Math.random()*130;
+    sp.animate([
+      {transform:'translate(-50%,-50%) scale(.2)',opacity:1},
+      {transform:`translate(calc(-50% + ${Math.cos(a)*r}px),calc(-50% + ${Math.sin(a)*r}px)) scale(1) rotate(${Math.random()*180}deg)`,opacity:1,offset:.7},
+      {transform:`translate(calc(-50% + ${Math.cos(a)*r*1.15}px),calc(-50% + ${Math.sin(a)*r*1.15+30}px)) scale(.6)`,opacity:0}
+    ],{duration:1100+Math.random()*500,easing:'cubic-bezier(.15,.8,.3,1)'}).onfinish=()=>sp.remove();
+  }
+}
+/* 入庫：卡片縮小飛進上方的收集計數，計數彈一下 +1 */
+function collectFoodcard(){
+  const wrap=document.getElementById('fc-card-wrap');
+  if(wrap._flying) return;
+  wrap._flying=true;
+  const from=wrap.getBoundingClientRect();
+  const cnt=document.getElementById('cnt-food'), cr=cnt&&cnt.getBoundingClientRect();
+  const tx=cr&&cr.width?cr.left+cr.width/2:innerWidth*.47, ty=cr&&cr.width?cr.top+cr.height/2:50;
+  const dx=tx-(from.left+from.width/2), dy=ty-(from.top+from.height*.44);
+  burstSparks(wrap,12);
+  wrap.animate([
+    {transform:'none',opacity:1},
+    {transform:'scale(1.06) rotate(2deg)',opacity:1,offset:.2},
+    {transform:`translate(${dx}px,${dy}px) scale(.06) rotate(-25deg)`,opacity:.7}
+  ],{duration:750,easing:'cubic-bezier(.5,0,.75,0)'}).onfinish=()=>{
+    wrap._flying=false;
+    document.getElementById('view-foodcard').classList.remove('fx');
+    closeFoodcard();
+    const c=document.getElementById('cnt-food');
+    // .cnt-num 本身用 translateY(-50%) 垂直置中，動畫要保留這個位移，不然數字會往下跳
+    if(c) c.animate([{transform:'translateY(-50%) scale(1)'},{transform:'translateY(-50%) scale(1.35)',color:'#FFD66B'},{transform:'translateY(-50%) scale(1)'}],{duration:600,easing:'cubic-bezier(.3,1.6,.5,1)'});
+  };
 }
 
 function closeFoodcard(){
@@ -5606,17 +6716,23 @@ function closeFoodcard(){
     setTimeout(()=>{ ov.style.display='none'; },2000);
   }
   S.anchors[idx].status='done';
+  saveMyNote(idx);
+  // 剛打卡完先不提醒附近的點，等使用者自己拖動或縮放地圖再恢復
+  S.quietAfterCheckin=true;
   markDone(idx);
   S.stories++; S.foods++;
   if(document.getElementById('stories-count')) document.getElementById('stories-count').textContent=S.stories;
   if(document.getElementById('food-count')) document.getElementById('food-count').textContent=S.foods;
-  if(routeLine){ map.removeLayer(routeLine); routeLine=null; }
+  clearRoute();
   S.walkingMode=false;
   _restoreNavBar();
   S.targetIdx=null;
   saveState();
   recenter();
   if(map)map.invalidateSize();
+  // 今天的打卡完成：不自動跳出，等使用者第一次點「日記」時才顯示今日收獲；日記按鈕上亮一個小紅點提示
+  S.dayCompletePending=true;
+  document.getElementById('nav-btn-diary').classList.add('has-new');
   const next=idx+1;
   if(next<PLACES.length&&S.anchors[next].status==='hidden')
     setTimeout(()=>spawnAnchor(next),1500);
@@ -5710,6 +6826,8 @@ function initStorePan(){
 }
 
 function init(){
+  try{ initArFrame(); }catch(e){ console.error('initArFrame',e); }
+  try{ layoutAuth(); }catch(e){ console.error('layoutAuth',e); }
   /* splash sparisce sempre dopo 2s, anche se init fallisce */
   setTimeout(()=>{
     document.getElementById('splash').style.display='none';
@@ -5735,12 +6853,107 @@ function init(){
 }
 
 /* ── LOGIN SCREENS ── */
-function showLogin2(){
-  document.getElementById('view-login1').classList.remove('show');
-  document.getElementById('view-login2').classList.add('show');
+// 原圖 804×1748；data-rect 為原圖像素座標，auth-slice 以同一張圖作背景，看起來和原圖一致但可以動
+const AUTH_W=804, AUTH_H=1748;
+function layoutAuth(){
+  document.querySelectorAll('.auth-view').forEach(view=>{
+    view.querySelectorAll('[data-rect]').forEach((el,i)=>{
+      const [x,y,w,h]=el.dataset.rect.split(',').map(Number);
+      Object.assign(el.style,{left:x/AUTH_W*100+'%',top:y/AUTH_H*100+'%',width:w/AUTH_W*100+'%',height:h/AUTH_H*100+'%'});
+      el.style.setProperty('--i',i);
+      if(!el.classList.contains('auth-slice')) return;
+      el.style.backgroundImage=`url('${view.dataset.img}')`;
+      el.style.backgroundSize=`${AUTH_W/w*100}% ${AUTH_H/h*100}%`;
+      el.style.backgroundPosition=`${x/(AUTH_W-w)*100}% ${y/(AUTH_H-h)*100}%`;
+    });
+    view.querySelectorAll('.auth-eye').forEach(eye=>eye.addEventListener('click',()=>{
+      const input=eye.previousElementSibling;
+      eye.classList.toggle('on',input.type==='password');
+      input.type=input.type==='password'?'text':'password';
+      eye.setAttribute('aria-label',input.type==='password'?'顯示密碼':'隱藏密碼');
+    }));
+    view.querySelectorAll('input').forEach(input=>{
+      input.addEventListener('input',()=>{
+        if(input.type==='tel') input.value=input.value.replace(/\D/g,'');
+        input.closest('.auth-field').classList.remove('err');
+        view.querySelector('.auth-msg').classList.remove('show');
+      });
+      input.addEventListener('keydown',e=>{ if(e.key==='Enter') view.querySelector('.auth-btn').click(); });
+    });
+  });
+}
+function showAuth(id){
+  document.querySelectorAll('.auth-view').forEach(v=>v.classList.remove('show'));
+  document.querySelectorAll('.auth-msg').forEach(m=>m.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+}
+function authMsg(id,text,ok){
+  const m=document.getElementById(id);
+  m.textContent=text; m.classList.toggle('ok',!!ok);
+  m.classList.remove('show'); void m.offsetWidth; m.classList.add('show');
+}
+function authFail(msgId,input,text){
+  const f=input.closest('.auth-field');
+  f.classList.remove('err'); void f.offsetWidth; f.classList.add('err');
+  input.focus();
+  authMsg(msgId,text);
+  return false;
+}
+const authPhoneOk=v=>/^\d{8,11}$/.test(v);
+function authAccount(){ try{ return JSON.parse(localStorage.getItem('cp_account')||'null'); }catch(e){ return null; } }
+function authSubmit(btn,msgId,text,next){
+  btn.classList.add('loading');
+  setTimeout(()=>{
+    btn.classList.remove('loading');
+    authMsg(msgId,text,true);
+    setTimeout(next||startOnboarding,700);
+  },900);
+}
+/* 老用戶登入：不看引導頁，直接撥雲進地圖 */
+function enterMapFromLogin(){
+  document.querySelectorAll('.auth-view').forEach(v=>v.classList.remove('show'));
+  _exitOnboarding();
+}
+function authLogin(){
+  const phone=document.getElementById('l1-phone'), pwd=document.getElementById('l1-pwd');
+  if(!authPhoneOk(phone.value)) return authFail('l1-msg',phone,'請輸入 8–11 位手機號碼');
+  if(pwd.value.length<6) return authFail('l1-msg',pwd,'密碼至少需要 6 位');
+  const acc=authAccount();
+  if(acc&&acc.phone===phone.value&&acc.pwd!==pwd.value) return authFail('l1-msg',pwd,'密碼不正確，再試一次吧');
+  S.welcomeMsg=`歡迎回來${acc&&acc.phone===phone.value?'，'+acc.name:''}！今天想去哪裡逛逛？`;
+  authSubmit(document.getElementById('btn-l1-main'),'l1-msg',`歡迎回來${acc&&acc.phone===phone.value?'，'+acc.name:''}！🐾`,enterMapFromLogin);
+}
+function authRegister(){
+  const name=document.getElementById('l2-name'), phone=document.getElementById('l2-phone'),
+        pwd=document.getElementById('l2-pwd'), pwd2=document.getElementById('l2-pwd2');
+  if(!name.value.trim()) return authFail('l2-msg',name,'請輸入用戶名');
+  if(!authPhoneOk(phone.value)) return authFail('l2-msg',phone,'請輸入 8–11 位手機號碼');
+  if(pwd.value.length<6) return authFail('l2-msg',pwd,'密碼至少需要 6 位');
+  if(pwd2.value!==pwd.value) return authFail('l2-msg',pwd2,'兩次輸入的密碼不一致');
+  const agree=document.getElementById('l2-agree');
+  if(!agree.classList.contains('on')){
+    agree.classList.remove('err'); void agree.offsetWidth; agree.classList.add('err');
+    authMsg('l2-msg','請先同意服務條款與隱私權政策');
+    return;
+  }
+  try{ localStorage.setItem('cp_account',JSON.stringify({name:name.value.trim(),phone:phone.value,pwd:pwd.value})); }catch(e){}
+  S.welcomeMsg='歡迎跟著我一起探索香港！';
+  authSubmit(document.getElementById('btn-l2-main'),'l2-msg',`註冊成功，${name.value.trim()}！🐾`);
+}
+function authForgot(){
+  const phone=document.getElementById('l1-phone');
+  if(!authPhoneOk(phone.value)) return authFail('l1-msg',phone,'先輸入手機號碼，我們會傳送重設驗證碼');
+  authMsg('l1-msg',`驗證碼已傳送至 ${phone.value.replace(/^(\d{2})\d+(\d{2})$/,'$1****$2')}（示範）`,true);
+}
+function authSheet(kind){
+  document.getElementById('auth-sheet-title').textContent=kind==='terms'?'服務條款':'隱私權政策';
+  document.getElementById('auth-sheet-body').textContent=kind==='terms'
+    ?'歡迎使用 CityPaws 時光貓跡。使用本服務即表示你同意以友善的方式探索城市、分享回憶，並遵守當地法規。本條款為原型示範內容。'
+    :'我們只會在你開啟定位時使用位置資料來顯示附近的故事點，並不會出售你的個人資料。本政策為原型示範內容。';
+  document.getElementById('auth-sheet').classList.add('show');
 }
 function startOnboarding(){
-  document.getElementById('view-login2').classList.remove('show');
+  document.querySelectorAll('.auth-view').forEach(v=>v.classList.remove('show'));
   const ob=document.getElementById('onboarding');
   ob.scrollLeft=0;
   ob.classList.add('show');
@@ -5749,7 +6962,9 @@ function startOnboarding(){
 /* ── ONBOARDING (scroll-snap) ── */
 function _exitOnboarding(){
   const ob=document.getElementById('onboarding');
-  ob.style.transition='opacity .35s';
+  const clouds=document.getElementById('cloud-reveal');
+  clouds.classList.remove('part'); clouds.classList.add('show');
+  ob.style.transition='opacity .8s ease';
   ob.style.opacity='0';
   setTimeout(()=>{
     try{
@@ -5763,10 +6978,38 @@ function _exitOnboarding(){
     S.anchors.forEach((a,idx)=>{ try{ if(a.status==='hidden') spawnAnchor(idx,true); }catch(e){} });
     try{ checkProximity(); }catch(e){}
     S.anchors.forEach(a=>{ a.inRange=false; });
-    setTimeout(()=>{ try{spawnNearestToast();}catch(e){} },700);
+    const mapEl=document.getElementById('map');
+    mapEl.classList.remove('unveil'); void mapEl.offsetWidth; mapEl.classList.add('unveil');
+    setTimeout(()=>clouds.classList.add('part'),600);
+    setTimeout(()=>{ clouds.classList.remove('show','part'); mapEl.classList.remove('unveil'); },3800);
+    setTimeout(showWelcomeCat,3200);
     }catch(e){ console.error('exitOnboarding',e); }
     startLiveLocation();
-  },350);
+  },800);
+}
+
+/* 第一次進地圖：貓咪打招呼，關掉之後才提示附近的點 */
+let _wcTimer=null;
+function showWelcomeCat(){
+  const el=document.getElementById('welcome-cat'), txt=document.getElementById('wc-text'), bubble=el.querySelector('.wc-bubble');
+  const msg=S.welcomeMsg||'歡迎跟著我一起探索香港！';
+  el.classList.remove('out'); bubble.classList.remove('done'); txt.textContent='';
+  el.classList.add('show');
+  let i=0;
+  clearInterval(_wcTimer);
+  setTimeout(()=>{
+    _wcTimer=setInterval(()=>{
+      txt.textContent=msg.slice(0,++i);
+      if(i>=msg.length){ clearInterval(_wcTimer); bubble.classList.add('done'); _wcTimer=setTimeout(closeWelcomeCat,3500); }
+    },80);
+  },500);
+}
+function closeWelcomeCat(){
+  const el=document.getElementById('welcome-cat');
+  if(!el.classList.contains('show')||el.classList.contains('out')) return;
+  clearInterval(_wcTimer); clearTimeout(_wcTimer);
+  el.classList.add('out');
+  setTimeout(()=>{ el.classList.remove('show','out'); S.mapReady=true; checkVisibleAnchors(); },350);
 }
 
 (function(){
@@ -5798,9 +7041,87 @@ function _exitOnboarding(){
     _scrollTimer=setTimeout(_checkExit,300);
   },{passive:true});
 
+  /* 獨立頁碼點：位置對齊圖片裡原本的點，跟著滑動進度移動紅點 */
+  const dots=document.getElementById('ob-dots');
+  const DOT_X=[417,494,572,649,728,805], IMG_W=1212, IMG_H=2622;
+  function layoutDots(){
+    const img=ob.querySelector('img'); if(!img||!ob.clientWidth) return;
+    const W=ob.clientWidth, H=ob.clientHeight, k=Math.min(W/IMG_W,H/IMG_H);
+    const ox=(W-IMG_W*k)/2, oy=(H-IMG_H*k)/2;
+    // 整條橫跨螢幕，滑動時相鄰圖片裡的點也會被蓋住
+    Object.assign(dots.style,{left:'0',top:oy+2366*k+'px',width:W+'px',height:64*k+'px'});
+    dots.style.setProperty('--d',32*k+'px');
+    dots._k=k; dots._ox=ox;
+    dots.querySelectorAll('i').forEach((d,i)=>d.style.left=ox+DOT_X[i]*k+'px');
+    syncDots();
+  }
+  function syncDots(){
+    if(!dots._k) return;
+    const f=Math.min(SLIDES-1,Math.max(0,ob.scrollLeft/ob.clientWidth));
+    const i=Math.floor(f), t=f-i, x=DOT_X[i]+((DOT_X[i+1]||DOT_X[i])-DOT_X[i])*t;
+    dots.querySelector('b').style.left=dots._ox+x*dots._k+'px';
+  }
+  ob.addEventListener('scroll',syncDots,{passive:true});
+
+  /* 一次只能滑一頁：以停下來時的頁面為基準，滑動中最多只能到相鄰一頁 */
+  let _basePage=0, _settleTimer=null;
+  ob.addEventListener('scroll',()=>{
+    const w=ob.clientWidth; if(!w) return;
+    const min=(_basePage-1)*w, max=(_basePage+1)*w;
+    if(ob.scrollLeft<min-1) ob.scrollLeft=min;
+    else if(ob.scrollLeft>max+1) ob.scrollLeft=max;
+    clearTimeout(_settleTimer);
+    _settleTimer=setTimeout(()=>{ _basePage=Math.round(ob.scrollLeft/w); },180);
+  },{passive:true});
+  let _wasShown=false;
+  new MutationObserver(()=>{
+    const on=ob.classList.contains('show');
+    if(on&&!_wasShown) _basePage=Math.round(ob.scrollLeft/(ob.clientWidth||1));
+    _wasShown=on;
+  }).observe(ob,{attributes:true,attributeFilter:['class']});
+  addEventListener('resize',layoutDots);
+  new MutationObserver(()=>{
+    const on=ob.classList.contains('show');
+    dots.classList.toggle('show',on);
+    if(on) requestAnimationFrame(layoutDots);
+  }).observe(ob,{attributes:true,attributeFilter:['class']});
+
+  /* 滑鼠拖動翻頁（手機觸控本來就能滑） */
+  let _drag=null, _dragged=false;
+  ob.addEventListener('pointerdown',e=>{
+    if(_exited||e.pointerType!=='mouse'||e.button!==0) return;
+    _drag={x:e.clientX,left:ob.scrollLeft,cur:Math.round(ob.scrollLeft/ob.clientWidth)};
+    _dragged=false;
+    ob.style.scrollSnapType='none';
+    ob.classList.add('dragging');
+    ob.setPointerCapture(e.pointerId);
+  });
+  ob.addEventListener('pointermove',e=>{
+    if(!_drag) return;
+    const dx=e.clientX-_drag.x;
+    if(Math.abs(dx)>5) _dragged=true;
+    ob.scrollLeft=_drag.left-dx;
+  });
+  const _endDrag=e=>{
+    if(!_drag) return;
+    const w=ob.clientWidth, dx=e.clientX-_drag.x;
+    let target=_drag.cur;
+    if(dx<-w*0.15) target++;
+    else if(dx>w*0.15) target--;
+    _drag=null;
+    ob.classList.remove('dragging');
+    if(target>=SLIDES){ _exited=true; _exitOnboarding(); return; }
+    target=Math.max(0,target);
+    ob.scrollTo({left:target*w,behavior:'smooth'});
+    setTimeout(()=>{ ob.style.scrollSnapType=''; },450);
+  };
+  ob.addEventListener('pointerup',_endDrag);
+  ob.addEventListener('pointercancel',_endDrag);
+
   /* click (desktop): avanza/torna slide */
   ob.addEventListener('click',e=>{
     if(_exited) return;
+    if(_dragged){ _dragged=false; return; }
     const w=ob.clientWidth;
     const cur=Math.round(ob.scrollLeft/w);
     if(e.clientX>=w/2){
@@ -5881,6 +7202,55 @@ function apriRecap0(){
   },450);
   }
 }
+/* 日記頁的打卡點：依路線順序 理工大學 → 海安咖啡 → 西港城 → 個人收藏 一個一個出現，箭頭像畫出來一樣 */
+const DD_PIECES=[
+  ['p-polyu',682,1238,340,500,'p'],
+  ['a-3',567,1648,190,90,'a','inset(0 0 0 100%)'],
+  ['p-haian',252,1338,320,487,'p'],
+  ['a-2',202,1063,150,440,'a','inset(100% 0 0 0)'],
+  ['p-western',352,968,235,355,'p'],
+  ['a-1',422,813,190,150,'a','inset(0 100% 0 0)'],
+  ['p-mine',612,578,270,465,'p'],
+];
+function buildDiaryDay(el){
+  if(el._built) return; el._built=true;
+  const pct=(v,t)=>v/t*100+'%';
+  el.innerHTML='<img class="dd-base" src="assets/diary/base.png" alt="">';
+  DD_PIECES.forEach(([n,x,y,w,h,k,from])=>{
+    const im=document.createElement('img'); im.className='dd-pt '+k; im.src=`assets/diary/${n}.png`; im.alt='';
+    Object.assign(im.style,{left:pct(x,1206),top:pct(y,2622),width:pct(w,1206),height:pct(h,2622)});
+    if(from) im.style.setProperty('--from',from);
+    el.appendChild(im);
+  });
+}
+function playDiaryDay(el,delay){
+  buildDiaryDay(el);
+  el.classList.remove('play','shown'); void el.offsetWidth;
+  el.querySelectorAll('.dd-pt').forEach((im,i)=>im.style.animationDelay=(delay||0)+i*420+'ms');
+  el.classList.add('play');
+}
+document.querySelectorAll('.dd').forEach(buildDiaryDay);
+
+/* 平時看日記：點日期文件夾 → 那一份從抽屜裡抽出來停在抽屜中，前排的文件夾還擋在前面 */
+const DIARY_READY={'2026.5.12':true};
+function pullDiary(tab,date){
+  if(!DIARY_READY[date]){
+    tab.animate([{transform:'none'},{transform:'translateY(-10px)'},{transform:'none'}],{duration:450,easing:'cubic-bezier(.3,1.4,.5,1)'});
+    const h=document.getElementById('r0-hint');
+    h.textContent=`${date} 的日記還在整理中 🐾`;
+    h.classList.add('show'); clearTimeout(h._t); h._t=setTimeout(()=>h.classList.remove('show'),1600);
+    return;
+  }
+  const w=document.getElementById('r0-wrap');
+  w.classList.remove('closing'); w.classList.add('open');
+  playDiaryDay(document.getElementById('r0-pagebox'),850);
+}
+function closeDrawer(){
+  const w=document.getElementById('r0-wrap');
+  if(!w.classList.contains('open')) return;
+  w.classList.add('closing');
+  setTimeout(()=>w.classList.remove('open','closing'),600);
+}
 function chiudiRecap0(){
   document.getElementById('schermata-recap0').style.display='none';
 }
@@ -5915,6 +7285,44 @@ function apriSchermata55(){
 function chiudiSchermata55(){
   document.getElementById('schermata55').style.display='none';
 }
+/* ── 頁面切換動效：任何畫面加上/移除 .show 時淡入上浮、淡出 ── */
+(function(){
+  const SEL='[id^="view-"],.tab-screen,#onboarding';
+  const NO_EXIT=new Set(['view-emoji-select']);
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const shown=new WeakMap();
+  new MutationObserver(list=>list.forEach(m=>{
+    const el=m.target;
+    if(reduce||!el.matches||!el.matches(SEL)) return;
+    const was=(m.oldValue||'').split(/\s+/).includes('show'), now=el.classList.contains('show');
+    if(was===now) return;
+    if(el._skipAnim){ el._skipAnim=false; return; }
+    if(now){
+      if(el._leave){ el._leave.cancel(); el._leave=null; el.style.display=''; }
+      shown.set(el,getComputedStyle(el).display);
+      el.animate([{opacity:0,transform:'translateY(16px) scale(.985)'},{opacity:1,transform:'none'}],
+        {duration:340,easing:'cubic-bezier(.2,.8,.2,1)'});
+    }else if(!NO_EXIT.has(el.id)&&shown.get(el)){
+      el.style.display=shown.get(el);
+      el.style.pointerEvents='none';
+      el._leave=el.animate([{opacity:1,transform:'none'},{opacity:0,transform:'translateY(10px) scale(.99)'}],
+        {duration:240,easing:'ease-in'});
+      el._leave.onfinish=()=>{ el._leave=null; el.style.display=''; el.style.pointerEvents=''; };
+    }
+  })).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class'],attributeOldValue:true});
+
+  /* 點擊回饋：在點擊位置泛起一圈柔和的漣漪 */
+  document.addEventListener('pointerdown',e=>{
+    if(reduce||!e.target.closest('button,a,[onclick],.emi-btn,input[type=file]')) return;
+    const r=document.createElement('span');
+    r.className='tap-ripple';
+    r.style.left=e.clientX+'px'; r.style.top=e.clientY+'px';
+    document.body.appendChild(r);
+    r.animate([{transform:'translate(-50%,-50%) scale(.2)',opacity:.55},{transform:'translate(-50%,-50%) scale(1)',opacity:0}],
+      {duration:450,easing:'ease-out'}).onfinish=()=>r.remove();
+  },true);
+})();
+
 window.addEventListener('load',init);
 /* fallback: se load non scatta (Safari con risorse lente) */
 setTimeout(()=>{
