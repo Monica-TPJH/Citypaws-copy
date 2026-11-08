@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>今日漫步完成草稿</title>
+<style>
+  @font-face{font-family:CPKai;src:url('../assets/fonts/cp-kai-w7-subset.woff2') format('woff2');font-weight:100 700;}
+  @font-face{font-family:CPKai;src:url('../assets/fonts/cp-kai-w9-subset.woff2?v=2') format('woff2');font-weight:800 900;}
+  @font-face{font-family:CPKaiFull;src:url('../assets/fonts/df-yankai-simp-trad-w7.ttf') format('truetype');font-weight:100 700;}
+  @font-face{font-family:CPKaiFull;src:url('../assets/fonts/df-yankai-simp-trad-w9.ttf') format('truetype');font-weight:800 900;}
+  @font-face{font-family:CPKaiBody;src:url('../assets/fonts/cp-kaibody-w5-subset.woff2') format('woff2');}
+  :root{--g:#4E6B4A;--gl:#C9D2C2;--ink:#3D2B1F;--body:#5E4D42;--meta:#8A7B6B;--panel:#ECEFEC;--f:CPKai,CPKaiFull,'Kaiti TC',serif;--fb:CPKaiBody,CPKai,serif;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#2E2A26;color:#F3EEE2;font-family:var(--f);padding:28px 24px 60px}
+  h1{font-size:24px;font-weight:900;letter-spacing:.06em}
+  .lead{margin:8px 0 26px;color:#CFC6B5;font-size:14px;line-height:1.75;max-width:1000px}
+  .lead b{color:#E2B44E}
+  .grid{display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
+  .opt{width:375px}
+  .opt h2{font-size:19px;font-weight:900;margin-bottom:4px}
+  .opt h2 em{font-style:normal;display:inline-block;width:28px;height:28px;border-radius:50%;background:#E2B44E;color:#2E2A26;text-align:center;line-height:28px;margin-right:8px}
+  .opt p.d{font-size:13px;line-height:1.7;color:#D8CFBF;margin-bottom:12px;min-height:66px}
+  .phone{position:relative;width:375px;height:780px;border-radius:40px;overflow:hidden;background:#FBFAEA url(../assets/recap/dj-thumb-0512.jpg) center 20%/cover no-repeat;color:var(--ink);box-shadow:0 16px 40px rgba(0,0,0,.45)}
+  .pan{position:absolute;left:10px;right:10px;bottom:10px;background:var(--panel);border:3px solid #C9CFC3;border-radius:22px 22px 30px 30px;padding:18px 18px 18px}
+  .tab{position:absolute;left:22px;top:-34px;height:36px;padding:0 18px;display:flex;align-items:center;background:var(--panel);border:3px solid #C9CFC3;border-bottom:none;border-radius:14px 14px 0 0;font:900 17px var(--f);color:var(--g);letter-spacing:.08em}
+  .lbl{font:900 15px var(--f);color:var(--g);letter-spacing:.06em;text-align:center}
+  .meta{font:400 12px var(--fb);color:var(--meta);letter-spacing:.04em}
+  .row{display:flex;justify-content:center;gap:4px}
+  .row img{width:44px;height:36px;object-fit:contain}
+  .ok{display:flex;justify-content:center;margin-top:14px}
+  .ok b{display:inline-flex;align-items:center;justify-content:center;min-width:180px;height:40px;background:#30432E;color:#FBFAEA;border:3px solid #FBFAEA;outline:2px solid #30432E;border-radius:6px;font:700 17px var(--f);letter-spacing:.2em}
+  /* A 數字列 */
+  .A .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:2px 0 14px}
+  .A .stats div{background:#FFFDF6;border:1.5px solid #DADFD2;border-radius:14px;padding:9px 4px 8px;text-align:center}
+  .A .stats b{display:block;font:900 24px/1.1 var(--f);color:var(--ink)}
+  .A .stats b small{font:700 12px var(--f);margin-left:2px}
+  .A .stats span{display:block;margin-top:2px}
+  .A .sep{border-top:1.5px dashed var(--gl);margin:0 0 12px}
+  /* B 分組卡片 */
+  .B .grp{background:#FFFDF6;border:1.5px solid #DADFD2;border-radius:14px;padding:10px 12px;margin-bottom:10px}
+  .B .grp .h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+  .B .grp .h b{font:900 14px var(--f);color:var(--g);letter-spacing:.06em}
+  .B .grp .row{justify-content:flex-start;gap:8px}
+  .B .grp .row img{width:52px;height:42px}
+  .B .say{display:flex;align-items:center;gap:8px;margin-bottom:12px;font:700 14px/1.5 var(--f);color:var(--body)}
+  /* C 一句總結＋一排 */
+  .C .big{text-align:center;font:900 20px/1.4 var(--f);letter-spacing:.06em;margin:2px 0 4px}
+  .C .big em{font-style:normal;color:#C0573E;font-size:26px;margin:0 2px}
+  .C .sub{text-align:center;margin-bottom:14px}
+  .C .tray{background:#FFFDF6;border:1.5px solid #DADFD2;border-radius:16px;padding:12px 8px 10px}
+  .C .tray .row{gap:0}.C .tray .row img{width:40px;height:34px}
+  .C .tray .lbl{font-size:13px;margin-bottom:6px}
+</style>
+</head>
+<body>
+<h1>今日漫步完成・下方面板草稿</h1>
+<p class="lead">現在的問題：拿掉貨幣後，中間<b>空了一大塊</b>；探險只有一排小圖，看不出是什麼。三個方案都把空位用起來、字體照層級（標題 W9／內文 W7／細字 W5），按鈕照規範。</p>
+<div class="grid">
+  <div class="opt A"><h2><em>A</em>今日數字＋收穫</h2><p class="d">空位放三個數字：<b>打卡幾處、走了幾公里、收集幾種美食</b>，下面接「漫步期間發現的探險」。資訊最完整。</p>
+    <div class="phone"><div class="pan"><span class="tab">今日漫步完成</span>
+      <div class="stats"><div><b>3<small>處</small></b><span class="meta">打卡錨點</span></div><div><b>4.2<small>km</small></b><span class="meta">今日步行</span></div><div><b>3<small>種</small></b><span class="meta">收集美食</span></div></div>
+      <div class="sep"></div><div class="lbl">漫步期間發現的探險</div>
+      <div class="row" style="margin-top:8px"><img src="recap/it0.png"><img src="recap/it1.png"><img src="recap/it2.png"><img src="recap/it3.png"><img src="recap/it4.png"><img src="recap/it5.png"><img src="recap/it6.png"></div>
+      <div class="ok"><b>確認</b></div></div></div></div>
+  <div class="opt B"><h2><em>B</em>分組：Lucky 造型／美食</h2><p class="d">把探險分成兩組，各自有標題和數量，圖也放大。<b>一眼看懂今天拿到什麼。</b></p>
+    <div class="phone"><div class="pan"><span class="tab">今日漫步完成</span>
+      <div class="say">今天陪本喵走了 <b style="color:#C0573E">3</b> 個老地方，收穫滿滿！</div>
+      <div class="grp"><div class="h"><b>解鎖的 Lucky 造型</b><span class="meta">4 款</span></div><div class="row"><img src="recap/it0.png"><img src="recap/it1.png"><img src="recap/it2.png"><img src="recap/it3.png"></div></div>
+      <div class="grp"><div class="h"><b>收集的美食</b><span class="meta">3 種</span></div><div class="row"><img src="recap/it4.png"><img src="recap/it5.png"><img src="recap/it6.png"></div></div>
+      <div class="ok"><b>確認</b></div></div></div></div>
+  <div class="opt C"><h2><em>C</em>一句總結</h2><p class="d">最簡潔：一句大字總結今天，小字補充步行距離，收穫放在一個托盤裡。<b>面板最矮，地圖露出最多。</b></p>
+    <div class="phone"><div class="pan"><span class="tab">今日漫步完成</span>
+      <div class="big">今天探索了<em>3</em>個錨點</div><div class="sub meta">步行 4.2 km・約 52 分鐘</div>
+      <div class="tray"><div class="lbl">漫步期間發現的探險</div><div class="row"><img src="recap/it0.png"><img src="recap/it1.png"><img src="recap/it2.png"><img src="recap/it3.png"><img src="recap/it4.png"><img src="recap/it5.png"><img src="recap/it6.png"></div></div>
+      <div class="ok"><b>確認</b></div></div></div></div>
+</div>
+</body>
+</html>

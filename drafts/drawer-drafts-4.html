@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>日記檔案草稿 4</title>
+<style>
+  @font-face{font-family:CPKai;src:url('../assets/fonts/cp-kai-w7-subset.woff2') format('woff2');font-weight:100 700;}
+  @font-face{font-family:CPKai;src:url('../assets/fonts/cp-kai-w9-subset.woff2?v=2') format('woff2');font-weight:800 900;}
+  @font-face{font-family:CPKaiFull;src:url('../assets/fonts/df-yankai-simp-trad-w7.ttf') format('truetype');font-weight:100 700;}
+  @font-face{font-family:CPKaiFull;src:url('../assets/fonts/df-yankai-simp-trad-w9.ttf') format('truetype');font-weight:800 900;}
+  :root{--g:#4E6B4A;--gl:#9DB197;--gt:#CBD2C3;--cream:#FBFAEA;--paper:#FFFEF7;--ink:#3D2B1F;--ink2:#8A7B6B;--gold:#F2D16B;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#2E2A26;color:#F3EEE2;font-family:CPKai,CPKaiFull,'Kaiti TC','STKaiti',serif;padding:28px 24px 60px}
+  h1{font-size:24px;font-weight:900;letter-spacing:.06em}
+  .lead{margin:8px 0 26px;color:#CFC6B5;font-size:14px;line-height:1.7;max-width:980px}
+  .lead b{color:#E2B44E}
+  .grid{display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
+  .opt{width:375px}
+  .opt h2{font-size:19px;font-weight:900;margin-bottom:4px}
+  .opt h2 em{font-style:normal;display:inline-block;width:28px;height:28px;border-radius:50%;background:#E2B44E;color:#2E2A26;text-align:center;line-height:28px;margin-right:8px}
+  .opt p.d{font-size:13px;line-height:1.7;color:#D8CFBF;margin-bottom:12px;min-height:66px}
+  .phone{position:relative;width:375px;height:780px;border-radius:40px;overflow:hidden;color:var(--ink);box-shadow:0 16px 40px rgba(0,0,0,.45);
+    background:var(--cream);}
+  /* 上方：原本的拍立得拼貼背景，淡淡的 */
+  .phone .collage{position:absolute;left:0;right:0;top:0;height:330px;background:url(board/polas.jpg) center 20%/cover;opacity:.35;
+    -webkit-mask:linear-gradient(#000 55%,transparent);mask:linear-gradient(#000 55%,transparent)}
+  .back{position:absolute;left:16px;top:48px;width:42px;height:42px;border-radius:50%;border:3.5px solid var(--gt);background:#F3F2E6;display:grid;place-items:center;z-index:50}
+  .back svg{width:22px;height:22px;fill:none;stroke:#6E8A68;stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+  .ttl{position:absolute;left:0;right:0;top:56px;text-align:center;font-size:21px;font-weight:900;letter-spacing:.14em;z-index:40}
+  .hint{position:absolute;left:50%;translate:-50% 0;padding:6px 14px;border-radius:12px;background:#FFFEF7;border:2.5px solid var(--g);font-size:13px;font-weight:700;white-space:nowrap;z-index:40;box-shadow:0 3px 0 rgba(78,107,74,.18)}
+  .gridpaper{background-color:var(--paper);background-image:linear-gradient(rgba(78,107,74,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(78,107,74,.07) 1px,transparent 1px);background-size:14px 14px}
+  .num{font-family:'Nunito',CPKai,sans-serif;font-weight:900}
+  .lock{color:#B0A595}
+
+  /* ── A 整齊階梯 ── */
+  .A .stack{position:absolute;left:18px;right:18px;top:250px;bottom:0}
+  .A .f{position:absolute;left:0;right:0;height:560px;border:2.5px solid var(--g);border-radius:10px 10px 0 0;cursor:pointer;transition:top .45s cubic-bezier(.3,.9,.3,1)}
+  .A .f .tb{position:absolute;top:-30px;width:31%;height:32px;border:2.5px solid var(--g);border-bottom:none;border-radius:10px 10px 0 0;background:inherit;display:flex;align-items:center;justify-content:center;font-size:15px;gap:4px}
+  .A .f .tb small{font-size:10px;color:var(--ink2)}
+  .A .f.cur .tb{background:var(--gold);border-color:#3D2B1F}
+  .A .f .peek{position:absolute;inset:14px 14px auto;display:none}
+  .A .f.cur .peek{display:block}
+  .peek h3{font-size:16px;font-weight:900}
+  .peek small{display:block;font-size:11.5px;color:var(--ink2);margin-top:3px}
+  .peek .pic{margin-top:10px;height:190px;border-radius:8px;background:url(board/day512.jpg) center 14%/cover;border:1.5px solid #E5E2D2}
+  .peek .go{display:inline-block;margin-top:12px;padding:8px 18px;border-radius:10px;background:var(--g);color:#fff;font-size:14px;font-weight:900}
+
+  /* ── B 月份分隔＋左右兩排 ── */
+  .B .box{position:absolute;left:16px;right:16px;top:232px;bottom:92px;border:2.5px solid var(--g);border-bottom:none;border-radius:12px 12px 0 0;background:#F1EFDF;overflow:hidden}
+  .B .row{position:relative;height:38px;margin:0 10px}
+  .B .card{position:absolute;left:0;right:0;top:12px;height:300px;border:2px solid var(--g);border-radius:8px 8px 0 0}
+  .B .card .tb{position:absolute;top:-14px;height:24px;padding:0 12px;border:2px solid var(--g);border-bottom:none;border-radius:8px 8px 0 0;background:inherit;display:flex;align-items:center;gap:8px;font-size:12.5px;white-space:nowrap}
+  .B .card.L .tb{left:12px}.B .card.R .tb{right:12px}
+  .B .card .tb b{font-family:CPKai,serif;font-weight:700}
+  .B .card.new .tb{background:var(--gold);border-color:#3D2B1F}
+  .B .card.mon{background:#3D2B1F;border-color:#3D2B1F}
+  .B .card.mon .tb{left:50%;translate:-50% 0;background:#3D2B1F;color:#FBFAEA;border-color:#3D2B1F}
+  .B .card.mon .tb .num{color:var(--gold)}
+  .B .front{position:absolute;left:0;right:0;bottom:0;height:100px;background:var(--cream);border-top:2.5px solid var(--g);z-index:30}
+  .B .front::before{content:'';position:absolute;left:14px;right:14px;top:10px;bottom:0;border:2px solid var(--gl);border-bottom:none;border-radius:6px 6px 0 0}
+  .B .front span{position:absolute;left:50%;top:26px;translate:-50% 0;padding:5px 16px;border-radius:8px;background:var(--gold);border:2px solid #3D2B1F;font-size:14px;font-weight:900;white-space:nowrap}
+
+  /* ── C 橫向翻閱 ── */
+  .C .rail{position:absolute;left:0;right:0;top:236px;height:430px;display:flex;gap:14px;padding:0 47px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+  .C .rail::-webkit-scrollbar{display:none}
+  .C .fd{flex:0 0 281px;scroll-snap-align:center;position:relative;margin-top:30px;height:390px;border:2.5px solid var(--g);border-radius:0 12px 12px 12px}
+  .C .fd .tb{position:absolute;left:-2.5px;top:-32px;width:52%;height:32px;border:2.5px solid var(--g);border-bottom:none;border-radius:10px 10px 0 0;background:inherit;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .C .fd.new .tb{background:var(--gold);border-color:#3D2B1F}
+  .C .fd .in{position:absolute;inset:14px}
+  .C .fd .pic{height:200px;border-radius:8px;background:url(board/day512.jpg) center 14%/cover;border:1.5px solid #E5E2D2}
+  .C .fd h3{font-size:16px;font-weight:900;margin-top:10px}
+  .C .fd small{display:block;font-size:11.5px;color:var(--ink2);margin-top:3px}
+  .C .fd .go{position:absolute;left:14px;right:14px;bottom:14px;height:40px;border-radius:10px;background:var(--g);color:#fff;font-size:15px;font-weight:900;display:grid;place-items:center}
+  .C .fd.lk .pic{filter:grayscale(1) opacity(.35)}
+  .C .fd.lk .go{background:#D9D6C8;color:#8A7B6B}
+  .C .dots{position:absolute;left:0;right:0;top:690px;display:flex;justify-content:center;gap:8px}
+  .C .dots i{width:8px;height:8px;border-radius:50%;background:var(--gt)}
+  .C .dots i.on{width:22px;border-radius:5px;background:var(--g)}
+  .C .month{position:absolute;left:0;right:0;top:206px;text-align:center;font-size:14px;font-weight:900;color:var(--g);letter-spacing:.1em}
+
+  /* ── D 活頁夾時間軸 ── */
+  .D .binder{position:absolute;left:16px;right:16px;top:150px;bottom:0;border:2.5px solid var(--g);border-bottom:none;border-radius:14px 14px 0 0;padding:16px 14px 0 46px;overflow:hidden}
+  .D .binder::before{content:'';position:absolute;left:26px;top:0;bottom:0;border-left:2px dashed var(--gl)}
+  .D .mh{font-size:13px;font-weight:900;color:var(--g);letter-spacing:.12em;margin:4px 0 8px -30px;display:flex;align-items:center;gap:8px}
+  .D .mh::after{content:'';flex:1;border-top:1.5px dotted var(--gl)}
+  .D .it{position:relative;display:flex;gap:10px;align-items:center;padding:8px 10px;margin-bottom:10px;border:2px solid var(--g);border-radius:10px;background:var(--paper)}
+  .D .it::before{content:'';position:absolute;left:-27px;top:50%;width:12px;height:12px;margin-top:-6px;border-radius:50%;background:var(--paper);border:2.5px solid var(--g)}
+  .D .it .th{width:58px;height:58px;border-radius:7px;background:url(board/day512.jpg) center 14%/cover;flex-shrink:0;border:1.5px solid #E5E2D2}
+  .D .it .tx b{font-size:17px}
+  .D .it .tx small{display:block;font-size:11.5px;color:var(--ink2);margin-top:2px}
+  .D .it .ar{margin-left:auto;font-size:18px;color:var(--g);font-weight:900}
+  .D .it.new{border-color:#3D2B1F;background:#FFF6D6}
+  .D .it.new::before{background:var(--gold);border-color:#3D2B1F}
+  .D .it.lk{opacity:.55;border-style:dashed}
+  .D .it.lk .th{background:#E7E3D3}
+</style>
+</head>
+<body>
+<h1>日記檔案・重新擺放（草稿 4）</h1>
+<p class="lead">現在的檔案標籤擠在一起、高高低低，看不出順序。下面 4 種擺法都用 CityPaws 的綠線＋奶油格紙，<b>最新那天用黃色標籤</b>，還沒整理好的日期淡掉。挑一個（或說哪裡想混搭），我再做進正式版。</p>
+<div class="grid">
+
+  <!-- A -->
+  <div class="opt A">
+    <h2><em>A</em>整齊階梯</h2>
+    <p class="d">保留「抽屜裡的檔案夾」感覺，但標籤<b>從左到右一格一格排好</b>、每層間距一樣，日期順序一眼看懂。點標籤那份就抽到最前面，露出那天的縮圖和「打開日記」。</p>
+    <div class="phone" id="pA">
+      <div class="collage"></div>
+      <span class="back"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg></span>
+      <div class="ttl">我的日記</div>
+      <div class="hint" style="top:118px">點擊檔案日期查看</div>
+      <div class="stack" id="stA"></div>
+    </div>
+  </div>
+
+  <!-- B -->
+  <div class="opt B">
+    <h2><em>B</em>月份分隔＋左右兩排</h2>
+    <p class="d">像索引卡抽屜：<b>深色月份卡</b>把日記分成一個月一個月，日期標籤左右交錯、每張只露出一條，十幾天也排得下。抽屜正面一個黃色小標籤。</p>
+    <div class="phone">
+      <div class="collage"></div>
+      <span class="back"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg></span>
+      <div class="ttl">我的日記</div>
+      <div class="hint" style="top:118px">點擊檔案日期查看</div>
+      <div class="box" id="boxB"></div>
+      <div class="front"><span>Lucky 的時光日記</span></div>
+    </div>
+  </div>
+
+  <!-- C -->
+  <div class="opt C">
+    <h2><em>C</em>橫向翻閱</h2>
+    <p class="d">一次只看一份檔案夾，<b>左右滑換一天</b>。每份直接看到那天的照片、去過的點和「打開日記」，不用先猜哪個標籤是哪天。（這張可以真的滑）</p>
+    <div class="phone">
+      <div class="collage"></div>
+      <span class="back"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg></span>
+      <div class="ttl">我的日記</div>
+      <div class="hint" style="top:118px">左右滑動翻看每一天</div>
+      <div class="month">2026 年 5 月</div>
+      <div class="rail" id="railC"></div>
+      <div class="dots" id="dotsC"></div>
+    </div>
+  </div>
+
+  <!-- D -->
+  <div class="opt D">
+    <h2><em>D</em>活頁夾時間軸</h2>
+    <p class="d">最好找的一種：<b>一條時間軸由新到舊</b>，每天一條，有縮圖、地點、幾個貓點。月份當小標題。日子多了往下滑就好。</p>
+    <div class="phone">
+      <span class="back"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg></span>
+      <div class="ttl">我的日記</div>
+      <div class="hint" style="top:100px;display:none"></div>
+      <div class="binder gridpaper" id="bD"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DAYS=[
+  {d:'5.10',p:'紅磡站'},{d:'5.11',p:'尖沙咀'},{d:'5.12',p:'理工大學・海安咖啡・西港城',n:1},{d:'5.13',p:'海安咖啡'},{d:'5.14',p:'西港城'},{d:'5.15',p:'中環街市'}
+];
+/* A */
+(()=>{
+  const st=document.getElementById('stA'); let cur=2;
+  DAYS.forEach((it,i)=>{
+    const f=document.createElement('div'); f.className='f gridpaper'; f.style.zIndex=10+i;
+    f.innerHTML=`<div class="tb" style="left:${i%3*34.5}%"><span class="num">${it.d}</span>${it.n?'':'<small>整理中</small>'}</div>
+      <div class="peek"><h3>2026.${it.d}・漫步日記</h3><small>${it.p}・4 個貓點・4.2 km</small><div class="pic"></div><span class="go">打開日記</span></div>`;
+    f.onclick=()=>{ if(!DAYS[i].n) return; cur=i; lay(); };
+    st.appendChild(f);
+  });
+  function lay(){ [...st.children].forEach((f,i)=>{ f.classList.toggle('cur',i===cur); f.style.top=(i<=cur? i*40 : cur*40+ (i-cur)*40 + 300)+'px'; f.style.zIndex=i===cur?100:10+i; }); }
+  lay();
+})();
+/* B */
+(()=>{
+  const box=document.getElementById('boxB');
+  const L=[{m:'4 月',c:'04'},{d:'4.22',p:'都爹利街'},{d:'4.30',p:'和昌大押'},{m:'5 月',c:'06'},{d:'5.10',p:'紅磡站'},{d:'5.11',p:'尖沙咀'},{d:'5.12',p:'理工大學',n:1},{d:'5.13',p:'海安咖啡'},{d:'5.14',p:'西港城'},{d:'5.15',p:'中環街市'}];
+  let k=0;
+  L.forEach((it,i)=>{
+    const r=document.createElement('div'); r.className='row';
+    const side=it.m?'mon':(k++%2?'R':'L');
+    r.innerHTML=`<div class="card gridpaper ${side} ${it.n?'new':''}"><div class="tb">${it.m?`<b>${it.m}</b><span class="num">${it.c} 篇</span>`:`<span class="num">${it.d}</span><b class="${it.n?'':'lock'}">${it.p}</b>`}</div></div>`;
+    box.appendChild(r);
+  });
+})();
+/* C */
+(()=>{
+  const rail=document.getElementById('railC'), dots=document.getElementById('dotsC');
+  DAYS.forEach((it,i)=>{
+    const f=document.createElement('div'); f.className='fd gridpaper'+(it.n?' new':' lk');
+    f.innerHTML=`<div class="tb"><span class="num">2026.${it.d}</span></div><div class="in"><div class="pic"></div><h3>${it.n?'漫步日記':'整理中…'}</h3><small>${it.p}${it.n?'・4 個貓點・4.2 km':''}</small></div><div class="go">${it.n?'打開日記':'Lucky 還在整理 🐾'}</div>`;
+    rail.appendChild(f); dots.insertAdjacentHTML('beforeend','<i></i>');
+  });
+  const upd=()=>{ const i=Math.round(rail.scrollLeft/295); [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i)); };
+  rail.addEventListener('scroll',upd);
+  requestAnimationFrame(()=>{ rail.scrollLeft=2*295; upd(); });
+})();
+/* D */
+(()=>{
+  const b=document.getElementById('bD');
+  const H=[['5 月',[...DAYS].reverse()],['4 月',[{d:'4.30',p:'和昌大押'},{d:'4.22',p:'都爹利街'}]]];
+  H.forEach(([m,arr])=>{
+    b.insertAdjacentHTML('beforeend',`<div class="mh">2026 年 ${m}</div>`);
+    arr.forEach(it=>b.insertAdjacentHTML('beforeend',`<div class="it ${it.n?'new':'lk'}"><div class="th"></div><div class="tx"><b class="num">${it.d}</b><small>${it.n?it.p+'・4 個貓點':it.p+'・整理中'}</small></div><span class="ar">${it.n?'›':''}</span></div>`));
+  });
+})();
+</script>
+</body>
+</html>

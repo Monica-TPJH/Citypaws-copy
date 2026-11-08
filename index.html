@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
   <title>CityPaws 時光貓跡</title>
   <link rel="preload" href="assets/ui/Background.png" as="image">
@@ -15,6 +16,9 @@
   @font-face{font-family:CPKai;src:url('assets/fonts/cp-kai-w7-subset.woff2') format('woff2');font-weight:100 700;font-display:swap;}
   @font-face{font-family:CPKai;src:url('assets/fonts/cp-kai-w9-subset.woff2?v=2') format('woff2');font-weight:800 900;font-display:swap;}
   @font-face{font-family:CPKaiFull;src:url('assets/fonts/df-yankai-simp-trad-w7.ttf') format('truetype');font-weight:100 700;font-display:swap;unicode-range:U+2E80-2FDF,U+3000-303F,U+3100-312F,U+31A0-31BF,U+3400-4DBF,U+4E00-9FFF,U+F900-FAFF,U+FE30-FE4F,U+FF00-FFEF,U+20000-2FA1F;}
+  /* 新字體：華康楷體 W5（內文、輔助字，繁簡都有）、華康綜藝 W7（簡體模式的標題，只有簡體字）——都切成 App 用到的字 */
+  @font-face{font-family:CPKaiBody;src:url('assets/fonts/cp-kaibody-w5-subset.woff2') format('woff2');font-weight:100 900;font-display:swap;}
+  @font-face{font-family:CPZongKai;src:url('assets/fonts/cp-zongkai-w7-subset.woff2') format('woff2');font-weight:100 900;font-display:swap;}
   @font-face{font-family:CPKaiFull;src:url('assets/fonts/df-yankai-simp-trad-w9.ttf') format('truetype');font-weight:800 900;font-display:swap;unicode-range:U+2E80-2FDF,U+3000-303F,U+3100-312F,U+31A0-31BF,U+3400-4DBF,U+4E00-9FFF,U+F900-FAFF,U+FE30-FE4F,U+FF00-FFEF,U+20000-2FA1F;}
   html,body,button,input,textarea,select{font-family:Nunito,CPKai,CPKaiFull,'Kaiti TC','STKaiti',sans-serif;}
   :root {
@@ -603,6 +607,9 @@
   .sc-row .cp-btn{flex-shrink:0;}
   .sc-cmt{display:flex;gap:8px;margin-top:12px;} .sc-cmt input{flex:1;border:2px solid #E2D8C2;border-radius:14px;padding:9px 12px;font:600 14px CPKai,CPKaiFull,'PingFang TC',sans-serif;background:#FFFDF8;outline:none;}
   .sc-big{width:100%;border-radius:14px;display:block;}
+  /* 分享日記：圖不要撐高到把輸入框和「發佈」擠出畫面 */
+  .sc-card .sc-big{max-height:min(46vh,calc(var(--app-h,100vh) * .46));width:auto;max-width:100%;margin:0 auto;object-fit:contain;}
+  .sc-card{max-height:88% !important;}
   .sc-toast{position:absolute;left:50%;top:120px;translate:-50% 0;z-index:30;padding:9px 18px;border-radius:16px;background:#FFFDF4;border:2.5px solid var(--cp-green);font:700 13px CPKai,CPKaiFull,'PingFang TC',sans-serif;color:#4E3B30;white-space:nowrap;
     opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;transform:translateY(-8px);}
   .sc-toast.show{opacity:1;transform:none;}
@@ -825,13 +832,14 @@
      ─ 樣式：
          .cp-btn--solid  主要按鈕（深綠 Acacia 30% shade），一個畫面最多一個
          .cp-btn--soft   次要按鈕（淺綠 Acacia 20% tint）
-         .cp-btn--brown / --brown-soft  咖啡色（深 Bramble Rush #4E3325 / 淺 #8B6A58）
+         （沒有咖啡色按鈕：--brown / --brown-soft 只是舊名字，會顯示成深綠／淺綠）
      ─ 尺寸（高度 / 字級 / 左右內距）：
-         --xs 24 / 11 / 10    標籤、卡片內的小動作
-         --sm 28 / 13 / 12    列表裡的操作（例：稍後探索的「出發」）
-         --md 36 / 14 / 18    一般按鈕（預設）
-         --lg 40 / 17 / 24    頁面上的主要動作
-         --xl 48 / 17 / 28    底部滿版按鈕（例：選擇完成、完成卡片）
+     ─ 尺寸（高度 / 字級 / 左右內距 / 標準寬度）：
+         --xs 24 / 11 / 10 /  72   標籤、卡片內的小動作
+         --sm 28 / 13 / 12 /  88   列表裡的操作（例：加好友、出發）
+         --md 36 / 14 / 18 / 120   一般按鈕（預設）
+         --lg 40 / 17 / 24 / 180   頁面上的主要動作
+         --xl 48 / 17 / 28 / 310   底部的主要按鈕（例：完成卡片、收下故事）
        加 .cp-btn--block 撐滿寬度
      ─ 圖示：<span class="cp-btn__icon"> 放在文字前，大小是字級的 1.25 倍
      ─ 文字：楷體、粗體、字距 .2em，紙色 #FBFAEA
@@ -856,13 +864,16 @@
   .cp-btn:disabled,.cp-btn.is-disabled{--frame:url('assets/ui/btn/frame-disabled.png');--fill:#C7CFC6;color:#7D8F7B;cursor:not-allowed;filter:none;transform:none;}
   .cp-btn--solid{--frame:url('assets/ui/btn/frame-green-dark.png');--fill:#30432E;}
   .cp-btn--soft{--frame:url('assets/ui/btn/frame-green-light.png');--fill:#6A7F68;}
-  .cp-btn--brown{--frame:url('assets/ui/btn/frame-brown-dark.png');--fill:#4E3325;}
-  .cp-btn--brown-soft{--frame:url('assets/ui/btn/frame-brown-light.png');--fill:#8B6A58;}
-  .cp-btn--xs{--h:24px;--fs:11px;--px:10px;letter-spacing:.12em;text-indent:.12em;}
-  .cp-btn--sm{--h:28px;--fs:13px;--px:12px;}
-  .cp-btn--md{--h:36px;--fs:14px;--px:18px;}
-  .cp-btn--lg{--h:40px;--fs:17px;--px:24px;}
-  .cp-btn--xl{--h:48px;--fs:17px;--px:28px;}
+  /* 尺寸規範（照設計稿）：每一級有固定的高度、字級和「標準寬度」，字少的按鈕也撐到標準寬度，畫面上同一級看起來一樣大 */
+  .cp-btn{min-width:var(--w,120px);max-width:calc(100vw - 32px);}
+  .cp-btn--xs{--h:24px;--fs:11px;--px:10px;--w:72px;}
+  .cp-btn--sm{--h:28px;--fs:13px;--px:12px;--w:88px;}
+  .cp-btn--md{--h:36px;--fs:14px;--px:18px;--w:120px;}
+  .cp-btn--lg{--h:40px;--fs:17px;--px:24px;--w:180px;}
+  .cp-btn--xl{--h:48px;--fs:17px;--px:28px;--w:min(310px,calc(100vw - 32px));}
+  /* 規範只有兩種顏色：深綠（主要）、淺綠（次要）。舊的咖啡色按鈕一律換成對應的綠色 */
+  .cp-btn--brown{--frame:url('assets/ui/btn/frame-green-dark.png') !important;--fill:#30432E !important;}
+  .cp-btn--brown-soft{--frame:url('assets/ui/btn/frame-green-light.png') !important;--fill:#6A7F68 !important;}
   .cp-btn--block{display:flex;width:100%;}
   /* 點完按鈕不留藍色焦點框（只有用鍵盤切換時才顯示） */
   button:focus:not(:focus-visible),[onclick]:focus:not(:focus-visible){outline:none;}
@@ -1414,6 +1425,16 @@
   #td-edited{position:relative;aspect-ratio:1206/2622;display:none;pointer-events:none;}
   #td-edited img{position:absolute;left:0;top:0;width:100%;height:auto;}
   #tab-diary.edited #td-day{display:none;}
+  /* 結算：先播路線一段段畫出來的動畫，畫完再淡入裝飾好的日記頁 */
+  /* 路線版和裝飾版疊在同一位置交叉淡化，不會一下子跳掉 */
+  #tab-diary.settling #td-edited{display:block;position:absolute;left:50%;top:50%;translate:-50% calc(-50% - 3.62%);opacity:0;pointer-events:none;transition:opacity .8s ease;}
+  #tab-diary.settling.decorated #td-edited{opacity:1;}
+  #tab-diary.settling #td-day{transition:opacity .8s ease;}
+  #tab-diary.settling.decorated #td-day{opacity:0;}
+  #view-recap2 .r2-lock,#view-recap2 button[aria-label="編輯"]{display:none !important;}   /* 結算頁不要編輯鍵 */
+  #td-edited .td-date{position:absolute;z-index:2;left:15.7%;top:19.2%;width:23.2%;height:2.0%;display:flex;align-items:center;justify-content:center;background:#FFFFF9;
+    font:900 clamp(13px,4.4vw,19px)/1 'Songti TC','Noto Serif TC',serif;color:#5B483D;}
+  @keyframes tdDeco{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:none}}
   #tab-diary.edited #td-edited{display:block;animation:wcBubble .45s ease-out both;}
   /* 「人類，探索一天辛苦了，來看看今日收獲！」的小貓＋對話框拿掉了 */
   #nav-btn-diary.has-new::after{content:'';position:absolute;right:6%;top:4%;width:12px;height:12px;border-radius:50%;
@@ -1441,6 +1462,18 @@
   #r2-fx div{position:absolute;background-repeat:no-repeat;}
   #r2-wrap.fx #r2-base{clip-path:inset(0 0 26.9% 0);}
   #r2-fx .r2-panel{animation:r2PanelUp .65s cubic-bezier(.2,.9,.3,1) both;}
+  #r2-fx .r2-newpanel{position:absolute;left:0;right:0;bottom:0;z-index:2;pointer-events:auto;animation:r2PanelIn .8s cubic-bezier(.2,.9,.3,1) both;}
+  @keyframes r2PanelIn{from{transform:translateY(100%);opacity:.3}60%{opacity:1}to{transform:none;opacity:1}}
+  #r2-fx .r2-newpanel img{animation:none;}
+  #r2-fx .r2-newpanel img{display:block;width:100%;height:auto;}
+  /* 確認按鈕在圖上的位置（807×351 圖：x 306–482、y 229–302） */
+  #r2-fx .r2-edit{position:absolute;right:16px;top:calc(var(--diary-back-top,52px) + 6px);z-index:3;pointer-events:auto;--w:72px;}
+  #r2-fx .r2-newok{position:absolute;left:37.9%;top:65.2%;width:21.8%;height:20.8%;background:none;border:none;cursor:pointer;z-index:2;animation:r2OkPulse 1.6s 1s ease-in-out infinite;border-radius:8px;}
+  @keyframes r2OkPulse{0%,100%{box-shadow:0 0 0 0 rgba(48,67,46,.35)}50%{box-shadow:0 0 0 6px rgba(48,67,46,0)}}
+  /* 底下一條細進度條：快到自動跳轉的時間 */
+  #r2-fx .r2-auto{position:absolute;left:30%;right:30%;bottom:6%;height:3px;border-radius:2px;background:rgba(78,107,74,.18);overflow:hidden;}
+  #r2-fx .r2-auto::after{content:'';position:absolute;inset:0;background:#4E6B4A;transform-origin:0 50%;animation:r2Auto 2.8s .6s linear both;}
+  @keyframes r2Auto{from{transform:scaleX(0)}to{transform:scaleX(1)}}
   #r2-fx .r2-cover{z-index:1;}
   #r2-fx .r2-num{z-index:2;display:flex;align-items:center;justify-content:center;
     font:700 calc(var(--rw,400px)*.034) 'Songti TC','Noto Serif TC',serif;color:#586F55;}
@@ -1539,6 +1572,7 @@
   .bottom-nav .nav-layer.on{opacity:1;}
   /* 點進去的內頁（故事卡、食物卡、圖鑑詳情、拍照、留言板、結算、衣櫃、個人中心…）一律不顯示下方導航 */
   body.nav-off .bottom-nav{display:none !important;}
+  body.nav-off #welcome-cat:not(.keep),body.arriving #welcome-cat{display:none !important;}   /* 內頁、到達時不顯示地圖上的 Lucky 對話框 */
   .bottom-nav img{-webkit-user-drag:none;}
   #nav-btn-map   { left:var(--nav-map-left);    top:var(--nav-map-top);    width:var(--nav-map-w);    height:var(--nav-map-h); }
   #nav-btn-diary { left:var(--nav-diary-left);  top:var(--nav-diary-top);  width:var(--nav-diary-w);  height:var(--nav-diary-h); }
@@ -1580,8 +1614,13 @@
     color:#4E3325;
     pointer-events:none;line-height:1;
   }
-  #gps-dist{ top:var(--gps-dist-top); left:var(--gps-dist-left); font-size:var(--gps-dist-size); font-weight:800; }
-  #gps-eta { top:var(--gps-eta-top);  left:var(--gps-eta-left);  font-size:var(--gps-eta-size);  font-weight:800; }
+  /* 距離＋預計時間：放在箭頭和「退出導航」中間，置中、寬度固定，字太長就自動縮小 */
+  /* 照原本的排版：兩行都靠左、貼在箭頭右邊（原圖的位置和字級），只是單位和句子改由程式寫，數字長了往右推不會疊字 */
+  #gps-dist,#gps-eta{left:75px;max-width:170px;text-align:left;white-space:nowrap;overflow:hidden;}
+  #gps-dist{top:22px;font:800 22px/1 'Nunito',CPKai,sans-serif;}
+  #gps-dist small{margin-left:4px;font:900 14px CPKai,CPKaiFull,serif;}
+  #gps-eta{top:50px;font:700 11px/1 CPKai,CPKaiFull,serif;color:#7A6A5A;letter-spacing:.06em;}
+  #gps-eta b{margin:0 1px;font:800 12px 'Nunito',CPKai,sans-serif;color:#4E3325;letter-spacing:0;}
   #gps-cancel-btn{
     position:absolute;
     top:var(--gps-btn-top);left:var(--gps-btn-left);
@@ -1609,7 +1648,11 @@
   #nav-companion-popup .cp-cat,#nav-companion-popup .cp-bubble{will-change:transform,opacity;backface-visibility:hidden;}
   #nav-companion-popup .cp-type.l1{left:32.59%;top:23.78%;width:55.14%;height:11.66%;}
   #nav-companion-popup .cp-type.l2{left:32.75%;top:38%;width:34.99%;height:11.42%;}
-  #nav-companion-popup .cp-type.l3{left:33%;top:55.24%;width:37.73%;height:9.09%;}
+  #nav-companion-popup .cp-type.l3{left:33%;top:55.24%;width:52%;height:9.09%;}
+  /* 「正在前往○○……」改成程式寫（跟著導航的目的地換），字級和顏色照原圖那一行（原圖字高 32/429、顏色 #86786E） */
+  #nav-companion-popup .cp-bubble{container-type:inline-size;}
+  #nav-companion-popup .cp-dest{position:absolute;left:33.3%;top:55.4%;height:8.6%;display:flex;align-items:center;white-space:nowrap;
+    font:900 2.62cqw/1 CPKai,CPKaiFull,'Kaiti TC',serif;color:#86786E;letter-spacing:.05em;pointer-events:none;}
   #nav-companion-popup.show .cp-cat{animation:cpCatIn .55s cubic-bezier(.3,1.6,.5,1) both,cpCatIdle 2.4s .9s ease-in-out infinite;}
   #nav-companion-popup.show .cp-bubble{animation:cpBubbleIn .4s .4s cubic-bezier(.3,1.5,.5,1) both;}
   /* 先出小貓和對話框，對話框到位後字整段一起淡入（不再一個字一個字） */
@@ -1640,6 +1683,15 @@
     width:min(100vw,364px);container-type:inline-size;
   }
   #arrival-overlay.show{display:block;pointer-events:auto;cursor:pointer;}
+  /* 新版：小一點的橫幅，位置由程式對齊到錨點正上方 */
+  #arrival-overlay{width:min(calc(100vw - 28px),320px);transform:translate(-50%,-100%);}
+  #arrival-overlay.show img{animation:arrIn .55s cubic-bezier(.3,1.45,.5,1) both !important;transform-origin:50% 100%;}
+  #arrival-overlay.out img{animation:arrOut .35s ease-in forwards !important;}
+  /* 到達後錨點一直輕輕跳，提示直接點它 */
+  .pin-tapme .anchor-pin{transform-origin:50% 100%;animation:pinTap 1.1s ease-in-out infinite;cursor:pointer;}
+  .pin-tapme::after{content:'';position:absolute;left:50%;bottom:-3px;width:34px;height:9px;margin-left:-17px;border-radius:50%;background:rgba(61,43,31,.28);z-index:-1;animation:pinTapSh 1.1s ease-in-out infinite;}
+  @keyframes pinTap{0%,100%{transform:none}30%{transform:translateY(-12px) scaleY(1.03)}50%{transform:translateY(0) scaleY(.94) scaleX(1.05)}62%{transform:translateY(-4px)}76%{transform:none}}
+  @keyframes pinTapSh{0%,100%{transform:scale(1);opacity:1}30%{transform:scale(.7);opacity:.55}50%{transform:scale(1.05)}}
   #arrival-overlay .arr-text{position:absolute;z-index:2;left:31.5%;right:5%;top:25%;bottom:25%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.6cqw;
     background:#FCFCF6;border-radius:10px;color:#3D2B1F;font-family:CPKai,CPKaiFull,'Kaiti TC',serif;text-align:center;pointer-events:none;}
   #arrival-overlay .arr-text b{font-weight:900;font-size:6cqw;letter-spacing:.02em;white-space:nowrap;}
@@ -1863,13 +1915,14 @@
   .nw-head{position:relative;}
   .nw-head img{display:block;width:100%;height:auto;}
   /* 蓋住頭圖上寫死的「香港理工大學」，換成這個地點的名字 */
-  .nw-place{position:absolute;left:43.6%;top:63%;min-width:20.5%;padding-right:1cqw;height:16%;display:flex;align-items:center;background:#5A7357;color:#FBF9F1;
-    font:700 4.6cqw CPKai,CPKaiFull,'Kaiti TC',serif;letter-spacing:.04em;white-space:nowrap;}
+  /* 蓋住頭圖上寫死的地名：位置、字級和原圖一樣（原圖 1209×400：字在 x535–745、y262–306） */
+  .nw-place{position:absolute;left:44%;top:64.5%;min-width:19%;padding:0 1cqw 0 .3cqw;height:13%;display:flex;align-items:center;background:#5A7357;color:#FBF9F1;
+    font:900 3.15cqw/1 CPKai,CPKaiFull,'Kaiti TC',serif;letter-spacing:.06em;white-space:nowrap;}
   .nw-sheet{padding:3cqw 4.3cqw 10cqw;}
   .nw-lucky{display:flex;align-items:center;gap:2cqw;margin-bottom:2cqw;}
-  .nw-bub{flex:1;padding:2.6cqw 3.2cqw;border:2.5px solid #4E6B4A;border-radius:3.8cqw;background:#FFFDF6;font:800 3.5cqw CPKai,CPKaiFull,'Kaiti TC',serif;color:#3D2B1F;}
-  .nw-bub b{color:#C0573E;font-size:4.3cqw;margin:0 .6cqw;}
-  .nw-lucky img{width:15.5cqw;border-radius:3cqw;}
+  .nw-bub{flex:1;padding:2.2cqw 3.4cqw;border:2px solid #5F7A5C;border-radius:3.2cqw;background:#FFFDF6;font:700 3.3cqw/1.3 CPKai,CPKaiFull,'Kaiti TC',serif;color:#4A3A30;letter-spacing:.04em;}
+  .nw-bub b{color:#C0573E;font:900 4cqw/1 CPKai,CPKaiFull,serif;margin:0 .8cqw;}
+  .nw-lucky img{width:13cqw;border-radius:3cqw;}
   .nw-sec{display:flex;align-items:center;gap:2cqw;margin:4cqw 0 2.2cqw;font:900 3.5cqw CPKai,CPKaiFull,'Kaiti TC',serif;color:#7A6A5A;}
   .nw-sec::after{content:'';flex:1;border-top:1.5px dashed #C9CFC0;}
   .nw-card{display:flex;gap:2.7cqw;padding:2.7cqw;margin-bottom:2.7cqw;background:#FFFDF6;border:1.5px solid #D9DDCF;border-radius:3.8cqw;}
@@ -1885,13 +1938,57 @@
   .nw-slot{display:flex;align-items:center;gap:2.7cqw;width:100%;padding:3.2cqw;margin-bottom:2.7cqw;border:2px dashed #A9BBA4;border-radius:3.8cqw;background:rgba(255,253,246,.7);
     color:#3F5A3C;text-align:left;cursor:pointer;animation:nwSlot 2.2s ease-in-out infinite;}
   .nw-slot i{width:15cqw;height:15cqw;border-radius:2.7cqw;background:#E6EADF;display:grid;place-items:center;font-style:normal;font-size:6.4cqw;flex-shrink:0;}
-  .nw-slot b{display:block;font:900 4cqw CPKai,CPKaiFull,serif;}
-  .nw-slot small{display:block;margin-top:.6cqw;font:600 3.1cqw CPKai,CPKaiFull,serif;color:#7A6A5A;}
+  .nw-slot b{display:block;font:900 4cqw/1.3 CPKai,CPKaiFull,serif;letter-spacing:.04em;}
+  .nw-slot small{display:block;margin-top:1.8cqw;font:600 3.1cqw/1.45 CPKai,CPKaiFull,serif;color:#7A6A5A;letter-spacing:.03em;}
+  .nw-slot small em{font-style:normal;font-weight:900;color:#B5762A;background:linear-gradient(transparent 60%,rgba(242,209,107,.55) 60%);padding:0 2px;}
   .nw-slot:active{transform:scale(.98);}
   @keyframes nwSlot{50%{border-color:#6E8A68;}}
-  .nw-card.new{animation:nwNew .6s cubic-bezier(.3,1.5,.5,1) both;}
+  /* 剛貼上的合拍：卡片先輕輕浮出來，照片從畫面中間飛進卡片的照片格，落下後文字淡入、外圈綠光擴散一次 */
+  .nw-card.new{animation:nwIn .45s ease-out both;}
+  @keyframes nwIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .nw-card.new:not(.landed) .ph{visibility:hidden;}
+  .nw-card.new .bd{opacity:0;transform:translateX(6px);transition:opacity .45s ease,transform .45s ease;}
+  .nw-card.new.landed .bd{opacity:1;transform:none;}
+  .nw-card.new.landed{animation:nwGlow 1.3s ease-out;}
+  .nw-card.new.landed .ph{animation:nwPhLand .35s ease-out;}
+  @keyframes nwGlow{0%{box-shadow:0 0 0 0 rgba(78,107,74,.45)}100%{box-shadow:0 0 0 12px rgba(78,107,74,0)}}
+  @keyframes nwPhLand{0%{transform:scale(1.08)}100%{transform:none}}
   @keyframes nwNew{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
   #nw-card-wrap{max-height:100%;overflow-y:auto;scrollbar-width:none;}
+  /* ── 留言卡片：照參考圖排版（外框實線＋內圈虛線、名字和留言都是灰綠色、不顯示時間） ── */
+  .nw-card{position:relative;gap:3.4cqw !important;padding:3.4cqw 3.6cqw !important;margin-bottom:3.4cqw !important;background:#FFFDF8 !important;
+    border:1.5px solid #8F9F8F !important;border-radius:2.6cqw !important;box-shadow:none !important;}
+  .nw-card::before{content:'';position:absolute;inset:1.1cqw;border:1.2px dashed #ABB7A9;border-radius:1.8cqw;pointer-events:none;}
+  .nw-card.me{border:2.5px solid #5F7A5C !important;background:#FBFCF5 !important;box-shadow:0 0 0 1.5px #C9D3C5 inset !important;}
+  .nw-card .ph{width:24cqw !important;height:24cqw !important;border-radius:2cqw !important;border:1.4cqw solid #fff !important;outline:1px solid #E1E1DA;box-shadow:none !important;}
+  .nw-card .bd{display:flex;flex-direction:column;justify-content:center;gap:2.4cqw;}
+  .nw-who{gap:2.2cqw !important;}
+  .nw-who img{width:7.6cqw !important;height:7.6cqw !important;border:2px solid #7D8F7B !important;background:#F3F1E6;}
+  #nw-list .nw-who b{font:900 3.9cqw/1.2 CPKai,CPKaiFull,'Kaiti TC',serif !important;color:#7D8F7B !important;letter-spacing:.04em;}
+  .nw-who time{display:none !important;}
+  #nw-list .nw-card p{margin:0 !important;font-family:CPKai,CPKaiFull,'Kaiti TC',serif !important;font-weight:900 !important;font-size:3.05cqw !important;line-height:1.5 !important;
+    color:#7D8F7B !important;letter-spacing:.06em !important;-webkit-text-stroke:0;}   /* 照參考圖：顏楷 W9、淺灰綠 */
+  .nw-me{background:#5F7A5C !important;}
+  /* 留言卡外框照模版圖（assets/social/board/frame/）：手繪、不是完全筆直的線；自己的那張是粗框版本 */
+  #nw-list .nw-card{border:12px solid transparent !important;border-image:url('assets/social/board/frame/frame-other.png') 44 fill / 12px stretch !important;
+    background:none !important;border-radius:0 !important;box-shadow:none !important;padding:1.4cqw 1.6cqw !important;}
+  #nw-list .nw-card::before{display:none !important;}
+  #nw-list .nw-card.me{border-width:14px !important;border-image:url('assets/social/board/frame/frame-me.png') 52 fill / 14px stretch !important;}
+  #nw-list .nw-card .ph{width:23cqw !important;height:23cqw !important;border-radius:2.2cqw !important;border:1.3cqw solid #fff !important;outline:1.5px solid #DADAD3 !important;}
+  #nw-list .nw-who img{width:10cqw !important;height:10cqw !important;border:2.5px solid #6F826D !important;background:#FFFDF8 !important;box-shadow:0 2px 0 rgba(111,130,109,.25);}
+  #nw-list .nw-card .bd{gap:2.2cqw !important;}
+  #nw-list .nw-card p .nw-emo{width:11cqw;height:11cqw;object-fit:contain;vertical-align:middle;margin-right:1.5cqw;}
+  /* 打卡框也用同一套：雙線框、灰綠字、線條相機 */
+  .nw-slot{position:relative;border:12px solid transparent !important;border-image:url('assets/social/board/frame/frame-other.png') 44 fill / 12px stretch !important;border-radius:0 !important;background:none !important;padding:1.4cqw 1.6cqw !important;}
+  .nw-slot::before{display:none !important;}
+  .nw-slot::before{content:'';position:absolute;inset:1.1cqw;border:1.2px dashed #ABB7A9;border-radius:1.8cqw;pointer-events:none;}
+  .nw-slot i{width:17cqw !important;height:17cqw !important;border-radius:2cqw !important;background:#F1F2EA !important;font-size:0 !important;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236F826D' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E") !important;
+    background-repeat:no-repeat !important;background-position:center !important;background-size:40% !important;}
+  .nw-slot b{font:900 3.9cqw/1.3 CPKai,CPKaiFull,serif !important;color:#6F826D !important;}
+  #nw-list .nw-slot small{font-family:CPKai,CPKaiFull,serif !important;font-weight:900 !important;font-size:2.95cqw !important;color:#7D8F7B !important;-webkit-text-stroke:0;margin-top:1.4cqw !important;white-space:nowrap;letter-spacing:0 !important;}
+  .nw-slot small em{white-space:nowrap;}
+  #nw-list .nw-sec{color:#9AA697 !important;font-size:3.4cqw !important;}
   #nw-card-wrap::-webkit-scrollbar{display:none;}
   #btn-nw-back{
     position:absolute;
@@ -2033,6 +2130,11 @@
   .anchor-pin.done{
     filter:drop-shadow(0 2px 4px rgba(0,0,0,.2));
   }
+  .poi-sticker-hit{position:relative;cursor:pointer;}
+  .poi-sticker-hit::before{content:'';position:absolute;inset:-22px;border-radius:50%;}
+  .poi-sticker-hit:active .poi-sticker{transform:scale(.97);}
+  .poi-sticker-hit.hey .poi-sticker{transform-origin:50% 90%;animation:stickerHey .9s ease-in-out 3;}
+  @keyframes stickerHey{0%,100%{transform:none}25%{transform:translateY(-8px) rotate(-2deg) scale(1.04)}50%{transform:translateY(0) scale(.98)}70%{transform:translateY(-3px) rotate(1deg)}}
   /* ──────────────────────────────────────────────────────── */
 
   /* ══════════════════════════════════════
@@ -2067,7 +2169,7 @@
   #ar-swatches button:active{scale:.85;}
   #ar-swatches button.on{scale:1.06;box-shadow:0 0 0 3px #F8F9EC,0 0 0 5px var(--cp-green-tint20);}
   @keyframes arFramePop{0%{transform:scale(1)}40%{transform:scale(1.025)}100%{transform:scale(1)}}
-  @keyframes arCatIn{0%{opacity:0;transform:translateY(40%) scale(.4) rotate(-12deg)}100%{opacity:1;transform:none}}
+  @keyframes arCatIn{0%{opacity:0;transform:translateY(30%) scale(.6)}100%{opacity:1;transform:none}}
   @keyframes arFlash{0%{opacity:.9}100%{opacity:0}}
   #view-ar.show{display:block;}
   #ar-video{
@@ -2274,6 +2376,7 @@
     color:var(--note-font-color);line-height:1.5;
   }
   #note-ta-input::placeholder{color:rgba(78,51,37,.35);}
+  #note-ta-input{caret-color:#8A7B6B;}
   #note-send-btn{
     position:absolute;
     left:12.69%;top:81.67%;
@@ -2294,14 +2397,18 @@
      （卡片內框 1206×2673 原圖 x 16%–86%、y 29.6%–51%，下面虛線以下是日期列） */
   #note-ta-input{left:17.7%;top:31.4%;width:66.6%;height:11.4%;padding:0;font-size:min(17px,4.4cqw) !important;line-height:1.6;letter-spacing:.04em;}
   .emo-ph{position:relative;display:flex;align-items:center;justify-content:center;background:#FCFBEF;border:2px dashed #CFC6B4;border-radius:10px;box-sizing:border-box;cursor:pointer;}
-  .emo-ph img{width:74%;height:74%;object-fit:contain;filter:brightness(0);opacity:.13;}
-  .emo-ph i{position:absolute;right:-6%;bottom:-8%;width:30%;aspect-ratio:1;border-radius:50%;background:#4E3325;color:#FCFBEF;border:2px solid #FCFBEF;
-    display:flex;align-items:center;justify-content:center;font:900 4.2cqw/1 sans-serif;font-style:normal;box-shadow:0 2px 5px rgba(0,0,0,.2);}
+  .emo-ph img{width:62%;height:62%;object-fit:contain;filter:brightness(0);opacity:.13;translate:-10% -10%;}
+  .emo-ph i{position:absolute;right:5px;bottom:5px;width:20px;height:20px;padding:0;box-sizing:border-box;border-radius:50%;background:#4E3325;color:#FCFBEF;border:2px solid #FCFBEF;display:flex;align-items:center;justify-content:center;font:900 13px/1 sans-serif;font-style:normal;box-shadow:0 2px 5px rgba(0,0,0,.2);}
   #note-emoji-slot{position:absolute;left:17.7%;top:43.4%;width:14.2%;height:6.4%;z-index:4;padding:0;}
   #note-emoji-slot::after{content:'加一個表情';position:absolute;left:calc(100% + 3.2cqw);top:50%;translate:0 -50%;white-space:nowrap;
     font:700 3.4cqw CPKai,CPKaiFull,'Kaiti TC',serif;color:rgba(78,51,37,.45);letter-spacing:.06em;}
   #emi-selected .emo-ph{position:absolute;inset:0;}
   #view-emoji-select.emoji-picked #emi-selected .emo-ph{display:none;}
+  /* 跟留言卡一樣：表情格旁邊寫「加一個表情」，選好後變「換一個表情」——兩個畫面看起來是同一張卡 */
+  #emi-selected::after{content:'加一個表情';position:absolute;left:calc(100% + 3.2cqw);top:50%;translate:0 -50%;white-space:nowrap;cursor:pointer;padding:3cqw 2cqw;
+    font:700 3.4cqw CPKai,CPKaiFull,'Kaiti TC',serif;color:rgba(78,51,37,.45);letter-spacing:.06em;}
+  #view-emoji-select.emoji-picked #emi-selected::after{content:'換一個表情';}
+  #view-emoji-select.opening #emi-flip-btn{display:none !important;}
   /* ══════════════════════════════════════
      EMOJI SELECT VIEW
   ══════════════════════════════════════ */
@@ -2429,12 +2536,44 @@
   }
   #view-note-result.show{display:flex;}
   #sp-bg{position:absolute;inset:0;background:#3a2b1f center/cover;filter:blur(14px) brightness(.85);transform:scale(1.08);z-index:0;}
+  #view-story-polyu{flex-direction:column;gap:6px;}
+  .sp-back2{position:absolute;z-index:5;top:var(--diary-back-top,52px);left:var(--diary-back-left,16px);}
+  .sp-flip{position:relative;z-index:1;perspective:1200px;width:min(366px,calc(100vw - 24px),calc((var(--app-h,100vh) - 170px) * 741 / 1092));aspect-ratio:741/1092;cursor:pointer;
+    transform-style:preserve-3d;transition:transform .6s cubic-bezier(.4,0,.2,1);}
+  .sp-flip.flipped{transform:rotateY(180deg);}
+  .sp-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;}
+  .sp-front>.tl-card{width:100% !important;translate:none !important;animation:none !important;}
+  .sp-backside{transform:rotateY(180deg);container-type:inline-size;background:#FBF9EF;border-radius:4cqw;border:2px solid #CFC6B4;box-shadow:0 10px 22px rgba(0,0,0,.4);
+    display:flex;flex-direction:column;align-items:center;padding:9cqw 8cqw 7cqw;box-sizing:border-box;font-family:CPKai,CPKaiFull,'Kaiti TC',serif;color:#3D2B1F;}
+  .sp-backside:not(.empty){background:none;border:none;box-shadow:none;padding:0;align-items:center;justify-content:center;}
+  .sp-backside:not(.empty)::before{display:none;}
+  /* 卡圖下面畫了「完成卡片／添加表情」按鈕，裁掉最下面 19.6% */
+  .spn-clip{position:absolute;left:50%;top:50%;translate:-50% -50%;width:104%;aspect-ratio:1206/1989;overflow:hidden;filter:drop-shadow(0 10px 22px rgba(0,0,0,.4));}
+  .spn{position:absolute;left:0;top:-8.06%;width:100%;aspect-ratio:1206/2673;container-type:inline-size;}   /* 只露出 6%–70%：拍立得到留言紙下緣，去掉下面一大塊空的咖啡色 */
+  .spn-card{position:absolute;inset:0;width:100%;height:100%;z-index:1;}
+  .spn-photo{position:absolute;left:76.1%;top:19.7%;width:30.6%;height:auto;z-index:2;transform:translate(-50%,-50%) rotate(10.2deg);border-radius:6px;box-shadow:0 3px 8px rgba(61,43,31,.25);}
+  .spn-text{position:absolute;z-index:3;left:17.7%;top:31.4%;width:66.6%;margin:0;font:700 5cqw/1.6 CPKai,CPKaiFull,'Kaiti TC',serif;color:#4E3325;letter-spacing:.04em;}
+  .spn-emo{position:absolute;z-index:3;left:17.7%;top:43.4%;width:14.2%;height:6.4%;object-fit:contain;}
+  .spn-date{position:absolute;z-index:3;right:16.3%;top:52.4%;font:700 3.8cqw 'Songti TC','Noto Serif TC',serif;color:#A4998F;}
+  .sp-backside::before{content:'';position:absolute;inset:3cqw;border:1.5px dashed #BFB5A2;border-radius:3cqw;pointer-events:none;}
+  .sp-backside h3{font:900 6cqw/1.2 CPKai,CPKaiFull,serif;letter-spacing:.12em;}
+  .sp-backside .pl{margin-top:1.5cqw;font:700 3.4cqw CPKai,CPKaiFull,serif;color:#8A7B6B;letter-spacing:.06em;}
+  .sp-backside .ph{margin-top:5cqw;width:62%;aspect-ratio:1;object-fit:cover;border:2.4cqw solid #fff;border-bottom-width:7cqw;box-shadow:0 2px 6px rgba(0,0,0,.18);}
+  .sp-backside .msg{margin-top:5cqw;display:flex;align-items:center;gap:3cqw;max-width:100%;}
+  .sp-backside .msg img{width:14cqw;flex-shrink:0;}
+  .sp-backside .msg p{margin:0;font:400 4.4cqw/1.6 CPKaiBody,CPKai,serif;color:#4A3A30;letter-spacing:.06em;}
+  .sp-backside .dt{margin-top:auto;font:700 3.3cqw CPKai,serif;color:#8A7B6B;}
+  .sp-backside .none{margin:auto 0;display:flex;flex-direction:column;align-items:center;gap:3cqw;text-align:center;}
+  .sp-backside .none img{width:30%;}
+  .sp-backside .none b{font:900 5cqw CPKai,serif;letter-spacing:.08em;}
+  .sp-backside .none small{font:700 3.4cqw/1.5 CPKai,serif;color:#8A7B6B;}
+  #view-story-polyu .sp-hint{position:relative;z-index:1;margin-top:46px !important;}
   #sp-card-wrap{position:relative;width:min(100%, calc(var(--app-h,100vh) * 402 / 891));flex-shrink:0;z-index:1;container-type:inline-size;}
   #sp-ui-img{width:100%;height:auto;display:block;pointer-events:none;position:relative;z-index:2;}
   #sp-photo{position:absolute;left:var(--note-photo-left);top:var(--note-photo-top);width:var(--note-photo-size);height:var(--note-photo-size);
     object-fit:cover;transform:rotate(var(--note-photo-rot));z-index:1;}
-  #sp-photo.framed{left:76.3%;top:19.5%;width:31.5%;height:auto;object-fit:fill;z-index:3;
-    transform:translate(-50%,-50%) rotate(10deg);border-radius:6px;box-shadow:0 3px 8px rgba(61,43,31,.25);}
+  #sp-photo.framed{left:76.1%;top:19.7%;width:30.6%;height:auto;object-fit:fill;z-index:3;
+    transform:translate(-50%,-50%) rotate(10.2deg);border-radius:6px;box-shadow:0 3px 8px rgba(61,43,31,.25);}
   /* 返回圓鈕畫在圖上（1206×2673 原圖 x 50–190, y 165–305） */
   #sp-back{position:absolute;left:4.1%;top:6.2%;width:11.6%;aspect-ratio:1;border-radius:50%;background:none;border:none;cursor:pointer;z-index:4;touch-action:manipulation;}
   #nr-bg{
@@ -2463,8 +2602,8 @@
     z-index:1;
   }
   #note-photo.framed,#emi-user-photo.framed,#nr-photo.framed{
-    left:76.3%;top:19.5%;width:31.5%;height:auto;object-fit:fill;z-index:3;
-    transform:translate(-50%,-50%) rotate(10deg);border-radius:6px;box-shadow:0 3px 8px rgba(61,43,31,.25);
+    left:76.1%;top:19.7%;width:30.6%;height:auto;object-fit:fill;z-index:3;
+    transform:translate(-50%,-50%) rotate(10.2deg);border-radius:6px;box-shadow:0 3px 8px rgba(61,43,31,.25);
   }
   #nr-note-text{
     display:none;
@@ -2720,6 +2859,96 @@
   #schermata-recap0 #r0-wrap::after{content:'';position:absolute;left:0;right:0;top:calc(100% - 2px);height:60%;pointer-events:none;
     background:url('assets/recap/r0-body.png') center top/100% auto repeat-y;}
   #r0-close{position:absolute;z-index:6;top:var(--diary-back-top);left:var(--diary-back-left);}
+  /* ── 日記：橫向翻閱（取代原本的檔案抽屜） ── */
+  #schermata-recap0 #r0-wrap{display:none !important;}
+  #dj{position:absolute;inset:0;z-index:4;overflow:hidden;font-family:CPKai,CPKaiFull,'Kaiti TC',serif;color:#3D2B1F;}
+  #dj .dj-collage{position:absolute;left:0;right:0;top:0;height:42%;background:url('assets/recap/dj-collage.jpg?v=2') center 20%/cover;opacity:.32;
+    -webkit-mask:linear-gradient(#000 50%,transparent);mask:linear-gradient(#000 50%,transparent);}
+  #dj .dj-ttl{position:absolute;left:0;right:0;top:calc(var(--diary-back-top,52px) + 8px);text-align:center;font-size:21px;font-weight:900;letter-spacing:.14em;}
+  #dj .dj-hint{position:absolute;left:50%;top:calc(var(--diary-back-top,52px) + 62px);translate:-50% 0;padding:5px 14px;border-radius:12px;background:#FFFEF7;border:2.5px solid #4E6B4A;
+    font-size:13px;font-weight:700;white-space:nowrap;box-shadow:0 3px 0 rgba(78,107,74,.18);}
+  #dj .dj-month{position:absolute;left:0;right:0;top:calc(var(--diary-back-top,52px) + 112px);text-align:center;font-size:14px;font-weight:900;color:#4E6B4A;letter-spacing:.1em;}
+  /* 自己控制的輪播（不用瀏覽器捲動＋吸附，兩個會互相打架而卡頓）：拖動時卡片跟手，放開後順滑滑到最近一張 */
+  #dj .dj-rail{position:absolute;left:0;right:0;top:calc(var(--diary-back-top,52px) + 140px);bottom:64px;--djw:min(300px,76vw);overflow:hidden;touch-action:pan-y;cursor:grab;}
+  #dj .dj-rail.dragging{cursor:grabbing;}
+  #dj .dj-track{display:flex;gap:14px;height:100%;align-items:flex-start;padding:0 calc((100% - var(--djw)) / 2);box-sizing:border-box;
+    transition:transform .5s cubic-bezier(.22,.8,.28,1);will-change:transform;}
+  #dj .dj-rail.dragging .dj-track{transition:none;}
+  #dj .djf{transition:transform .5s cubic-bezier(.22,.8,.28,1),opacity .5s;}
+  #dj .djf:not(.cur){transform:scale(.93);opacity:.6;}
+  #dj .dj-rail::-webkit-scrollbar{display:none;}
+  /* 每一天的底：手繪綠框＋格紙的檔案夾（assets/recap/dj-folder.png，標籤上的日期用程式寫） */
+  .djf{flex:0 0 var(--djw);scroll-snap-align:center;position:relative;margin-top:4px;aspect-ratio:742/1220;max-height:calc(100% - 8px);
+    background:url('assets/recap/dj-folder.png') center/100% 100% no-repeat;transition:transform .35s,opacity .35s;user-select:none;-webkit-user-select:none;}
+  .djf .tb{position:absolute;left:6.5%;top:1.4%;width:38%;height:4.4%;display:flex;align-items:center;justify-content:center;gap:5px;
+    font:900 17px/1 'Songti TC','Noto Serif TC',serif;color:#5A4436;-webkit-text-stroke:.5px #5A4436;white-space:nowrap;}
+  .djf .st{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;padding:4px 10px;border-radius:999px;background:#EEF1E7;font:700 12px/1 CPKai,CPKaiFull,serif;color:#4E6B4A;}
+  .djf .st.idle{background:#F1EEE4;color:#8A7B6B;}
+  .djf .st.done{background:#FFF1C9;color:#8A5A1E;}
+  .djf .tb .nw{font:900 10px/1 CPKai,serif;color:#fff;background:#C0573E;border-radius:999px;padding:3px 6px;}
+  .djf .live{width:8px;height:8px;border-radius:50%;background:#6FA866;box-shadow:0 0 0 0 rgba(111,168,102,.6);animation:djLive 1.6s infinite;}
+  @keyframes djLive{70%{box-shadow:0 0 0 7px rgba(111,168,102,0)}100%{box-shadow:0 0 0 0 rgba(111,168,102,0)}}
+  .djf .in{position:absolute;top:calc(6.2% + 12px);left:16px;right:16px;bottom:78px;display:flex;flex-direction:column;}
+  #schermata-recap0 .djf .pic{width:100%;height:auto;flex:1;min-height:0;border-radius:8px;object-fit:cover;object-position:50% 30%;border:1.5px solid #E5E2D2;background:#FBFAEA;box-shadow:0 2px 6px rgba(61,43,31,.1);}
+  .djf h3{font-size:16px;font-weight:900;margin-top:10px;}
+  .djf small.m{display:block;font-size:12px;color:#8A7B6B;margin-top:3px;line-height:1.5;}
+  .djf .go{position:absolute;left:16px;right:16px;bottom:16px;display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .djf .go .cp-btn{justify-content:center;}
+  .djf .go a{font-size:13px;font-weight:700;color:#6E8A68;text-decoration:underline;text-underline-offset:3px;cursor:pointer;}
+  /* 今天：還沒出發 */
+  .djf .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;}
+  #schermata-recap0 .djf .empty img{width:110px;height:auto;}
+  .djf .empty b{font-size:17px;}
+  .djf .empty p{font-size:13px;line-height:1.6;color:#8A7B6B;}
+  /* 今天：探索中 */
+  .djf .prog b.big{font-size:17px;}
+  .djf .prog b.big em{font-style:normal;color:#C0573E;font-size:22px;margin:0 2px;}
+  .djf .list{margin-top:10px;display:flex;flex-direction:column;gap:8px;overflow:auto;}
+  .djf .list div{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:#EEF1E7;font-size:14px;font-weight:700;}
+  .djf .list div i{font-style:normal;width:20px;height:20px;border-radius:50%;background:#4E6B4A;color:#fff;font-size:12px;display:grid;place-items:center;flex-shrink:0;}
+  .djf .list div.todo{background:none;border:1.5px dashed #CBD2C3;color:#B0A595;}
+  .djf .list div.todo i{background:#CBD2C3;}
+  .djf .note{margin-top:auto;padding-top:10px;font-size:12px;line-height:1.6;color:#8A7B6B;}
+  .djf .stale{margin-top:8px;padding:6px 10px;border-radius:8px;background:#FFF3D6;border:1.5px solid #E8C877;font-size:12.5px;font-weight:700;color:#8A5A1E;}
+  #dj .djf.pop{animation:djPop .7s cubic-bezier(.3,1.5,.5,1);}
+  @keyframes djPop{0%{transform:scale(.9) translateY(14px);opacity:.3}100%{transform:none;opacity:1}}
+  #dj .dj-dots{position:absolute;left:0;right:0;bottom:34px;display:flex;justify-content:center;gap:8px;}
+  #dj .dj-dots i{width:8px;height:8px;border-radius:5px;background:#CBD2C3;transition:width .25s,background .25s;}
+  #dj .dj-dots i.on{width:22px;background:#4E6B4A;}
+  /* 打開日記 */
+  #dj-view{position:absolute;inset:0;z-index:5;display:none;flex-direction:column;align-items:center;background:#FBFAEA;}
+  #dj-view.show{display:flex;animation:djvIn .4s ease-out both;}
+  @keyframes djvIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  #dj-view .djv-ttl{margin-top:calc(var(--diary-back-top,52px) + 8px);font:900 20px/1.2 CPKai,CPKaiFull,serif;letter-spacing:.1em;color:#3D2B1F;}
+  #dj-view .djv-page{position:relative;flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center;padding:8px 0;}
+  #schermata-recap0 #dj-view .djv-page>img{width:auto;max-width:100%;max-height:100%;object-fit:contain;}
+  /* 日記圖上下有很多透明邊：外面包一層只框住看得到的部分（base.png 可見範圍 x45–1158、y351–2181），日記才會撐滿畫面 */
+  #dj-view .djv-page{container-type:size;}
+  .dd>.dd-date{position:absolute;z-index:3;left:15.2%;top:15.6%;width:23.6%;height:2.3%;display:flex;align-items:center;justify-content:center;background:#F9F9F6;
+    font:900 clamp(13px,4.4vw,19px)/1 'Songti TC','Noto Serif TC',serif;color:#5B483D;}
+  #dj-view .djv-clip .dd>.dd-date{display:none;}
+  #tab-diary.settling .td-back{display:none !important;}
+  #dj-view .djv-clip{position:relative;width:min(calc(100cqw - 32px),calc((100cqh - 16px) * 1113 / 1830));aspect-ratio:1113/1830;}
+  #dj-view .djv-clip>.dd{position:absolute;left:-4.043%;top:-19.18%;width:108.36%;height:auto;aspect-ratio:1206/2622;}
+  #dj-view .djv-clip>img{position:absolute;left:-4.043%;top:-19.18%;width:108.36%;height:auto;max-width:none;max-height:none;}
+  /* 檔案標籤上的日期換成這一天（蓋住圖上寫死的 2026.5.12） */
+  #dj-view .djv-tabdate{position:absolute;z-index:3;left:12.6%;top:3.1%;width:25.6%;height:3.2%;display:flex;align-items:center;justify-content:center;background:#F9F9F6;
+    font:900 clamp(13px,4.4vw,19px)/1 'Songti TC','Noto Serif TC',serif;color:#5B483D;letter-spacing:.02em;}
+  #dj-view .djv-act{display:flex;gap:12px;padding:6px 16px 26px;}
+  #dj-view .djv-act{width:100%;justify-content:center;box-sizing:border-box;}
+  #dj-view .djv-act .cp-btn{flex:0 1 var(--w);min-width:0;justify-content:center;position:relative;}
+  .djv-lock{position:absolute;top:-8px;right:-6px;font:900 10px/1 'Nunito',sans-serif;font-style:normal;color:#fff;background:#8A7B6B;border-radius:999px;padding:3px 6px;}
+  /* 結束今天的確認 */
+  #dj-sheet{position:absolute;inset:0;z-index:9;display:none;align-items:center;justify-content:center;background:rgba(40,30,20,.45);}
+  #dj-sheet.show{display:flex;}
+  #dj-sheet .djs-card{width:min(320px,calc(100% - 40px));padding:20px 18px 18px;border-radius:18px;background:#FFFEF7;border:3px solid #4E6B4A;text-align:center;
+    font-family:CPKai,CPKaiFull,serif;color:#3D2B1F;animation:djPop .45s cubic-bezier(.3,1.5,.5,1);}
+  #schermata-recap0 #dj-sheet img{width:96px;height:auto;margin:-70px auto 6px;}
+  #dj-sheet b{font-size:18px;}
+  #dj-sheet p{margin:8px 0 14px;font-size:13.5px;line-height:1.65;color:#6B5444;}
+  #dj-sheet .djs-btns{display:flex;gap:10px;justify-content:center;}
+  #dj-sheet .djs-btns .cp-btn{flex:1 1 0;min-width:0;justify-content:center;}
+  .td-back{position:absolute;z-index:6;top:var(--diary-back-top,52px);left:var(--diary-back-left,16px);}
   #schermata-recap0 img{
     width:min(100%,calc(var(--app-h,100vh) * 402 / 874));
     height:auto;display:block;
@@ -2910,7 +3139,7 @@
   #schermata-recap6 .r6-wrap img{width:100%;height:auto;display:block;}
   /* 分享：用設計稿原本的按鈕圖（和下面「完成」同一款），等比例縮小 */
   /* 右上角「分享」：用規範的短按鈕框（原本的長條圖太長） */
-  .r6-share.cp-btn{position:absolute;right:4.8%;top:13.9%;z-index:3;--h:32px;--fs:14px;--px:22px;}
+  .r6-share.cp-btn{position:absolute;right:4.8%;top:13.9%;z-index:3;}
   .r6-hit:active{transform:scale(.97);}
   .r6-hit{position:absolute;z-index:3;background:none;border:none;padding:0;cursor:pointer;border-radius:12px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
   /* 完成編輯 → 分享頁：日記卡片從下面歪歪地彈上來擺正，再有一道光掃過 */
@@ -2974,7 +3203,7 @@
   #inv-side-btn{display:none !important;}
   /* 朋友改為社區：只留一個「社區」標題，世界切換、好友、通知先拿掉 */
   /* 日記結算頁「編輯」上的小鎖（等級不夠時顯示） */
-  .r2-lock{position:absolute;z-index:4;top:calc(var(--recap2-tr-top) - 7px);left:calc(var(--recap2-tr-left) - 66px + 48px);width:20px;height:20px;border-radius:50%;
+  .r2-lock{position:absolute;z-index:4;top:calc(var(--recap2-tr-top) - 7px);left:calc(var(--recap2-tr-left) + 76px);width:20px;height:20px;border-radius:50%;
     background:#FFFDF4;border:1.5px solid #4E6B4A;display:grid;place-items:center;font-size:10px;font-style:normal;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.2);}
   /* 好友頁頂部：兩個小字分頁＋加好友＋通知 */
   .sc-tabs{display:flex;gap:18px;align-items:flex-end;}
@@ -2985,14 +3214,13 @@
   .sc-tab{border:none;background:none;padding:4px 0 4px;font:900 19px CPKai,CPKaiFull,'Kaiti TC',serif;color:#B9AE9E;border-bottom:3px solid transparent;cursor:pointer;}
   .sc-tab i{font-style:normal;font-size:14px;}
   .sc-tab.on{color:#3D2B1F;border-color:var(--th);}
-  .sc-addf{margin-left:auto;padding:7px 14px;border:none;border-radius:999px;background:var(--cp-green);color:#FFFDF2;font:900 13.5px CPKai,CPKaiFull,serif;letter-spacing:.06em;cursor:pointer;}
+  .sc-addf{margin-left:auto;flex-shrink:0;}
   .sc-friends{position:absolute;inset:0;overflow-y:auto;padding:112px 14px 40px;display:none;scrollbar-width:none;}
   .sc-friends::-webkit-scrollbar{display:none;}
   .sc.tab-fr .sc-friends{display:block;} .sc.tab-fr .sc-feed{display:none;}
   .sc-req{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:10px 12px;border-radius:14px;background:#FFF4D8;border:1.5px solid #EBCB7E;font:800 13px CPKai,CPKaiFull,serif;color:#7A5A20;}
   .sc-req .sc-av{width:32px;height:32px;border-width:2px;}
-  .sc-req button{border:none;border-radius:8px;padding:5px 10px;font:900 12.5px CPKai,CPKaiFull,serif;cursor:pointer;}
-  .sc-req .y{margin-left:auto;background:var(--cp-green);color:#fff;} .sc-req .n{background:#E6E2D3;color:#7A6A5A;}
+  .sc-req .cp-btn{flex-shrink:0;} .sc-req .y{margin-left:auto;}
   .sc-fr{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:10px;border-radius:14px;background:#FFFDF6;border:1.5px solid #E6DFCC;cursor:pointer;}
   .sc-fr .sc-av{width:44px;height:44px;}
   .sc-fr b{font:900 15px CPKai,CPKaiFull,serif;color:#3D2B1F;} .sc-fr small{display:block;font:700 12px CPKai,CPKaiFull,serif;color:#7A6A5A;margin-top:2px;}
@@ -3137,6 +3365,26 @@
   .tl-tip.on{opacity:1;transform:none;}
   #view-tale[data-step="story"] .tl-tip{display:none;}
   .tl-tip img{width:40px;height:40px;object-fit:contain;flex-shrink:0;}
+  /* 食物卡那一步的提示：不放小貓，換成雙線虛線框（assets/ui/tip-frame-plain.png），文字置中 */
+  #view-tale[data-step="food"] .tl-tip{border:22px solid transparent !important;border-image:url('assets/ui/tip-frame-plain.png') 44 fill / 22px stretch !important;
+    padding:0 8px !important;justify-content:center;width:auto;max-width:calc(100% - 40px);min-width:min(300px,calc(100% - 40px));filter:drop-shadow(0 4px 10px rgba(0,0,0,.2));
+    font:700 16px/1.4 CPKai,CPKaiFull,'Kaiti TC',serif;letter-spacing:.06em;color:#3D2B1F;text-align:center;}
+  #view-tale[data-step="food"] .tl-tip img{display:none;}
+  #view-tale[data-step="food"] .tl-tip{display:none !important;}   /* 改成 Memo 趴在卡上說話 */
+  .tl-fwrap{position:relative;}
+  .tl-peek{position:absolute;left:-1%;right:-1%;bottom:100%;translate:0 15%;z-index:5;display:flex;align-items:center;justify-content:flex-end;pointer-events:none;}   /* 貓的爪子剛好搭在卡片上緣 */
+  .tl-pcat{width:24%;flex-shrink:0;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25));transform-origin:50% 100%;}
+  /* 對話框用 CSS 畫（之前用圖片拉伸會出現一條條紋路） */
+  .tl-pbub{position:relative;flex:0 1 auto;min-width:0;margin:0 3% 4% 0;padding:9px 16px;background:#FAFAEE;border:2px solid #D8D4C6;border-radius:14px;
+    font:700 15px/1.35 CPKai,CPKaiFull,'Kaiti TC',serif;color:#3D2B1F;letter-spacing:.05em;text-align:center;white-space:nowrap;box-shadow:0 3px 8px rgba(0,0,0,.18);}
+  .tl-pbub::after{content:'';position:absolute;right:-9px;top:50%;width:14px;height:14px;margin-top:-7px;background:#FAFAEE;border:2px solid #D8D4C6;border-left:none;border-bottom:none;
+    transform:rotate(45deg) skew(8deg,8deg);border-radius:0 3px 0 0;}
+  .tl-pbub span{padding:0 2px;}
+  .tl-peek.on .tl-pcat{animation:pcatIn .55s .1s cubic-bezier(.3,1.5,.5,1) both;}
+  .tl-peek.on .tl-pbub{animation:pbubIn .4s .45s ease-out both;}
+  .tl-peek:not(.on){visibility:hidden;}
+  @keyframes pcatIn{from{opacity:0;transform:translateY(40%) scale(.8)}to{opacity:1;transform:none}}
+  @keyframes pbubIn{from{opacity:0;transform:translateX(12px) scale(.95)}to{opacity:1;transform:none}}
   .tl-stage{position:relative;z-index:1;display:none;}
   #view-tale[data-step="story"] .tl-story,#view-tale[data-step="food"] .tl-food{display:flex;flex-direction:column;align-items:center;}
   .tl-card{position:relative;width:min(366px,calc(100vw - 24px),calc((var(--app-h,100vh) - 210px) * 741 / 1092));container-type:inline-size;filter:drop-shadow(0 10px 22px rgba(0,0,0,.4));}
@@ -3146,8 +3394,18 @@
   /* 其他地點：用空白故事卡（story-template.png），照片和文字疊上去（理工大學那張字是畫在圖上的） */
   .tl-card>img.tl-photo{position:absolute;left:18.35%;top:17.4%;width:72.74%;height:27.75%;object-fit:cover;border-radius:2.4cqw;display:none;filter:sepia(.55) contrast(.95) brightness(1.02);}
   .tl-card.gen>img.tl-photo{display:block;}
-  .tl-card.gen>span.tl-h2,.tl-card.gen>span.tl-q,.tl-card.gen>p.tl-p{display:flex !important;}
-  .tl-card.gen>p.tl-p{display:block !important;width:71%;}
+  /* 標頭的對話框本身是歪 3° 的：「官方錨點」和地名一起跟著框轉 */
+  .tl-card.gen>span.tl-h1,.tl-card.gen>span.tl-h2{display:flex !important;transform-origin:0 50%;rotate:-3.2deg;}
+  .tl-card.gen>span.tl-h2{font-weight:900;}
+  .tl-card.gen>span.tl-h1{left:20.8%;top:5.5%;font-size:2.2cqw;letter-spacing:.06em;}
+  .tl-card.gen>span.tl-h2{font-size:2.95cqw;top:7.9%;left:20.8%;letter-spacing:.07em;}
+  .tl-card.gen>span.tl-h2.long{font-size:2.5cqw;letter-spacing:.04em;top:7.75%;}
+  /* 卡片左邊多一個標頭凸出去，圖片置中時卡身看起來偏右：整張往左挪一點，讓卡身置中 */
+  .tl-card{translate:-3.4% 0;}
+  .tl-card.gen>p.tl-p{display:block !important;left:19.6%;top:50.75%;width:70.6%;font-size:4.14cqw;line-height:1.435;letter-spacing:.125em;color:#5E4D42;text-align:left;font-family:CPKai,CPKaiFull,'Kaiti TC',serif !important;font-weight:700 !important;-webkit-text-stroke:.45px #F7F3E8;paint-order:fill stroke;}   /* 故事內文：跟其他字一樣用顏楷，筆畫用紙色收細一點（不會太粗也不會太細） */   /* 故事內文：華康楷體 W5（顏楷太粗），顏色加深一點：字級、行距、字距、顏色 */
+  .tl-card>img.tl-badge{display:none;position:absolute;left:79.1%;top:41.4%;width:13.2%;}
+  .tl-card.gen:not(.own)>img.tl-badge{display:block;}
+  .tl-card.own>img.tl-photo{display:none !important;}
   .tl-face>img.tl-fimg,.tl-face>.tl-fstamp{display:none;}
   .tl-flip.gen .tl-face>img.tl-fimg{display:block;position:absolute;left:20%;width:60%;top:30%;height:44%;object-fit:contain;}
   .tl-flip.gen .tl-face>.tl-fstamp{display:block;position:absolute;right:16%;top:66%;font:900 15cqw CPKai,CPKaiFull,'Kaiti TC',serif;font-style:normal;color:#E7B54A;opacity:.3;rotate:-14deg;}
@@ -3165,13 +3423,12 @@
   @keyframes tlSpin{to{rotate:360deg}}
   .tl-card::after{content:'';position:absolute;inset:0;pointer-events:none;opacity:0;
     background:linear-gradient(115deg,transparent 35%,rgba(255,246,210,.85) 48%,rgba(255,255,255,.95) 50%,rgba(255,246,210,.85) 52%,transparent 65%) -150% 0/250% 100% no-repeat;
-    -webkit-mask:url('assets/story/story-polyu-unlock-v2.png?v=1') center/100% 100% no-repeat;mask:url('assets/story/story-polyu-unlock-v2.png?v=1') center/100% 100% no-repeat;}
+    -webkit-mask:url('assets/story/tale/card-blank.png?v=1') center/100% 100% no-repeat;mask:url('assets/story/tale/card-blank.png?v=1') center/100% 100% no-repeat;}
   .tl-card.in::after{animation:tlShine 1s .8s ease-in-out both;}
   @keyframes tlShine{0%{opacity:1;background-position:-150% 0}100%{opacity:1;background-position:150% 0}}
-  #view-tale.show[data-step="story"] .tl-go{animation:tlGoIn .5s 1.25s cubic-bezier(.3,1.6,.5,1) both;}
   @keyframes tlGoIn{from{opacity:0;transform:translateY(16px) scale(.7)}to{opacity:1;transform:none}}
   @keyframes tlOut{to{opacity:0;transform:scale(.85) translateY(-24px)}}
-  .tl-card span,.tl-card p{position:absolute;margin:0;color:#3D2B1F;font-family:CPKai,CPKaiFull,'Kaiti TC',serif;}
+  .tl-card>span,.tl-card>p{position:absolute;margin:0;color:#3D2B1F;font-family:CPKai,CPKaiFull,'Kaiti TC',serif;}
   .tl-h1{left:20.9%;top:4.6%;font-size:2.35cqw;font-weight:700;}
   .tl-h2{left:20.9%;top:7%;font-size:2.95cqw;font-weight:700;letter-spacing:0;white-space:pre;}
   .tl-q{left:34%;width:56.5%;top:49.2%;height:4.1%;display:flex;align-items:center;justify-content:center;font-size:3.15cqw;font-weight:700;letter-spacing:.02em;white-space:nowrap;}
@@ -3181,11 +3438,13 @@
   .tl-food{perspective:1100px;}
   .tl-flip{position:relative;width:min(340px,calc(100vw - 40px),calc((var(--app-h,100vh) - 260px) * 689 / 816));aspect-ratio:689/816;transform-style:preserve-3d;transition:transform .65s cubic-bezier(.4,0,.2,1);cursor:pointer;}
   .tl-flip.flipped{transform:rotateY(180deg);}
-  .tl-flip.in{animation:tlFlipIn .8s cubic-bezier(.2,.9,.3,1.15);}
-  @keyframes tlFlipIn{from{opacity:0;transform:rotateY(-100deg) scale(.6)}50%{opacity:1}to{transform:none}}
+  .tl-flip.in{animation:tlFlipIn .55s cubic-bezier(.2,.8,.3,1);}
+  @keyframes tlFlipIn{from{opacity:0;transform:translateY(16px) scale(.94)}to{opacity:1;transform:none}}   /* 食物卡進場不旋轉，柔和浮上來 */
   .tl-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;container-type:inline-size;filter:drop-shadow(0 10px 22px rgba(0,0,0,.4));}
   .tl-face>img{width:100%;height:100%;display:block;}
   .tl-face.back{transform:rotateY(180deg);}
+  .tl-flip.designed .tl-face.back>*:not(img){display:none !important;}
+  .tl-flip.front-designed .tl-face.front>*:not(#tl-front-img){display:none !important;}   /* 正面也用設計稿整張圖 */   /* 背面用設計稿整張圖 */
   .tl-ft{position:absolute;left:0;right:0;top:14%;text-align:center;font:900 11cqw/1.2 CPKai,CPKaiFull,'Kaiti TC',serif;letter-spacing:.14em;color:#3D2B1F;}
   .tl-face .fp-in{position:absolute;left:11.5%;width:76.9%;top:8.5%;height:77%;display:flex;flex-direction:column;align-items:center;color:#3D2B1F;font-family:CPKai,CPKaiFull,'Kaiti TC',serif;font-weight:700;}
   .tl-face .fp-in b{margin-top:6%;font-size:8.6cqw;letter-spacing:.08em;}
@@ -3201,14 +3460,47 @@
   .tl-face .tl-bq{position:absolute;left:14%;right:10%;top:24.8%;display:flex;align-items:center;gap:2.2cqw;quotes:none;font:400 4.1cqw/1.3 CPKai,CPKaiFull,'Kaiti TC',serif;color:#3D2B1F;}
   .tl-face .tl-bp{position:absolute;left:14%;right:12%;top:32.4%;margin:0;font:400 4.3cqw/1.42 CPKai,CPKaiFull,'Kaiti TC',serif;letter-spacing:.04em;color:#3D2B1F;z-index:1;}
   .tl-face .tl-bf{position:absolute;left:14%;right:12%;top:86%;display:flex;justify-content:space-between;font:700 3cqw/1 CPKai,CPKaiFull,'Kaiti TC',serif;color:#8A7A6A;z-index:1;}
-  .tl-hint{margin-top:10px;font:700 13px/1 CPKai,CPKaiFull,'PingFang TC',sans-serif;color:#FBF6EA;opacity:.9;animation:ilNext 1.2s ease-in-out infinite;}
+  .tl-hint{margin-top:12px;font:700 14px/1 CPKai,CPKaiFull,'PingFang TC',sans-serif;color:#FBF6EA;animation:tlBlink 1.6s ease-in-out infinite;}
+  @keyframes tlBlink{0%,100%{opacity:1}50%{opacity:.3}}
+  /* 提示框統一用綠色虛線框（assets/ui/tip-frame.png），大小跟著內容伸縮 */
+  .tl-tip,#ar-lucky-tip{border:13px solid transparent !important;border-image:url('assets/ui/tip-frame.png') 40 fill / 13px stretch !important;background:none !important;border-radius:0 !important;}
+  .tl-tip,#ar-lucky-tip{padding:2px 6px !important;box-shadow:none !important;filter:drop-shadow(0 4px 10px rgba(0,0,0,.22));}
+  /* 解鎖開場：Memo 吃菠蘿油 → 下方對話框打字 → 故事卡（文字打出來） → 食物卡 */
+  #view-tale[data-step="intro"] .tl-intro{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;}
+  #view-tale[data-step="intro"] .tl-tip,#view-tale[data-step="intro"] .tl-go{display:none;}
+  .tl-eat{width:min(230px,58vw);height:auto;animation:tlEatIn .6s cubic-bezier(.3,1.4,.5,1) both;filter:drop-shadow(0 8px 16px rgba(0,0,0,.3));}
+  @keyframes tlEatIn{from{opacity:0;transform:translateY(24px) scale(.7)}to{opacity:1;transform:none}}
+  .tl-say{min-width:220px;max-width:calc(100vw - 40px);min-height:58px;box-sizing:border-box;padding:20px 24px 12px;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;
+    background:url('assets/story/tale/say-bubble.png') center/100% 100% no-repeat;font:700 17px/1.4 CPKai,CPKaiFull,'Kaiti TC',serif;color:#3D2B1F;letter-spacing:.04em;white-space:nowrap;
+    opacity:0;transform:translateY(12px) scale(.97);filter:blur(3px);transition:opacity 1.1s ease,transform 1.1s cubic-bezier(.2,.8,.3,1),filter 1.1s ease;}
+  .tl-say.on{opacity:1;transform:none;filter:none;}
+  .tl-say .tc{display:inline-block;opacity:0;}
+  .tl-say.on .tc{animation:tlChar .55s cubic-bezier(.2,.8,.3,1) both;}
+  @keyframes tlChar{from{opacity:0;transform:translateY(7px);filter:blur(2px)}to{opacity:1;transform:none;filter:none}}
+  /* 進入故事畫面：從錨點位置圓形展開 */
+  #view-tale.reveal{animation:tlReveal .8s cubic-bezier(.55,0,.25,1) both;}
+  @keyframes tlReveal{from{clip-path:circle(0px at var(--rx) var(--ry))}to{clip-path:circle(150vmax at var(--rx) var(--ry))}}
+  #view-tale.reveal .tl-intro{animation:tlIntroIn .8s ease-out both;}
+  @keyframes tlIntroIn{from{transform:scale(1.04)}to{transform:none}}
+  .cp-typing::after{content:'';display:inline-block;width:2px;height:1em;margin-left:2px;vertical-align:-.12em;background:currentColor;animation:tlCaret .7s steps(1) infinite;}
+  @keyframes tlCaret{50%{opacity:0}}
+  /* 故事卡打字時先不顯示按鈕 */
+  #view-tale[data-step="story"]:not(.ready) .tl-go{opacity:0;pointer-events:none;animation:none !important;}
+  #view-tale.show[data-step="story"].ready .tl-go{animation:tlGoIn .45s cubic-bezier(.3,1.6,.5,1) both;}
   .tl-go{position:relative;z-index:2;}
+  .tl-go-btn{justify-content:center;}
+  /* 開場 → 故事卡的銜接：對話框淡出，Memo 縮小「走進」故事卡（理工大學走進老照片裡，其他地點走到卡上的 Memo 小章），卡片在後面柔和浮現 */
+  #view-tale.xfer .tl-intro{display:flex !important;flex-direction:column;align-items:center;gap:6px;position:absolute;inset:0;justify-content:center;z-index:6;pointer-events:none;}
+  #view-tale.xfer .tl-say{opacity:0;transform:translateY(6px);}
+  .tl-card.in.soft{animation:tlInSoft .6s .12s cubic-bezier(.2,.8,.3,1) both;}
+  @keyframes tlInSoft{from{opacity:0;transform:translateY(18px) scale(.94)}to{opacity:1;transform:none}}
 
   /* 拍照前 Lucky 的提示 */
   #ar-lucky-tip{position:absolute;left:16px;right:16px;top:14px;z-index:6;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:14px;
     background:#FBF6EA;border:2px solid var(--brown);box-shadow:0 4px 12px rgba(61,43,31,.2);color:var(--th-ink);
     font:400 13.5px/1.5 CPKai,CPKaiFull,'PingFang TC',sans-serif;opacity:0;transform:translateY(-12px);transition:opacity .35s,transform .35s;pointer-events:none;}
   #ar-lucky-tip.on{opacity:1;transform:none;}
+  #ar-lucky-tip{display:none !important;}   /* 拍照時不顯示提示語 */
   #ar-lucky-tip img{width:40px;height:40px;object-fit:contain;flex-shrink:0;}
   /* 拍完：我有話要說／繼續（蓋在原圖的「重新拍攝／留下記憶」上），重拍改成小字 */
   .ar-choice{position:absolute;z-index:4;display:none;bottom:26.6%;left:14%;right:14%;gap:12px;justify-content:center;padding:6px 0;background:#F6F1E3;}
@@ -3243,6 +3535,49 @@
   #popup-spot-text .pst-name{left:16.5%;top:46.4%;width:41%;height:7.4%;font-weight:900;font-size:calc(var(--pw,340px)*.048);line-height:calc(var(--pw,340px)*.074);}
   #popup-spot-text .pst-area{left:63.2%;top:48.3%;width:19%;height:4.8%;font-weight:700;font-size:calc(var(--pw,340px)*.024);line-height:calc(var(--pw,340px)*.048);}
   #popup-spot-text .pst-quote{left:17%;top:53.8%;width:65.5%;height:9.8%;white-space:normal;font-weight:700;font-size:calc(var(--pw,340px)*.03);line-height:1.55;}
+
+  /* ═══ 字體層級（全 App 共用）═══
+     由細到粗往上疊：
+     L3 細字（時間、日期、標籤、小提示）：華康楷體 W5
+     L2 內文、Lucky 說的話：顏楷 W7
+     L1 標題、名字、重點句：顏楷 W9
+     例外：故事卡內文照設計稿用顏楷 W9；按鈕照按鈕規範；圖片裡的字不受影響
+     簡體模式：L1 標題換華康綜藝 W7 */
+  :root{--f-body:CPKaiBody,CPKai,CPKaiFull,'Kaiti TC',serif;--c-body:#5E4D42;--c-meta:#8A7B6B;}
+  /* L2 內文 */
+  .nw-card p,.djf .list div,.djf small.m,.djf .note,.djf .empty p,#dj-sheet p,.ul-sub,.ul-note span,
+  .sc-card p.sub,.sc-req,.sc-nc small,.sc-myid small,.sc-miss,.sc-post-ta,.nw-slot small,.later-item small,#later-list small{
+    font-family:CPKai,CPKaiFull,'Kaiti TC',serif !important;font-weight:700 !important;}   /* 內文：華康楷體 W5 在手機上太細，改用顏楷 W7 */
+  .nw-card p{font-size:3.6cqw !important;line-height:1.6 !important;color:var(--c-body) !important;letter-spacing:.04em;}
+  /* Lucky 說的話（對話框、提示框）比內文重要：用顏楷 W7，不用細的 W5 */
+  .wc-bubble #wc-text,.tl-say,.tl-tip span,.nw-bub,#ar-lucky-text,#d1-tip{font-family:CPKai,CPKaiFull,'Kaiti TC',serif !important;font-weight:700 !important;}
+  .tl-say,.tl-say .tc{font-weight:900 !important;}   /* 小貓吃菠蘿油下面那句：顏楷 W9 */
+  /* L3 輔助 */
+  .nw-who time,.nw-sec,.sc-who small,.sc-sec small,.sc-nc em,.sc-foods h4,#wc-hint,.djf .st,.dj-month,.tl-hint{
+    font-family:CPKai,CPKaiFull,'Kaiti TC',serif !important;font-weight:700 !important;}   /* 引導、提示、日期：顏楷 W7（W5 太細看不清） */
+  .nw-who time{font-size:3.1cqw !important;color:var(--c-meta) !important;}
+  .nw-sec{color:var(--c-meta) !important;letter-spacing:.08em;}
+  /* 簡體：L1 標題用華康綜藝 */
+  html[lang="zh-Hans"] .nw-who b,html[lang="zh-Hans"] .nw-slot b,html[lang="zh-Hans"] .dj-ttl,html[lang="zh-Hans"] .djv-ttl,html[lang="zh-Hans"] .djf h3,
+  html[lang="zh-Hans"] .djf .prog b.big,html[lang="zh-Hans"] #dj-sheet b,html[lang="zh-Hans"] .sc-tab,html[lang="zh-Hans"] .sc-who b,html[lang="zh-Hans"] .sc-fr b,
+  html[lang="zh-Hans"] .sc-nc b,html[lang="zh-Hans"] .sc-sec,html[lang="zh-Hans"] .ul-head{font-family:CPZongKai,CPKai,CPKaiFull,serif !important;}
+
+  /* ═══ 返回鍵統一：奶油色圓＋咖啡色手繪框＋咖啡色箭頭（assets/ui/btn-back.png）。
+     蓋在圖上畫好的返回鍵位置的透明按鈕也鋪上同一張圖，舊箭頭就被蓋掉 ═══ */
+  .sc-back,#r0-close,.td-back,.sp-back2,#diary1-back,#diary2-back,#diary2-2-back,#btn-nw-back,#profile-back-btn,#inv-back-btn,
+  #view-food-polyu button[aria-label="返回"],#view-diary-other button[aria-label="返回"],button[onclick="_navClose()"][aria-label="返回"]{
+    background:url('assets/ui/btn-back.png?v=1') center/100% 100% no-repeat !important;border:none !important;box-shadow:0 2px 3px rgba(61,43,31,.18) !important;
+    border-radius:50% !important;color:transparent !important;}
+  .sc-back svg,#r0-close svg,.td-back svg,.sp-back2 svg,#inv-back-btn>*{display:none !important;}
+  .sc-back,#r0-close,.td-back,.sp-back2{width:44px !important;height:46px !important;}
+  #diary1-back,#diary2-back{width:50px !important;height:52px !important;translate:-1px 1px;}
+  /* 留言板：對準頭圖上畫的返回鍵（原圖 x68–178、y165–275），大小一樣 */
+  /* 綠色底的頁面：返回鍵用綠色版（樣式一樣，只換顏色） */
+  #btn-nw-back,#r0-close,.td-back,#dj-view~#r0-close{background-image:url('assets/ui/btn-back-green.png?v=1') !important;}   /* 日記頁也用綠色返回鍵 */
+  #btn-nw-back{left:5.2cqw !important;top:13.2cqw !important;width:9.6cqw !important;height:9.8cqw !important;}
+  /* 這幾頁圖上畫的返回鍵位置不一樣：新按鈕直接放到它正上方，蓋住不露邊 */
+  #profile-back-btn{position:absolute !important;left:24px !important;top:43px !important;width:46px !important;height:46px !important;margin:0 !important;}
+  #view-diary-other button[aria-label="返回"],#view-food-polyu button[aria-label="返回"]{position:absolute !important;left:17px !important;top:56px !important;width:46px !important;height:46px !important;}   /* 稍微放大，完全蓋住圖上原本畫的返回鍵 */
 </style>
 </head>
 <body>
@@ -3254,7 +3589,7 @@
       <!-- 拉開抽屜時用的三層：後排文件夾、抽出來的那一頁、前排文件夾（都是同一張圖切出來的） -->
       <div id="r8-stage" onclick="event.stopPropagation();closeDrawer()">
         <img class="r8-back" src="assets/recap/r8-back.png" alt="">
-        <div class="r8-win"><img class="r8-page" src="assets/recap/r8-page.png" alt="2026.5.12 日記"></div>
+        <div class="r8-win"><img class="r8-page" src="assets/recap/r8-page.webp" alt="2026.5.12 日記"></div>
         <img class="r8-front" src="assets/recap/r8-front.png" alt="">
       </div>
       <div id="r0-pull-hint">點擊檔案日期查看</div>
@@ -3270,6 +3605,33 @@
     </div>
     <!-- 抽出一份日記時的返回鍵：收回抽屜 -->
     <button id="r0-close" onclick="event.stopPropagation();r0Back()" aria-label="返回"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg></button>
+    <!-- 日記（草稿 C 橫向翻閱）：一次看一天，左右滑；最右邊是「今天」，依今天的狀態顯示不同內容 -->
+    <div id="dj">
+      <div class="dj-collage"></div>
+      <div class="dj-ttl">我的日記</div>
+      <div class="dj-hint" id="dj-hint">左右滑動翻看每一天</div>
+      <div class="dj-month" id="dj-month"></div>
+      <div class="dj-rail" id="dj-rail"></div>
+      <div class="dj-dots" id="dj-dots"></div>
+    </div>
+    <!-- 打開某一天的日記 -->
+    <div id="dj-view">
+      <div class="djv-ttl" id="djv-ttl"></div>
+      <div class="djv-page" id="djv-page"></div>
+      <div class="djv-act">
+        <button class="cp-btn cp-btn--soft cp-btn--lg" onclick="diaryEditLocked()"><span>日記 DIY</span><i class="djv-lock" id="djv-lock">Lv.5</i></button>
+        <button class="cp-btn cp-btn--solid cp-btn--lg" onclick="shareDiaryToCommunity()">分享</button>
+      </div>
+    </div>
+    <!-- 結束今天的確認 -->
+    <div id="dj-sheet" onclick="if(event.target===this)djSheet(false)">
+      <div class="djs-card">
+        <img src="assets/wardrobe/Lucky.png" alt="">
+        <b>要結束今天的探索嗎？</b>
+        <p id="djs-txt"></p>
+        <div class="djs-btns"><button class="cp-btn cp-btn--soft cp-btn--md" onclick="djSheet(false)">再逛逛</button><button class="cp-btn cp-btn--solid cp-btn--md" onclick="djEndDay()">結束並生成</button></div>
+      </div>
+    </div>
   </div>
 
   <div id="schermata55">
@@ -3302,7 +3664,7 @@
       <img class="r6-card" src="assets/recap/diary-card-0512.png" alt="2026.5.12 日記">
       <button class="r6-hit" style="left:7.4%;top:71.1%;width:40.2%;height:4.4%" onclick="event.stopPropagation();finishShare()" aria-label="完成"></button>
       <button class="r6-hit" style="left:52.6%;top:71.1%;width:40%;height:4.4%" onclick="event.stopPropagation();chiudiOverlayRecap7();chiudiRecap6();apriSchermata56();" aria-label="返回修改"></button>
-      <button class="r6-share cp-btn cp-btn--solid" onclick="event.stopPropagation();apriOverlayRecap7()">分享</button>
+      <button class="r6-share cp-btn cp-btn--solid cp-btn--md" onclick="event.stopPropagation();apriOverlayRecap7()">分享</button>
     </div>
     <div id="overlay-recap7" onclick="event.stopPropagation();closeShareSheet()">
       <div class="r7-sheet" style="position:relative;width:min(100%,calc(var(--app-h,100vh) * 402 / 874));">
@@ -3315,17 +3677,14 @@
   <!-- popup 200m e arrivo – fuori da #view-map per evitare DPR degradato da Leaflet -->
   <div id="nav-companion-popup">
     <div class="cp-stage" onclick="_companionTap(event)">
-      <div class="cp-bubble"><img src="assets/map/companion-bubble.png" alt="探索的路上怎麼能沒有本喵，前方有颱階記得小心～">
-        <i class="cp-type l1"></i><i class="cp-type l2"></i><i class="cp-type l3"></i></div>
+      <div class="cp-bubble"><img src="assets/map/companion-bubble.png?v=2" alt="探索的路上怎麼能沒有本喵，前方有颱階記得小心～">
+        <i class="cp-type l1"></i><i class="cp-type l2"></i><span class="cp-dest" id="cp-dest"></span><i class="cp-type l3"></i></div>
       <img class="cp-cat" src="assets/map/companion-cat.png" alt="">
     </div>
   </div>
   <div id="arrival-overlay">
-    <img src="assets/map/frame223.png" alt="">
-    <!-- 蓋住圖上的「恭喜你成功到達錨點！」，加上這是第幾位到這裡的人類 -->
-    <div class="arr-text"><b>恭喜你成功到達錨點！</b></div>
-    <!-- 「進入探索」：跟橫幅一組，置中放在橫幅正下方 -->
-    <button id="arr-go" class="cp-btn cp-btn--solid cp-btn--lg">進入探索<i>▼</i></button>
+    <!-- 到達提示：固定在跳動的開鎖錨點正上方（跟著錨點，不亂跑）；直接點錨點進入 -->
+    <img src="assets/ui/arrive-banner.png?v=1" alt="恭喜你成功到達錨點！">
   </div>
 
   <!-- ══ SPLASH ══ -->
@@ -3502,7 +3861,7 @@
             <button class="sc-tab on" data-t="feed" onclick="scTab('feed')">動態</button>
             <button class="sc-tab" data-t="friends" onclick="scTab('friends')">好友 <i id="sc-fr-n"></i></button>
           </div>
-          <button class="sc-addf" onclick="scSheet('add')">＋ 加好友</button>
+          <button class="sc-addf cp-btn cp-btn--solid cp-btn--sm" onclick="scSheet('add')">加好友</button>
         </header>
         <div class="sc-friends" id="sc-friends"></div>
         <div class="sc-feed" id="sc-feed"></div>
@@ -3741,7 +4100,9 @@
     </div>
     <div class="tab-screen" id="tab-diary" style="background:#F5ECD7 url('assets/ui/Background.png') center/cover no-repeat;padding:0;overflow:hidden;align-items:center;justify-content:center;">
       <div class="dd" id="td-day" style="width:min(100%, calc(var(--app-h,100vh) * 411 / 874));pointer-events:none;"></div>
-      <div id="td-edited" style="width:min(100%, calc(var(--app-h,100vh) * 411 / 874));"><img src="assets/recap/r8-page.png" alt="2026.5.12 日記"></div>
+      <div id="td-edited" style="width:min(100%, calc(var(--app-h,100vh) * 411 / 874));"><img src="assets/recap/r8-page.webp" alt="日記"><span class="td-date"></span></div>
+      <!-- 日記頁也不要導航欄：左上角返回 → 回到日記抽屜 -->
+      <button class="sc-back td-back" onclick="tdBack()" aria-label="返回"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg></button>
     </div>
     <div class="tab-screen" id="tab-ar" style="background:#FAF4E8;padding:0;">
       <div style="position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;">
@@ -3795,17 +4156,16 @@
     <!-- ══ RECAP2 ══ -->
     <div id="view-recap2">
       <div class="recap-wrap" id="r2-wrap">
-        <img id="r2-base" src="assets/recap/frame-recap2.png?v=1780418217" alt="">
+        <img id="r2-base" src="assets/recap/frame-recap2.png?v=3" alt="">
         <!-- 今日漫步完成：結算動畫（面板滑上來 → 數字跳動 → 探險一個個彈出 → 確認） -->
         <div id="r2-fx"></div>
         <!-- bottone verde Conferma → apre recap3 -->
         <!-- bottone top-right → apre recap6 direttamente -->
         <!-- Demo 第 1 輪：保存分享 → 社區發佈；編輯 → 自由編輯上鎖（解鎖 15 處地點）；確認 → 收納在抽屜 -->
-        <button onclick="event.stopPropagation();shareDiaryToCommunity()"
-                style="position:absolute;top:var(--recap2-tr-top);left:var(--recap2-tr-left);width:var(--recap2-tr-w);height:var(--recap2-tr-h);background:none;border:none;cursor:pointer;z-index:3;touch-action:manipulation;"></button>
+        <!-- 保存分享先拿掉（圖上的按鈕也擦掉了），「編輯」移到原本保存分享的位置 -->
         <i class="r2-lock" id="r2-lock" aria-hidden="true">🔒</i>
         <button onclick="event.stopPropagation();diaryEditLocked()" aria-label="編輯"
-                style="position:absolute;top:var(--recap2-tr-top);left:calc(var(--recap2-tr-left) - 66px);width:60px;height:var(--recap2-tr-h);background:none;border:none;cursor:pointer;z-index:3;touch-action:manipulation;"></button>
+                style="position:absolute;top:var(--recap2-tr-top);left:calc(var(--recap2-tr-left) + 28px);width:62px;height:var(--recap2-tr-h);background:none;border:none;cursor:pointer;z-index:3;touch-action:manipulation;"></button>
         <button onclick="finishDayToDrawer()"
                 style="position:absolute;top:var(--recap2-btn-top);left:var(--recap2-btn-left);width:var(--recap2-btn-w);height:var(--recap2-btn-h);background:none;border:none;cursor:pointer;z-index:3;touch-action:manipulation;"></button>
       </div>
@@ -4013,12 +4373,13 @@
     <!-- ══ 圖鑑・其他 → 理工大學：打開收集那天的故事卡（照片、日期、收集者都用那天的） ══ -->
     <div id="view-story-polyu" style="position:absolute;inset:0;z-index:826;display:none;background:#3a2b1f;align-items:center;justify-content:center;overflow:hidden;">
       <div id="sp-bg"></div>
-      <div id="sp-card-wrap">
-        <img id="sp-ui-img" src="assets/story/story-polyu.png?v=1" alt="">
-        <span class="card-date nr-date" id="sp-date"></span><span class="cp-collector"></span>
-        <img id="sp-photo" src="" alt="">
-        <button id="sp-back" onclick="openDiaryOther()" aria-label="返回"></button>
+      <!-- 回憶牆裡的故事卡：正面＝當時收集到的那張故事卡；點一下翻面＝自己當時留下的話 -->
+      <button class="sc-back sp-back2" onclick="openDiaryOther()" aria-label="返回"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg></button>
+      <div class="sp-flip" id="sp-flip" onclick="this.classList.toggle('flipped')">
+        <div class="sp-face sp-front" id="sp-front"></div>
+        <div class="sp-face sp-backside" id="sp-backside"></div>
       </div>
+      <div class="tl-hint sp-hint">點擊卡片翻面 ↻</div>
     </div>
 
     <!-- ══ 其他・美食圖鑑 → 菠蘿油（傳世）詳情：底圖是 food1.png 換成金色框、內容清空，字和圖疊上去 ══ -->
@@ -4167,7 +4528,7 @@
     </div>
 
     <div id="gpsbar-wrap">
-      <img id="gpsbar-img" src="assets/map/frame221.png?v=2" alt="navigation bar">
+      <img id="gpsbar-img" src="assets/map/frame221.png?v=3" alt="navigation bar">
       <!-- 方向箭頭：跟著前方路線的方向轉（地圖北朝上，0° = 往上） -->
       <svg id="gps-arrow" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 35V14" stroke="currentColor" stroke-width="7.5" stroke-linecap="round"/><path d="M8 18.5 20 5l12 13.5z" fill="currentColor" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg>
       <span id="gps-dist">--</span>
@@ -4177,10 +4538,10 @@
 
 
     <div class="bottom-nav">
-      <img id="nav-bar-img" src="assets/tabbar/navbar-map.png?v=4" alt="navigation bar">
+      <img id="nav-bar-img" src="assets/tabbar/navbar-map.png?v=11" alt="navigation bar">
       <!-- 三種選中狀態疊在一起，切分頁只換哪一張顯示，不重新載入圖片（避免導航列閃一下） -->
-      <img class="nav-layer" data-k="diary" src="assets/tabbar/navbar-diary.png?v=4" alt="">
-      <img class="nav-layer" data-k="social" src="assets/tabbar/navbar-social.png?v=4" alt="">
+      <img class="nav-layer" data-k="diary" src="assets/tabbar/navbar-diary.png?v=11" alt="">
+      <img class="nav-layer" data-k="social" src="assets/tabbar/navbar-social.png?v=11" alt="">
       <button id="nav-btn-map"   class="nav-tap" onclick="toggleMapShop()"   aria-label="Map/Shop"></button>
       <button id="nav-btn-diary" class="nav-tap" onclick="switchTab('diary')" aria-label="Diary"></button>
       <button id="nav-btn-social"class="nav-tap" onclick="openDiary1()" aria-label="冰室"></button>
@@ -4213,7 +4574,7 @@
     <div id="nw-card-wrap">
       <div class="nw-head"><img src="assets/social/board/head.jpg" alt=""><span class="nw-place" id="nw-place"></span></div>
       <div class="nw-sheet">
-        <div class="nw-lucky"><div class="nw-bub">你是第<b id="nw-rank">20</b>個發現本喵在這裡記憶的人類！</div><img src="assets/social/board/cat.jpg" alt=""></div>
+        <div class="nw-lucky"><div class="nw-bub">你是第<b id="nw-rank">6</b>位到達這裡的人類！</div><img src="assets/social/board/cat.jpg" alt=""></div>
         <div id="nw-list"></div>
       </div>
       <button id="btn-nw-back" onclick="closeNoteWindow()" aria-label="返回"></button>
@@ -4300,8 +4661,8 @@
     <button id="ar-save-btn" onclick="completeAR()"></button>
     <div id="ar-lucky-tip"><img src="assets/emoji/yay.png" alt=""><span id="ar-lucky-text"></span></div>
     <div class="ar-choice">
-      <button class="cp-btn cp-btn--soft cp-btn--lg" onclick="completeAR()">我有話要說</button>
-      <button class="cp-btn cp-btn--solid cp-btn--lg" onclick="skipNoteToUnlock()">繼續</button>
+      <button class="cp-btn cp-btn--solid cp-btn--lg" onclick="completeAR()">我有話要說</button>
+      <button class="cp-btn cp-btn--soft cp-btn--lg" onclick="skipNoteToUnlock()">繼續</button>
     </div>
     <button id="ar-retake-link" onclick="retakePhotoFromConfirm()">重新拍攝</button>
   </div>
@@ -4323,13 +4684,13 @@
     <div id="note-bg"></div>
     <div id="note-content-wrap">
       <div id="note-card-wrap">
-        <img id="note-card-img" src="assets/story/frame%20888.png?v=2" alt="">
+        <img id="note-card-img" src="assets/story/frame%20888.png?v=6" alt="">
         <span class="card-date" aria-label="日期"></span><span class="cp-collector cp-collector--light"></span>
         <img id="note-photo" src="" alt="">
         <textarea id="note-ta-input" maxlength="200" placeholder="有什麼想留在這個地方的話？" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();openEmojiSelect();}"></textarea>
         <!-- 底下只留一個「完成卡片」；表情改在卡片上的 ＋ 格子裡加 -->
         <button id="note-emoji-slot" class="emo-ph" onclick="openEmojiSelect()" aria-label="添加表情"><img src="assets/emoji/yay.png" alt=""><i>＋</i></button>
-        <button id="note-done-btn" class="cp-btn cp-btn--brown cp-btn--xl" onclick="sendNote()">完成卡片</button>
+        <button id="note-done-btn" class="cp-btn cp-btn--solid cp-btn--xl" onclick="sendNote()">完成卡片</button>
       </div>
     </div>
   </div>
@@ -4339,15 +4700,15 @@
     <div id="emi-bg"></div>
     <!-- card: full 402×874 Figma frame at natural size -->
     <div id="emi-card-area">
-      <img id="emi-card-img" src="assets/story/frame%20890.png?v=3" alt="">
+      <img id="emi-card-img" src="assets/story/frame%20890.png?v=6" alt="">
         <span class="card-date" aria-label="日期"></span><span class="cp-collector cp-collector--light"></span>
       <img id="emi-user-photo" src="" alt="">
       <div id="emi-selected" onclick="setEmojiKeyboard(true)"><span class="emo-ph"><img src="assets/emoji/yay.png" alt=""><i>＋</i></span><img id="emi-selected-img" src="" alt=""></div>
       <!-- 鍵盤收起後，蓋住卡片圖上的橫幅，換成「完成卡片」按鈕；點了翻面 -->
-      <button id="emi-flip-btn" class="cp-btn cp-btn--brown cp-btn--xl" onclick="submitWithEmoji()">完成卡片</button>
-      <textarea id="emi-text-box" maxlength="200" placeholder="想說點什麼？"></textarea>
+      <button id="emi-flip-btn" class="cp-btn cp-btn--solid cp-btn--xl" onclick="submitWithEmoji()">完成卡片</button>
+      <textarea id="emi-text-box" maxlength="200" placeholder="有什麼想留在這個地方的話？"></textarea>
     </div>
-    <div id="emi-done-bar"><button class="cp-btn cp-btn--brown cp-btn--xl cp-btn--block" onclick="setEmojiKeyboard(false)">選擇完成</button></div>
+    <div id="emi-done-bar"><button class="cp-btn cp-btn--solid cp-btn--xl cp-btn--block" onclick="setEmojiKeyboard(false)">選擇完成</button></div>
     <!-- keyboard: overlay anchored to bottom -->
     <div id="emi-keyboard-area">
       <div id="emi-keyboard-wrap">
@@ -4362,7 +4723,7 @@
   <div id="view-note-result">
     <div id="nr-bg"></div>
     <div id="nr-card-wrap">
-      <img id="nr-ui-img" src="assets/story/FRAME%20899.png?v=3" alt="">
+      <img id="nr-ui-img" src="assets/story/FRAME%20899.png?v=6" alt="">
       <span class="card-date nr-date"></span><span class="cp-collector" id="nr-collector"></span>
       <img id="nr-photo" src="" alt="">
       <div id="nr-note-text" style="display:none;"></div>
@@ -4449,11 +4810,15 @@
   <div id="view-tale" data-step="story">
     <div class="sc2-bg" id="tl-bg"></div>
     <div class="tl-tip" id="tl-tip"><img id="tl-emo" src="assets/emoji/yay.png" alt=""><span id="tl-say"></span></div>
-    <div class="tl-stage tl-story">
+    <div class="tl-stage tl-intro" onclick="taleIntroTap()">
+      <img class="tl-eat" id="tl-eat" src="assets/story/tale/memo-eat.webp" alt="">
+      <div class="tl-say" id="tl-quote"></div>
+    </div>
+    <div class="tl-stage tl-story" onclick="taleTypeSkip()">
       <i class="tl-glow" aria-hidden="true"></i>
       <div class="tl-card" id="tl-card">
-        <img id="tl-card-img" src="assets/story/story-polyu-unlock-v2.png?v=1" alt="">
-        <img class="tl-photo" id="tl-photo" alt="">
+        <img id="tl-card-img" src="assets/story/tale/card-blank.png?v=1" alt="">
+        <img class="tl-photo" id="tl-photo" alt=""><img class="tl-badge" src="assets/story/tale/memo-badge.png" alt="">
         <span class="tl-h1">官方錨點</span><span class="tl-h2">紅磡　香港理工大學</span>
         <span class="tl-q">“等一塊香香菠蘿油當作旁聽獎勵！”</span>
         <p class="tl-p">那時候，這裡還叫香港工業專門學院。本喵每天陪人類溫書，偷偷等菠蘿油投餵。悄悄吃一口就趕緊坐好，今天也有認真旁聽！</p>
@@ -4461,6 +4826,9 @@
       </div>
     </div>
     <div class="tl-stage tl-food">
+      <div class="tl-fwrap">
+      <!-- 食物圖鑑解鎖：Memo 趴在卡片右上角，說的話寫在左邊的對話框裡 -->
+      <div class="tl-peek" id="tl-peek"><div class="tl-pbub"><span id="tl-pbub-t"></span></div><img class="tl-pcat" src="assets/food/peek/memo.png" alt=""></div>
       <div class="tl-flip" id="tl-flip" onclick="taleFlip()">
         <div class="tl-face front"><img id="tl-front-img" src="assets/food/cards/pineapple-front.png?v=1" alt=""><img class="tl-fimg" id="tl-fimg" alt=""><i class="tl-fstamp" id="tl-fstamp"></i><b class="tl-ft">菠蘿油</b></div>
         <div class="tl-face back">
@@ -4472,9 +4840,10 @@
           <small class="tl-bf"><span>收集於 紅磡 香港理工大學</span><span id="tl-fp-date"></span></small>
         </div>
       </div>
+      </div>
       <div class="tl-hint" id="tl-hint">點擊卡片翻面 ↻</div>
     </div>
-    <div class="tl-go"><button class="cp-btn cp-btn--brown cp-btn--lg" onclick="taleNext()"><span id="tl-btn-t">收下故事</span></button></div>
+    <div class="tl-go"><button class="cp-btn cp-btn--solid cp-btn--xl tl-go-btn" onclick="taleNext()"><span id="tl-btn-t">收下故事</span></button></div>
   </div>
 
   <!-- overlay fine western market -->
@@ -5756,17 +6125,31 @@ function addStickerMark(idx){
   const m=L.marker([p.lat,p.lng],{
     icon:L.divIcon({
       className:'',
-      html:`<img class="poi-sticker" src="assets/ui/frame%20252.png" style="width:${w}px;height:${h}px;display:block;" draggable="false">`,
+      // 外圍再多一圈透明的點擊範圍：點到留言貼紙附近也能打開留言板
+      html:`<div class="poi-sticker-hit"><img class="poi-sticker" src="assets/ui/frame%20252.png" style="width:${w}px;height:${h}px;display:block;" draggable="false"></div>`,
       iconSize:[w,h],
       iconAnchor:[ax, ay]
     }),
     zIndexOffset:500,
-    interactive:false
+    interactive:true
+  });
+  m.on('click',()=>{
+    if(S.walkingMode||document.getElementById('arrival-overlay').classList.contains('show')) return;
+    if(S._wcAction){ S._wcAction=null; try{ closeWelcomeCat(); }catch(e){} }   // 照 Lucky 的提示點了對話框：Lucky 退場
+    openNoteWindow(idx);
   });
   stickerMarks[idx]=m;
   updateStickerVisibility();
 }
 
+/* 讓錨點上方的留言對話框跳幾下，提示可以點；fly=false 時不移動地圖 */
+function heyStickers(idx,noFly){
+  const m=stickerMarks[idx]; if(!m) return;
+  const go=()=>{ const el=m.getElement&&m.getElement(); const h=el&&el.querySelector('.poi-sticker-hit'); if(!h) return;
+    h.classList.remove('hey'); void h.offsetWidth; h.classList.add('hey'); clearTimeout(h._heyT); h._heyT=setTimeout(()=>h.classList.remove('hey'),3000); };
+  if(noFly||!map) return go();
+  const p=PLACES[idx]; map.flyTo([p.lat,p.lng],Math.max(map.getZoom(),16),{duration:.6}); setTimeout(go,650);
+}
 function updateStickerVisibility(){
   if(!map) return;
   const zoom=map.getZoom();
@@ -5889,8 +6272,9 @@ function spawnMarker(idx){
   const m=L.marker([p.lat,p.lng],{icon:makePinIcon(false)}).addTo(map);
   m.on('click',()=>{
     // 導航中、或已到達還沒看完故事：錨點不可點
+    if(S._arriveGo&&S._arriveIdx===idx) return S._arriveGo();
     if(S.targetIdx===idx && S.anchors[idx].status!=='done') return;
-    if(document.getElementById('arrival-overlay').classList.contains('show')) return;
+    if(document.getElementById('arrival-overlay').classList.contains('show')){ if(S._arriveGo&&S._arriveIdx===idx) S._arriveGo(); return; }
     openPopup(idx); });
   m.on('dblclick',(e)=>{
     if(S.walkingMode && locationWatchId===null){
@@ -5904,6 +6288,7 @@ function spawnMarker(idx){
 }
 
 function markDone(idx){
+  if(typeof djRecord==='function') djRecord(idx);
   if(anchorMarks[idx]) anchorMarks[idx].setIcon(makePinIcon(true));
   addStickerMark(idx);
   updateLaterBadge();   // 打卡完成的點會從「稍後探索」清單消失，右上角的數字也要跟著更新
@@ -5921,9 +6306,20 @@ function updatePlayerMap(){
   if(!map._cpFlying&&!S._dragging){
     const mb=map.options.maxBounds;
     const c=mb&&map._limitCenter?map._limitCenter(L.latLng(ll),map.getZoom(),mb):L.latLng(ll);
-    const cur=map.getCenter();
-    if(map.latLngToContainerPoint(c).distanceTo(map.latLngToContainerPoint(cur))>.3) map.setView(c,map.getZoom(),{animate:false});
+    // 用「不取整」的像素平移：走得慢時每幀只動 1 像素左右，setView 會把位移取整成 1、2、1… 看起來一卡一卡
+    const z=map.getZoom(), sz=map.getSize();
+    const cp=map.project(c,z).subtract(map.getPixelOrigin()).add(map._getMapPanePos());
+    const off=cp.subtract(L.point(sz.x/2,sz.y/2));
+    if(off.x*off.x+off.y*off.y>250000) map.setView(c,z,{animate:false});   // 一下子跳很遠：直接重設
+    else if(Math.abs(off.x)>.02||Math.abs(off.y)>.02){
+      map._rawPanBy(off); map.fire('move');
+      const now=performance.now();
+      if(!map._cpLastEnd||now-map._cpLastEnd>300){ map._cpLastEnd=now; map.fire('moveend'); }   // 走動中也讓底圖補載
+      clearTimeout(map._cpEndT); map._cpEndT=setTimeout(()=>{ map._cpLastEnd=performance.now(); map.fire('moveend'); },140);
+    }
   }
+  // 藍點也用不取整的位置，才不會跟地圖差半個像素一抖一抖
+  if(playerMark&&playerMark._icon) L.DomUtil.setPosition(playerMark._icon,map.project(L.latLng(ll),map.getZoom()).subtract(map.getPixelOrigin()));
   checkProximity();
   if(S.walkingMode) updateGpsBar();
 }
@@ -6064,7 +6460,16 @@ function checkProximity(){
     // ── 30m: arrivo ──
     if((a.status==='spawned'||a.status==='walking')&&d<=30){
       a.status='near';
+      // 沒有先按導航、自己走到錨點上也算到達（之前只有導航目標才會跳到達提示）
+      const taleOpen=document.getElementById('view-tale').classList.contains('show');
+      if(S._tale&&!taleOpen) S._tale=false;   // 上一次故事中途離開留下的狀態，不要擋住新的到達
+      if(S.targetIdx!==idx && S.mapReady && !taleOpen && !document.getElementById('arrival-overlay').classList.contains('show')){
+        document.getElementById('anchor-popup').classList.remove('show');
+        S.currentPopup=null; S.targetIdx=idx;
+      }
       if(S.targetIdx===idx){
+        // 到達：停止移動（按住方向鍵也會停），玩家停在錨點上，不會一路走過頭
+        if(typeof _held!=='undefined'){ _held.clear(); if(_holdRaf){ cancelAnimationFrame(_holdRaf); _holdRaf=0; } }
         clearRoute();
         S.walkingMode=false; S.manualWalk=false;
         // 模擬定位：到達時直接站到點位上
@@ -6094,7 +6499,7 @@ function checkProximity(){
 /* ═══════════════════════════════════════════════
    MOVEMENT
 ═══════════════════════════════════════════════ */
-const STEP=0.000090;
+const STEP=0.000042;   // 走路速度（再調慢一點）
 function move(dir){
   stopLiveLocation();
   S.userMoved=true;
@@ -6187,14 +6592,8 @@ function switchTab(name){
   if(name!=='shop'&&typeof closeShopCat==='function') closeShopCat();
   // 換分頁時把朋友頁裡打開的「世界」等子頁一起關掉，不然會疊在新分頁上
   const _sg=document.getElementById('view-social-global'); if(_sg&&name!=='social') _sg.style.display='none';
-  if(name==='diary'&&S.dayCompletePending){
-    S.dayCompletePending=false;
-    document.getElementById('nav-btn-diary').classList.remove('has-new');
-    openDayComplete();
-    const nav=document.getElementById('nav-bar-img');
-    setNavState('diary');
-    return;
-  }
+  // 打卡後點日記：不再自動跳結算，改成在日記裡看「今天・探索中」，玩家自己決定什麼時候結束今天
+  if(name==='diary'){ S.dayCompletePending=false; document.getElementById('nav-btn-diary').classList.remove('has-new'); }
   chiudiDiaryFlow();
   ['social','shop','diary','ar','collection'].forEach(t=>{
     document.getElementById('tab-'+t).classList.toggle('show', t===name);
@@ -6249,6 +6648,8 @@ function switchTab(name){
     /* mostra recap0 immediatamente come prima pagina */
     var r0=document.getElementById('schermata-recap0');
     if(r0) r0.style.display='flex';
+    document.getElementById('dj-view').classList.remove('show'); document.getElementById('dj-sheet').classList.remove('show');
+    djRender(true);
     const _rw=document.getElementById('r0-wrap');
     _rw.classList.remove('open','closing');
     if(_prevTab!=='diary'){
@@ -6417,7 +6818,7 @@ function scRenderFriends(newK){
   document.getElementById('sc-fr-n').textContent=SC.friends.length;
   const box=document.getElementById('sc-friends'); if(!box) return;
   const near=Object.keys(SC_NEAR).filter(k=>!SC.friends.includes(k));
-  box.innerHTML=SC.reqs.map(k=>`<div class="sc-req" data-k="${k}">${scAv(k)}${SC_USERS[k].name} 想加你為好友<button class="y">接受</button><button class="n">略過</button></div>`).join('')+
+  box.innerHTML=SC.reqs.map(k=>`<div class="sc-req" data-k="${k}">${scAv(k)}${SC_USERS[k].name} 想加你為好友<button class="y cp-btn cp-btn--solid cp-btn--xs">接受</button><button class="n cp-btn cp-btn--soft cp-btn--xs">略過</button></div>`).join('')+
     (near.length?`<div class="sc-sec">附近的探索家<small>📍 你附近 3 km 內</small></div><div class="sc-near">${near.map(k=>{ const n=SC_NEAR[k]; return `<div class="sc-nc" data-k="${k}">${scAv(k)}<b>${SC_USERS[k].name}</b><span class="d">${n[0]}</span><small>${n[1]}</small><em>${n[2]}</em><button class="cp-btn cp-btn--solid cp-btn--sm">加好友</button></div>`; }).join('')}</div>`:'')+
     `<div class="sc-sec">我的好友・${SC.friends.length}</div>`+
     SC.friends.map(k=>{ const f=SC_INFO[k]||[0,'',0]; return `<div class="sc-fr${k===newK?' new':''}" data-k="${k}">${scAv(k)}<div><b>${SC_USERS[k].name}</b><small>${f[0]?'<i></i>':''}${f[1]}</small></div><span class="km">${f[2]}<em> km</em></span></div>`; }).join('');
@@ -6464,7 +6865,6 @@ function scSheet(kind,p){
     card.querySelector('#sc-find-go').onclick=find; inp.onkeydown=e=>{ if(e.key==='Enter') find(); };
   } else if(kind==='post'){
     card.innerHTML=`<h3>分享今天的日記${x}</h3><p class="sub">發佈到社區</p><img class="sc-big" src="assets/recap/diary-share-0512.png" alt="2026.5.12 日記">
-      <textarea class="sc-post-ta" maxlength="120" placeholder="說說今天的漫步吧……"></textarea>
       <button class="sc-go cp-btn cp-btn--solid cp-btn--lg" style="margin-top:12px">發佈</button>`;
     card.querySelector('.sc-go').onclick=()=>{ SC_USERS.me={name:'我',av:myAvatar(),on:true};
       SC_POSTS[SC.view].unshift({u:'me',t:'剛剛',d:'2026.05.12',km:'4.2',n:4,f:['pine','roll'],like:0,cmt:0,star:0,share:0,route:'理工大學・海安咖啡・西港城'});
@@ -6624,7 +7024,7 @@ function openDayComplete(){
 }
 /* 今日漫步完成的結算動畫：所有元件都從 frame-recap2.png 切出來，位置用原圖像素 */
 const R2_W=1211, R2_H=2627;
-const r2Src=()=>(window.CP_LANG_NOW==='hans'?'assets-hans':'assets')+'/recap/frame-recap2.png?v=1780418217';   // 切片用的底圖跟著繁/简
+const r2Src=()=>(window.CP_LANG_NOW==='hans'?'assets-hans':'assets')+'/recap/frame-recap2.png?v=3';   // 切片用的底圖跟著繁/简
 function r2Box(el,[x,y,w,h],slice){
   Object.assign(el.style,{left:x/R2_W*100+'%',top:y/R2_H*100+'%',width:w/R2_W*100+'%',height:h/R2_H*100+'%'});
   if(slice){
@@ -6648,30 +7048,20 @@ function countUp(el,from,to,fmt,dur){
   })(t0);
 }
 function playRecap2Fx(){
+  // 新版下方面板：整張用設計稿（assets/recap/r2-panel.png），滑上來 → 停一下 → 自動進日記；點「確認」可以直接跳過
   const wrap=document.getElementById('r2-wrap'), fx=document.getElementById('r2-fx');
   fx.innerHTML=''; wrap.classList.add('fx');
-  wrap.style.setProperty('--rw',wrap.clientWidth+'px');
-  const PANEL=[0,1915,R2_W,R2_H-1915];
-  const panel=r2El('r2-panel',PANEL,true); fx.appendChild(panel);
-  // 面板上的元件先蓋住，之後一個個出現（蓋子跟著面板一起滑上來）
-  const inPanel=(r)=>[r[0],r[1]-PANEL[1],r[2],r[3]];
-  const inner=document.createElement('div'); inner.style.cssText='position:absolute;inset:0';
-  panel.appendChild(inner);
-  const pr=(r)=>{ const [x,y,w,h]=inPanel(r); return {left:x/PANEL[2]*100+'%',top:y/PANEL[3]*100+'%',width:w/PANEL[2]*100+'%',height:h/PANEL[3]*100+'%'}; };
-  const cover=(r,bg)=>{ const d=document.createElement('div'); d.className='r2-cover'; Object.assign(d.style,{position:'absolute',background:bg},pr(r)); inner.appendChild(d); return d; };
-  const sliceIn=(cls,r,delay)=>{ const d=r2El(cls,r,true); Object.assign(d.style,pr(r)); d.style.animationDelay=delay+'ms'; inner.appendChild(d); return d; };
-  const NUM8=[1025,2065,45,52], NUMT=[850,2135,135,52], ITEMS=[230,355,475,600,722,845,972], OK=[462,2468,276,126];
-  cover(NUM8,'#FDFDF7'); cover(NUMT,'#ECEFEC');
-  ITEMS.forEach(c=>cover([c-62,2342,124,100],'#ECEFEC'));
-  cover(OK,'#ECEFEC');
-  // Demo 第 1 輪：日記直接結算、沒有貨幣 → 「獎勵單仔 / 合計 10/60 張」那一欄整個拿掉（用面板底色蓋住）
-  cover([40,2035,1131,200],'#ECEFEC');
-  ITEMS.forEach((c,i)=>{
-    const d=1650+i*170;
-    sliceIn('r2-item',[c-62,2342,124,100],d);
-    const sh=document.createElement('div'); sh.className='r2-shine'; Object.assign(sh.style,{position:'absolute'},pr([c-70,2322,140,140])); sh.style.animationDelay=d+'ms'; inner.appendChild(sh);
-  });
-  sliceIn('r2-ok',OK,1650+ITEMS.length*170+150);
+  const pn=document.createElement('div'); pn.className='r2-newpanel';
+  pn.innerHTML='<img src="assets/recap/r2-panel.png?v=1" alt="今日漫步完成"><button class="r2-newok" aria-label="確認"></button>';
+  fx.appendChild(pn);
+
+  pn.querySelector('.r2-newok').onclick=e=>{ e.stopPropagation(); r2Go(); };
+  clearTimeout(window._r2AutoT);   // 不自動跳走，等玩家按「確認」
+}
+function r2Go(){
+  clearTimeout(window._r2AutoT);
+  const v2=document.getElementById('view-recap2'); if(!v2||v2.style.display==='none') return;
+  finishDayToDrawer();
 }
 function openRecap2(){
   var _td=document.getElementById('tab-diary'); if(_td) _td.classList.remove('day-done');
@@ -7044,7 +7434,7 @@ function dxoRender(){
       c.innerHTML='<img class="bg" src="assets/diary/dex/card-locked.png" alt="">'+
         (it.open?`<img class="ph" src="${it.photo}" alt=""><img class="pin" src="assets/diary/dex/pin.png" alt=""><div class="tx"><b></b><i></i><small></small></div>`
                 :'<div class="tx"><b>？？？</b><i></i></div>');
-      if(it.open){ c.querySelector('b').textContent=it.name; c.querySelector('i').textContent=it.area; c.querySelector('small').textContent=it.year; c.onclick=openStoryPolyu; c.style.cursor='pointer'; }
+      if(it.open){ c.querySelector('b').textContent=it.name; c.querySelector('i').textContent=it.area; c.querySelector('small').textContent=it.year; c.onclick=()=>openStoryPolyu(PLACES.findIndex(p=>p.name===it.name||PLACE_ZH[p.id]===it.name)>=0?PLACES.findIndex(p=>PLACE_ZH[p.id]===it.name):null); c.style.cursor='pointer'; }
       else c.querySelector('i').textContent=it.hint;
     }
     box.appendChild(c);
@@ -7064,13 +7454,40 @@ function openFoodPolyu(){
   _navTo('view-food-polyu');
 }
 /* 理工大學的故事卡：照片和日期用收集那天存下來的；還沒存過就用地點原圖、今天 */
-function openStoryPolyu(){
-  const i=PLACES.findIndex(p=>p.id==='polyu'), n=(S.myNotes&&S.myNotes[i])||{};
-  const photo=n.photo||(PLACES[i]&&PLACES[i].img)||'';
-  const dt=document.getElementById('sp-date'); if(n.time) dt.dataset.time=n.time; else delete dt.dataset.time;
-  fillCardDates();
+function openStoryPolyu(idx){
+  const i=(typeof idx==='number'&&idx>=0)?idx:PLACES.findIndex(p=>p.id==='polyu'), n=(S.myNotes&&S.myNotes[i])||null;
+  const photo=(n&&n.photo)||NO_PHOTO;
   document.getElementById('sp-bg').style.backgroundImage=photo?`url('${photo}')`:'';
-  setCardPhoto('sp-photo',photo,true);
+  // 正面：跟打卡時收到的故事卡一模一樣（同一套 taleFill），文字直接全部顯示
+  taleFill(i); fillCardDates();
+  const src=document.getElementById('tl-card'), card=src.cloneNode(true);
+  card.removeAttribute('id'); card.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
+  card.classList.remove('in','out','soft');
+  const h2=card.querySelector('.tl-h2'), pp=card.querySelector('.tl-p');
+  h2.textContent=S._taleTxt.h2; h2.classList.toggle('long',[...S._taleTxt.h2].length>9); pp.innerHTML=punctHTML(S._taleTxt.p);
+  // 日期＝當時打卡那天；收集者照原卡
+  const t0=n&&n.time?new Date(n.time):new Date();
+  card.querySelector('.card-date').textContent=`${t0.getFullYear()}年${String(t0.getMonth()+1).padStart(2,'0')}月${String(t0.getDate()).padStart(2,'0')}日`;
+  const col=card.querySelector('.cp-collector'), scol=src.querySelector('.cp-collector'); if(col&&scol) col.textContent=scol.textContent;
+  const fr=document.getElementById('sp-front'); fr.innerHTML=''; fr.appendChild(card);
+  // 背面：自己當時留下的話；沒有留言就提示
+  const name=PLACE_ZH[PLACES[i].id]||'', bk=document.getElementById('sp-backside');
+  const hasMsg=n&&(n.text||n.emoji);
+  const d=n&&n.time?new Date(n.time):null, ds=d?`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`:'';
+  // 背面＝打卡時填好的那張留言卡（同一張卡圖、相片、留言、表情）；沒有留言就提示
+  const isWM=PLACES[i].id==='western_market', cimg=isWM?'assets/story/westernmarketnote.png?v=6':'assets/story/frame%20888.png?v=6';
+  bk.classList.toggle('empty',!hasMsg);
+  bk.innerHTML=hasMsg
+    ?`<div class="spn-clip"><div class="spn"><img class="spn-card" src="${cimg}" alt=""><img class="spn-photo" alt=""><p class="spn-text"></p>${n.emoji?`<img class="spn-emo" src="${emojiSrc(n.emoji)}" alt="">`:''}<span class="spn-date">${ds}</span></div></div>`
+    :`<div class="none"><img src="assets/food/peek/memo.png" alt=""><b>您還沒有留言</b><small>下次來這裡打卡時<br>記得留句話給本喵～</small></div>`;
+  if(hasMsg){
+    if(n.text) bk.querySelector('.spn-text').textContent=n.text;
+    const ph=bk.querySelector('.spn-photo'); ph.src=n.photo||NO_PHOTO;
+    // 打卡時選綠色相框 → 背面留言卡也是綠色
+    if(n.green&&!isWM) recolorCard(cimg,{c:'#55704C'}).then(u=>{ const ci=bk.querySelector('.spn-card'); if(ci) ci.src=u; }).catch(()=>{});
+    framedPhotoCanvas(n.photo||NO_PHOTO).then(c=>{ ph.src=c.toDataURL('image/jpeg',.9); }).catch(()=>{});
+  }
+  document.getElementById('sp-flip').classList.remove('flipped');
   _navTo('view-story-polyu');
 }
 
@@ -7161,7 +7578,7 @@ function closeShopModal(name){
 
 /* 地圖導航列：直接用原圖（之前把鑰匙孔後面的深綠圓底染黃，會多出一圈黃邊、也染到冰室門框，已拿掉） */
 /* Demo 第 1 輪新導航列：羅盤（地圖探索）＋日記＋朋友；選中的分頁膠囊變深綠 */
-const NAV_SRC={map:'assets/tabbar/navbar-map.png?v=4',diary:'assets/tabbar/navbar-diary.png?v=4',social:'assets/tabbar/navbar-social.png?v=4'};
+const NAV_SRC={map:'assets/tabbar/navbar-map.png?v=11',diary:'assets/tabbar/navbar-diary.png?v=11',social:'assets/tabbar/navbar-social.png?v=11'};
 const NAV_MAP_SRC=NAV_SRC.map;
 function setNavState(k,raw){
   if(k==='social'&&!raw) k='map';   // 朋友頁改從地圖右側按鈕進入；下方第三格現在是「冰室」（只有開著回憶牆時才亮冰室）
@@ -7171,7 +7588,7 @@ function setNavState(k,raw){
 const NAV_HIDE_IDS=['schermata-recap0','tab-social','view-diary2-2','view-diary4-1','view-diary1sub','view-food1','view-story1','view-story-polyu','view-food-polyu',
   'view-tale','view-unlock','view-story-card','view-note','view-note-window','view-note-result','view-emoji-select','view-ar','view-polaroid',
   'view-flip','view-foodcard','view-recap2','view-recap3','view-recap4','view-recap5','view-recap5-1','view-recap5-2','view-recap5-3',
-  'overlay-recap7','overlay-recap8','schermata55','schermata56','schermata-recap6','modal-inventario','modal-minigioco','view-social-global','tab-ar','tab-collection'];
+  'overlay-recap7','overlay-recap8','schermata55','schermata56','schermata-recap6','modal-inventario','modal-minigioco','view-social-global','tab-ar','tab-collection','tab-diary'];
 function _navShown(el){ if(!el) return false; const cs=getComputedStyle(el); return cs.display!=='none'&&cs.visibility!=='hidden'&&el.getClientRects().length>0; }
 let _navRaf=0;
 function syncNavVisibility(){
@@ -7391,7 +7808,7 @@ setInterval(()=>{ try{ updateEdgeHint(); }catch(e){} },400);
 /* 打卡完：不自動帶過去，只提醒繼續找 */
 function nudgeExplore(){
   S.welcomeMsg='還有好多老地方和味道沒找回來呢～繼續四處走走吧！';
-  showWelcomeCat('拖動地圖或四處走走 🐾');
+  showWelcomeCat('四處走走看看 🐾');
 }
 
 let mtTmr;
@@ -7450,12 +7867,13 @@ const NW_POSTS=[
   {d:'09.18',n:'力力',a:'a4',p:'p4',t:'期末週在圖書館爆肝，抬頭看見設計感十足的天花板，突然覺得還能再肝三小時。'},
   {d:'09.18',n:'Sky',a:'a5',p:'p5',t:'終於忙完今天的工作了！學生的論文太難讀了！這小貓的表情簡直演我看學生論文的樣子。'}
 ];
-function nwDayLabel(d){ return d==='今天'?'今天':d.replace('.',' 月 ').replace(/^0/,'')+' 日'; }
+function nwDayLabel(d){ if(d==='今天') return '今天'; const [m,dd]=d.split('.'); return (+m)+'月'+(+dd)+'日'; }
 function nwCard(o,me){
   const c=document.createElement('div'); c.className='nw-card'+(me?' me':'');
   c.innerHTML='<img class="ph" alt=""><div class="bd"><div class="nw-who"><img alt=""><b></b>'+(me?'<span class="nw-me">我</span>':'')+'<time></time></div><p></p></div>';
   c.querySelector('.ph').src=o.photo; c.querySelector('.nw-who img').src=o.av;
-  c.querySelector('b').textContent=o.name; c.querySelector('time').textContent=o.time; c.querySelector('p').textContent=o.text;
+  c.querySelector('b').textContent=o.name; c.querySelector('time').textContent=/^\d+\.\d+$/.test(o.time)?nwDayLabel(o.time):o.time; c.querySelector('p').textContent=o.text;
+  if(o.emoji){ const em=document.createElement('img'); em.className='nw-emo'; em.src=emojiSrc(o.emoji); em.alt=''; c.querySelector('p').prepend(em); }   // 留下的表情也顯示出來
   return c;
 }
 function openNoteWindow(idx){
@@ -7469,15 +7887,18 @@ function openNoteWindow(idx){
   const sec=d=>{ if(d===day) return; day=d; const h=document.createElement('div'); h.className='nw-sec'; h.textContent=nwDayLabel(d); list.appendChild(h); };
   sec('今天');
   if(mine){
-    const c=nwCard({photo:mine.photo,av:myAvatar(),name:mine.name,time:'剛剛',text:mine.text||(mine.emoji?'（只留下了一個表情）':'（留下了一張打卡合拍 📸）')},true);
+    const c=nwCard({photo:mine.photo,av:myAvatar(),name:mine.name,time:'剛剛',text:mine.text||(mine.emoji?'':'（留下了一張打卡合拍 📸）'),emoji:mine.emoji},true);
     if(S._nwJustPosted){ c.classList.add('new'); S._nwJustPosted=false; }
     list.appendChild(c);
   }else{
     const slot=document.createElement('button'); slot.className='nw-slot';
-    slot.innerHTML='<i>📸</i><span><b>留下今天的合拍</b><small>跟 Lucky 拍一張，貼在這裡</small></span>'; slot.onclick=boardPhoto;
+    slot.innerHTML='<i>📸</i><span><b>來打卡，留句話給這裡</b><small>和 Lucky 合拍，就能解鎖 Lucky 的新造型</small></span>'; slot.onclick=boardPhoto;
     list.appendChild(slot);
   }
-  NW_POSTS.forEach(o=>{ sec(o.d); list.appendChild(nwCard({photo:NW_P+o.p+'.jpg',av:NW_P+o.a+'.jpg',name:o.n,time:o.d,text:o.t})); });
+  // 頭像每次隨機分配，同一個留言板裡不會重複（也不會跟自己的頭像一樣）
+  const mineAv=myAvatar(), pool=['happy','yay','peek','love','thumbs-up','wink','smug','spotlight','shy','cheeky','hungry','close-up','ponder','question','surprised','teary']
+    .map(n=>'assets/emoji/'+n+'.png').filter(u=>u!==mineAv).sort(()=>Math.random()-.5);
+  NW_POSTS.forEach((o,k)=>{ sec(o.d); list.appendChild(nwCard({photo:NW_P+o.p+'.jpg',av:pool[k%pool.length],name:o.n,time:o.d,text:o.t})); });
   const wrap=document.getElementById('nw-card-wrap');
   document.getElementById('view-note-window').classList.add('show');
   wrap.scrollTop=0;
@@ -7487,8 +7908,8 @@ function openNoteWindow(idx){
 function saveMyNote(idx){
   let acc=null; try{ acc=JSON.parse(localStorage.getItem('cp_account')||'null'); }catch(e){}
   S.myNotes=S.myNotes||{};
-  S.myNotes[idx]={photo:S.photos[0]||PLACES[idx].img,text:S.noteText==='✨ No words needed.'?'':S.noteText,
-    emoji:S.selectedEmoji||null,name:(acc&&acc.name)||'我',time:S.photoTime||Date.now()};
+  S.myNotes[idx]={photo:S.photos[0]||NO_PHOTO,text:S.noteText==='✨ No words needed.'?'':S.noteText,
+    emoji:S.selectedEmoji||null,name:(acc&&acc.name)||'我',time:S.photoTime||Date.now(),green:!!(S.frameColor&&GREEN_FRAMES.includes(S.frameColor.c))};
 }
 /* 留言板 → 打卡合拍：拍照、留言，完成後回到留言板，自己的卡片貼在最上面 */
 function boardPhoto(){
@@ -7504,7 +7925,27 @@ function boardPhotoDone(){
   const idx=S.targetIdx; S._boardPhoto=false;
   saveMyNote(idx); S._boardPosted=S._boardPosted||{}; S._boardPosted[idx]=true; S._nwJustPosted=true;
   S.targetIdx=null; S.currentPopup=null; saveState();
-  openNoteWindow(idx).then(()=>{ showMini('📸','你的打卡合拍已貼上留言板'); setTimeout(()=>burstSparks(document.getElementById('nw-card-wrap'),18),350); });
+  openNoteWindow(idx).then(()=>setTimeout(nwFlyPhotoIn,380));
+}
+/* 合拍飛進留言板上自己那張卡的照片格 */
+function nwFlyPhotoIn(){
+  const card=document.querySelector('#nw-list .nw-card.new'); if(!card) return;
+  const ph=card.querySelector('.ph');
+  const land=()=>{ card.classList.add('landed'); setTimeout(()=>burstSparks(card,8),150); };
+  if(!ph||!ph.getAttribute('src')) return land();
+  card.scrollIntoView({block:'nearest'});
+  const to=ph.getBoundingClientRect(), app=(document.getElementById('app')||document.body).getBoundingClientRect();
+  const W=Math.min(app.width*.62,260), fx=app.left+app.width/2-W/2, fy=app.top+app.height*.38-W/2;
+  const fly=document.createElement('img'); fly.src=ph.src;
+  Object.assign(fly.style,{position:'fixed',left:fx+'px',top:fy+'px',width:W+'px',height:W+'px',objectFit:'cover',borderRadius:'10px',border:'4px solid #fff',
+    boxShadow:'0 10px 24px rgba(0,0,0,.3)',zIndex:9999,pointerEvents:'none',transformOrigin:'0 0'});
+  document.body.appendChild(fly);
+  const s=to.width/W;
+  fly.animate([
+    {transform:'scale(.9)',opacity:0},
+    {transform:'scale(1)',opacity:1,offset:.25},
+    {transform:`translate(${to.left-fx}px,${to.top-fy}px) scale(${s})`,opacity:1}
+  ],{duration:900,easing:'cubic-bezier(.45,0,.25,1)',fill:'forwards'}).onfinish=()=>{ fly.remove(); land(); };
 }
 function closeNoteWindow(){
   document.getElementById('view-note-window').classList.remove('show');
@@ -7746,7 +8187,9 @@ async function refreshRoute(){
   if(_routeAbort){ _routeAbort.abort(); }
   _routeAbort=new AbortController();
   const t=PLACES[S.targetIdx];
+  const want=S.targetIdx;
   const coords=demoRoute(S.targetIdx)||await fetchRoute(S.player.lat,S.player.lng,t.lat,t.lng,_routeAbort.signal);
+  if(S.targetIdx!==want) return;
   _applyRoute(coords);
 }
 
@@ -7797,6 +8240,7 @@ async function enterWalking(idx){
   if(_routeAbort){ _routeAbort.abort(); }
   _routeAbort=new AbortController();
   const coords=demoRoute(idx)||await fetchRoute(S.player.lat,S.player.lng,t.lat,t.lng,_routeAbort.signal);
+  if(S.targetIdx!==idx||!S.walkingMode) return;   // 路線還在算的時候已經退出導航：不要再畫出來
   S.routePath=coords||[[t.lat,t.lng]]; S.routeIdx=0;
   setRoute(remainingRoute());
 }
@@ -7805,10 +8249,14 @@ let _companionMilestone=null;
 let _companionTimer=null;
 
 /* 先把小貓提示的兩張圖解碼好，第一次跳出來才不會卡一下 */
-['assets/map/companion-cat.png','assets/map/companion-bubble.png'].forEach(src=>{ const i=new Image(); i.src=src; i.decode&&i.decode().catch(()=>{}); });
+['assets/map/companion-cat.png','assets/map/companion-bubble.png?v=2'].forEach(src=>{ const i=new Image(); i.src=src; i.decode&&i.decode().catch(()=>{}); });
 /* 字約 1.3 秒出來，之後停 4 秒讓人看完 */
 const COMPANION_STAY=5300;
 function _showCompanionPopup(){
+  // 每一趟導航只出現一次，不要一路上一直跳
+  if(S._companionShownFor===S.targetIdx) return;
+  S._companionShownFor=S.targetIdx;
+  if(S.targetIdx!=null){ const pid=PLACES[S.targetIdx].id; document.getElementById('cp-dest').textContent='正在前往'+(PLACE_ZH[pid]||PLACES[S.targetIdx].name.replace('\n',' '))+'......'; }
   const el=document.getElementById('nav-companion-popup');
   clearTimeout(_companionTimer);
   el.classList.remove('show','typed','hide');
@@ -7851,10 +8299,10 @@ function updateGpsArrow(){
 function updateGpsBar(){
   if(S.targetIdx==null) return;
   const d=distTo(S.targetIdx);
-  const distTxt=d>=1000?(d/1000).toFixed(1)+'km':String(Math.round(d));
-  const etaTxt=String(etaMins(d));
-  document.getElementById('gps-dist').textContent=distTxt;
-  document.getElementById('gps-eta').textContent=etaTxt;
+  // 單位、「預計還有…分鐘」都由程式寫（底圖上原本畫死的「米」「分鐘」已擦掉），數字變長也不會疊在一起
+  const m=etaMins(d), eta=m>=60?`${Math.floor(m/60)}小時${m%60?m%60+'分':''}`:`${m}分鐘`;
+  document.getElementById('gps-dist').innerHTML=d>=1000?`${(d/1000).toFixed(d>=10000?0:1)}<small>公里</small>`:`${Math.round(d)}<small>米</small>`;
+  document.getElementById('gps-eta').innerHTML=m>=60?`預計還有<b>${eta}</b>到達`:`預計還有<b>${eta}</b>到達目的地`;
   updateGpsArrow();
   const milestone=Math.floor(d/200);
   if(_companionMilestone===null){ _companionMilestone=milestone; }
@@ -7899,37 +8347,53 @@ function _showArrivalOverlay(idx){
   el.classList.remove('out');
   el.style.display='block';
   el.classList.add('show');
-  const go=document.getElementById('arr-go');
-  go.classList.remove('show','out');
-  setTimeout(()=>go.classList.add('show'),1000);   // 橫幅彈出、解鎖動效跑完再出現
+  document.body.classList.add('arriving'); hideLuckyBubble();
+  // 橫幅貼在錨點正上方；地圖移動（fitBounds 動畫、拖動）時跟著錨點
+  const mk=anchorMarks[idx];
+  const place=()=>{
+    if(!el.classList.contains('show')) return;
+    const host=el.offsetParent||document.getElementById('app'), hr=host.getBoundingClientRect(), mr=map.getContainer().getBoundingClientRect();
+    const pt=map.latLngToContainerPoint([t.lat,t.lng]);
+    el.style.left=(mr.left-hr.left+pt.x)+'px';
+    el.style.top=(mr.top-hr.top+pt.y-78-14)+'px';   // 錨點高 78px，再留一點跳動空間
+  };
+  map.on('move zoom',place); place();
+  setTimeout(()=>{ place(); mk&&mk.getElement()&&mk.getElement().classList.add('pin-tapme'); },550);   // 解鎖動效跑完開始跳
   /* 停留一下再淡出，接著開到達卡片；點橫幅可以直接跳過等待 */
   let done=false;
   const finish=()=>{
     if(done) return; done=true;
     clearTimeout(arrT);
+    S._arriveGo=null; S._arriveIdx=null; document.body.classList.remove('arriving');
+    map.off('move zoom',place);
+    const pe=mk&&mk.getElement();
+    if(pe){ pe.classList.remove('pin-tapme');
+      // 點下去：錨點輕壓一下＋一圈光，記下位置讓故事畫面從這裡圓形展開
+      const pin=pe.querySelector('.anchor-pin'); if(pin) pin.animate([{transform:'scale(1)'},{transform:'scale(.86)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:420,easing:'ease-out'});
+      playUnlockFx(idx);
+      const r=(pin||pe).getBoundingClientRect(); S._revealFrom={x:r.left+r.width/2,y:r.top+r.height*.45};
+    }
     el.classList.add('out');
-    go.classList.add('out');
-    setTimeout(()=>go.classList.remove('show','out'),300);
     setTimeout(()=>{
       el.classList.remove('show','out');
       el.style.display='none';
       _restoreNavBar();
       S.currentPopup=null;
       // 沒有新故事的點：不再跳「咔嚓」到達卡，直接開相機打卡
-      if(STORY_ZH[PLACES[idx].id]||TALES[PLACES[idx].id]) openTale(idx); else { S.currentPopup=idx; startCheckin(); }
-    },450);
+      if(STORY_ZH[PLACES[idx].id]||TALES[PLACES[idx].id]) openTale(idx); else { S._revealFrom=null; S.currentPopup=idx; startCheckin(); }
+    },380);
   };
   // 不再自動跳走：玩家按「查看 Lucky 的江湖故事」才進去
   const arrT=null;
-  el.onclick=()=>finish();   // 點橫幅任何地方都可以進入
-  document.getElementById('arr-go').onclick=e=>{ e.stopPropagation(); finish(); };
+  el.onclick=()=>finish();   // 點橫幅也可以進入
+  S._arriveGo=finish; S._arriveIdx=idx;   // 主要：直接點跳動的錨點
 }
 
 function _restoreNavBar(){
   showOtherAnchors(true);
   const wrap=document.getElementById('gpsbar-wrap');
   wrap.style.display='none';
-  document.getElementById('gpsbar-img').src='assets/map/frame221.png?v=2';
+  document.getElementById('gpsbar-img').src='assets/map/frame221.png?v=3';
   document.getElementById('gps-cancel-btn').style.display='';
   document.getElementById('gps-arrow').style.display='';
   document.getElementById('gps-dist').style.display='';
@@ -7955,6 +8419,7 @@ function cancelWalking(){
   const idx=S.targetIdx;
   S.walkingMode=false; S.targetIdx=null; S.manualWalk=false;
   if(idx!=null&&S.anchors[idx].status==='walking') S.anchors[idx].status='spawned';
+  if(_routeAbort){ _routeAbort.abort(); _routeAbort=null; }
   clearRoute();
   _restoreNavBar();
   recenter();
@@ -8266,7 +8731,7 @@ function retakePhoto(){
 }
 
 function showPolaroid(){
-  const photo=S.photos[0]||(S.targetIdx!=null?PLACES[S.targetIdx].img:'');
+  const photo=S.photos[0]||NO_PHOTO;
   document.getElementById('pol-bg').style.backgroundImage=`url('${photo}')`;
   document.getElementById('view-polaroid').classList.add('show');
 }
@@ -8283,14 +8748,13 @@ function openNote(){
 
 function submitNote(){
   document.getElementById('view-polaroid').classList.remove('show');
-  const photo=S.photos[0]||(S.targetIdx!=null?PLACES[S.targetIdx].img:'');
+  const photo=S.photos[0]||NO_PHOTO;
   document.getElementById('note-bg').style.backgroundImage=`url('${photo}')`;
   setCardPhoto('note-photo',photo);
   document.getElementById('note-ta-input').value='';
-  document.getElementById('note-card-img').src=(S.targetIdx!=null&&PLACES[S.targetIdx].id==='western_market')?'assets/story/westernmarketnote.png?v=2':'assets/story/frame%20888.png?v=2';
+  document.getElementById('note-card-img').src=(S.targetIdx!=null&&PLACES[S.targetIdx].id==='western_market')?'assets/story/westernmarketnote.png?v=6':'assets/story/frame%20888.png?v=6';
   tintCard('note-card-img'); setTimeout(fillCardDates,0);
-  document.getElementById('view-note').classList.add('show');
-  setTimeout(()=>document.getElementById('note-ta-input').focus(),300);
+  document.getElementById('view-note').classList.add('show');   // 不自動聚焦：否則提示文字前面一直有一條黑色游標
 }
 
 function activateNoteText(){}
@@ -8333,7 +8797,7 @@ let selectedEmoji=null;
 function openEmojiSelect(){
   document.getElementById('note-ta-input').blur();
   const text=document.getElementById('note-ta-input').value.trim();
-  const photo=S.photos[0]||(S.targetIdx!=null?PLACES[S.targetIdx].img:'');
+  const photo=S.photos[0]||NO_PHOTO;
   document.getElementById('emi-bg').style.backgroundImage=`url('${photo}')`;
   setCardPhoto('emi-user-photo',photo);
   document.getElementById('emi-text-box').value=text;
@@ -8352,12 +8816,13 @@ function openEmojiSelect(){
   } else {
     grid.querySelectorAll('.emi-btn').forEach(b=>b.classList.remove('picked'));
   }
-  document.getElementById('emi-card-img').src=(S.targetIdx!=null&&PLACES[S.targetIdx].id==='western_market')?'assets/story/westernmarketemoji.png?v=3':'assets/story/frame%20890.png?v=3';
+  document.getElementById('emi-card-img').src=(S.targetIdx!=null&&PLACES[S.targetIdx].id==='western_market')?'assets/story/westernmarketemoji.png?v=6':'assets/story/frame%20890.png?v=6';
   tintCard('emi-card-img'); setTimeout(fillCardDates,0);
-  document.getElementById('view-note').classList.remove('show');
+  // 卡片位置不動，只有下面的表情面板滑上來（不要整個畫面跳成另一個）
   const es=document.getElementById('view-emoji-select');
-  es.classList.remove('emoji-picked','kb-hidden');
-  es.classList.add('show');
+  es.classList.remove('emoji-picked'); es.classList.add('kb-hidden','opening','show');
+  document.getElementById('view-note').classList.remove('show');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ es.classList.remove('kb-hidden','opening'); }));
 }
 
 let _emojiTimer=null;
@@ -8388,13 +8853,13 @@ function submitWithEmoji(){
   ta.blur();
   S.noteText=ta.value.trim()||(selectedEmoji?'':'✨ No words needed.');
   /* Demo：完成卡片不再自動存圖／跳出系統分享 */
-  const photo=S.photos[0]||(S.targetIdx!=null?PLACES[S.targetIdx].img:'');
+  const photo=S.photos[0]||NO_PHOTO;
   document.getElementById('nr-bg').style.backgroundImage=`url('${photo}')`;
   setCardPhoto('nr-photo',photo);
   document.getElementById('nr-note-text').textContent=S.noteText;
   const _isWM=S.targetIdx!=null&&PLACES[S.targetIdx].id==='western_market';
   setTimeout(fillCardDates,0);
-  document.getElementById('nr-ui-img').src=_isWM?'assets/story/storywasternmarket.png?v=3':'assets/story/FRAME%20899.png?v=3';
+  document.getElementById('nr-ui-img').src=_isWM?'assets/story/storywasternmarket.png?v=6':'assets/story/FRAME%20899.png?v=6';
 
   const cardFront=document.getElementById('emi-card-area');
   const cardBack=document.getElementById('nr-card-wrap');
@@ -8405,29 +8870,28 @@ function submitWithEmoji(){
   // 按鈕先淡出，只讓卡片本身翻面
   const fbtn=document.getElementById('emi-flip-btn');
   fbtn.animate([{opacity:1},{opacity:0}],{duration:180,fill:'forwards'}).onfinish=function(){ setTimeout(()=>this.cancel(),600); };
-  cardFront.style.transition='transform 0.45s ease-in';
-  cardFront.style.transform='perspective(800px) rotateY(90deg) scale(.96)';
+  // 不翻轉：卡片輕輕淡出、微微縮小，下一張再淡入
+  cardFront.style.transition='transform .3s ease-in,opacity .3s ease-in';
+  cardFront.style.transform='translateY(-6px) scale(.97)'; cardFront.style.opacity='0';
 
   setTimeout(()=>{
     /* al punto di taglio: scambia le schermate */
     es.classList.remove('show');
     cardFront.style.transition='none';
-    cardFront.style.transform='';
+    cardFront.style.transform=''; cardFront.style.opacity='';
     // 新流程：留言卡翻面後是「恭喜解鎖」，不再接舊的歷史卡
-    if(STORY_ZH[PLACES[S.targetIdx].id]){ showUnlock(true); return; }
+    if(S._boardPhoto||STORY_ZH[PLACES[S.targetIdx].id]){ showUnlock(true); return; }
 
     /* prepara il frame 899 a -90° prima di mostrarlo */
     cardBack.style.transition='none';
-    cardBack.style.transform='perspective(800px) rotateY(-90deg)';
+    cardBack.style.transform='translateY(12px) scale(.97)'; cardBack.style.opacity='0';
     nr.classList.add('show');
-
-    /* seconda metà: ruota il frame 899 da -90° a 0° */
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      cardBack.style.transition='transform 0.5s cubic-bezier(.2,.9,.3,1.15)';
-      cardBack.style.transform='perspective(800px) rotateY(0deg)';
-      setTimeout(()=>{ cardBack.style.transition=''; cardBack.style.transform=''; },500);
+      cardBack.style.transition='transform .45s cubic-bezier(.2,.8,.3,1),opacity .45s ease-out';
+      cardBack.style.transform='none'; cardBack.style.opacity='1';
+      setTimeout(()=>{ cardBack.style.transition=''; cardBack.style.transform=''; cardBack.style.opacity=''; },460);
     }));
-  },450);
+  },300);
 }
 
 function sendNote(){
@@ -8435,9 +8899,12 @@ function sendNote(){
   const ta=document.getElementById('note-ta-input');
   S.noteText=ta.value.trim()||'✨ No words needed.';
   ta.blur();
-  document.getElementById('view-note').classList.remove('show');
-  if(STORY_ZH[PLACES[S.targetIdx].id]){ if(S.noteText==='✨ No words needed.') S.noteText=''; showUnlock(true); return; }
-  const photo=S.photos[0]||(S.targetIdx!=null?PLACES[S.targetIdx].img:'');
+  const vn=document.getElementById('view-note');
+  if(S._boardPhoto||STORY_ZH[PLACES[S.targetIdx].id]){ if(S.noteText==='✨ No words needed.') S.noteText='';
+    vn.animate([{opacity:1,transform:'none'},{opacity:0,transform:'translateY(-6px) scale(.98)'}],{duration:280,easing:'ease-in'}).onfinish=()=>{ vn.classList.remove('show'); showUnlock(true); };
+    return; }
+  vn.classList.remove('show');
+  const photo=S.photos[0]||NO_PHOTO;
   document.getElementById('nr-bg').style.backgroundImage=`url('${photo}')`;
   setCardPhoto('nr-photo',photo);
   document.getElementById('nr-note-text').textContent=S.noteText;
@@ -8445,7 +8912,11 @@ function sendNote(){
 }
 
 async function framedPhotoCanvas(url){
-  const im=await loadImg(url);
+  const im0=await loadImg(url);
+  // 照片先裁成接近正方形（卡片圖上畫的拍立得是 368×415），相框才會剛好疊在卡片上那個拍立得的位置，不會因為直拍照片變得很長
+  const side=Math.min(im0.width,im0.height*1.002), sh=Math.min(im0.height,side/1.002);
+  const im=document.createElement('canvas'); im.width=Math.round(side); im.height=Math.round(sh);
+  im.getContext('2d').drawImage(im0,(im0.width-side)/2,(im0.height-sh)/2,side,sh,0,0,im.width,im.height);
   const W=Math.round(im.width/0.922), H=Math.round(im.height/0.816);
   const c=document.createElement('canvas'); c.width=W; c.height=H;
   const ctx=c.getContext('2d');
@@ -8463,7 +8934,7 @@ async function framedPhotoBlob(url){
 }
 /* 卡片底色跟拍照時選的相框顏色：只換卡身的棕色（保留紙張紋理的明暗），
    避開左上角錨點標籤和卡片下方的按鈕 */
-const TINTABLE_CARDS=['frame%20888.png?v=2','frame%20890.png?v=3'];
+const TINTABLE_CARDS=['frame%20888.png?v=6','frame%20890.png?v=6'];
 const GREEN_FRAMES=['#8FA08C','#44613F'];
 const _tintCache=new Map();
 async function recolorCard(src,fc){
@@ -8498,10 +8969,12 @@ async function tintCard(id){
 
 /* 卡片右上角的小拍立得：用拍照時選的相框顏色，蓋住卡片圖上原本畫的棕色框 */
 let _framedCache={url:null,color:null,data:null};
+/* 沒有拍照時用的佔位圖（之前會拿錨點卡片圖 arrive.png 當照片，相框裡變成一張打卡卡片） */
+const NO_PHOTO='assets/story/no-photo.jpg';
 async function setCardPhoto(id,photo,force){
   const el=document.getElementById(id);
   el.src=photo; el.classList.remove('framed');
-  if(!photo||(!force&&photo!==S.photos[0])) return;
+  if(!photo||(!force&&photo!==S.photos[0]&&photo!==NO_PHOTO)) return;
   try{
     if(_framedCache.url!==photo||_framedCache.color!==S.frameColor){
       const c=await framedPhotoCanvas(photo);
@@ -8540,7 +9013,7 @@ function showFlip(){
   document.getElementById('flip-bg').style.backgroundImage=
     `url('${p.img}')`;
 
-  document.getElementById('flip-fi').src=S.photos[0]||p.img;
+  document.getElementById('flip-fi').src=S.photos[0]||NO_PHOTO;
   document.getElementById('flip-note').textContent=`"${S.noteText}"`;
   document.getElementById('flip-bi').src=p.img;
   document.getElementById('flip-cap').textContent=p.story.caption;
@@ -8648,7 +9121,8 @@ function closeFoodcard(){
     // 新流程最後一步：④ 查看留言；關掉留言板之後才出現下一個可探索的錨點
     S.pendingSpawn=hasNext?next:null; S.pendingGuide=true;
     if(S._taleFinish){
-      setTimeout(()=>{ S.welcomeMsg='人類，看看其他人類在這裡留下了什麼吧！'; S._wcAction=()=>openNoteWindow(idx); showWelcomeCat('點一下查看留言板 💬'); },900);
+      // 引導玩家去看錨點上方冒出來的對話框（點對話框就是留言板）
+      setTimeout(()=>{ S.welcomeMsg='點點錨點上方的對話框，看看大家說了什麼！'; S._wcAction=()=>heyStickers(idx); showWelcomeCat(''); heyStickers(idx,true); },900);
     } else setTimeout(()=>openNoteWindow(idx),500);
   } else if(hasNext) setTimeout(()=>spawnAnchor(next),1500);
 }
@@ -8667,22 +9141,22 @@ const TALES={
     food:{n:'雞蛋仔',img:'Food-Egg-Waffle',stamp:'街坊',q:'“外脆內軟，一粒粒咁拆嚟食。”',d:'用特製鐵模烤出一格格小圓球，外面脆、裏面軟。以前係小販用剩雞蛋整出嚟嘅小食，而家已經係香港街頭嘅代表。'},say:'是雞蛋仔！趁熱一粒粒拆嚟食最正！'},
   halfway_coffee:{area:'上環',year:'1952',photo:null,q:'“師傅拉茶，本喵睇到入迷。”',
     p:'海安咖啡室開了七十年，木枱、吊扇、舊磚牆都沒怎麼變。本喵以前每朝都來，蹲在櫃台邊看師傅用絲襪撞茶，一杯奶茶香滑到不得了。',
-    food:{n:'港式奶茶',img:'Food-Hong-Kong-Milk-Tea',stamp:'招牌',q:'“絲襪撞出嚟，先夠滑！”',d:'紅茶用布袋反覆撞，再加淡奶，茶味濃、口感滑。一杯奶茶配一件多士，就係冰室最經典嘅下午。'},say:'是奶茶！要師傅撞出嚟嗰種先夠滑！'},
+    food:{n:'奶油多',img:'Food-Butter-Toast',stamp:'常餐',q:'“點解水手最鍾意點煉乳？”',d:'五十年代香港，鮮奶非常昂貴。水手平安上岸，第一件事就走入海安咖啡，叫塗滿煉乳嘅多士。',back:1},say:'是奶油多！'},
   western_market:{area:'上環',year:'1906',photo:'assets/story/backgroundwesternmarket.jpeg',q:'“紅磚樓裏面，有最香的牛肉治！”',
     p:'西港城是香港現存最老的街市建築，紅磚加白邊，好似一件大禮物。本喵以前在這裏巡市場，最期待隔籬茶記的牛肉治，一咬就流汁。',
-    food:{n:'牛肉治',img:'Food-Corned-Beef-Sandwich',stamp:'招牌',q:'“點有咁怪嘅鹹牛肉配搭？”',d:'舊時鮮牛肉貴，冰室引入耐放的罐頭鹹牛肉，炒蛋再夾烘底麪包，香口又平，成為打工仔的專屬早餐。'},say:'是牛肉治！要烘底先夠香！'},
+    food:{n:'牛肉治',img:'Food-Corned-Beef-Sandwich',stamp:'招牌',q:'“點有咁怪嘅咸牛肉配搭？”',d:'舊時香港鮮牛昂貴，冰室引入耐放罐頭咸牛肉，夾麵包就成為打工仔專屬早餐。',back:1},say:'是牛肉治！'},
   central_market:{area:'中環',year:'1939',photo:null,q:'“一碟腸粉，就係最好嘅早晨。”',
     p:'中環街市以前人山人海，賣菜賣魚叫賣聲一條街都聽到。本喵每朝都在樓梯口等，街坊吃完腸粉，總會留一點甜醬給我。',
-    food:{n:'腸粉',img:'Food-Rice-Noodle-Rolls',stamp:'街坊',q:'“甜醬麻醬一齊落！”',d:'米漿蒸成薄薄一層再捲起，淋上甜醬、麻醬、芝麻。滑溜溜一碟，係香港人最平民嘅早餐。'},say:'是腸粉！甜醬麻醬要多啲！'},
+    food:{n:'腸粉',img:'Food-Rice-Noodle-Rolls',stamp:'街坊',q:'“點有咁怪嘅咸牛肉配搭？”',d:'只係個樣捲到似豬腳腸咋。佢嘅精髓就係混醬。',back:1},say:'是腸粉！'},
   fringe_club:{area:'中環',year:'1892',photo:null,q:'“牛奶公司的倉庫，有最凍的樽仔奶！”',
     p:'這座紅白間條的大樓，以前是牛奶公司的冷藏倉庫。本喵最喜歡夏天跑進來乘涼，工人總會偷偷倒一點樽仔奶給我。',
-    food:{n:'樽仔奶',img:'Food-Bottled-Milk',stamp:'傳世',q:'“凍冰冰，一口飲晒！”',d:'玻璃樽裝的鮮奶，飲完要退樽。曾經係香港人童年嘅味道，而家已經好少見，成為一份懷舊回憶。'},say:'是樽仔奶！凍冰冰一口飲晒！'},
+    food:{n:'樽裝鮮奶',img:'Food-Bottled-Milk',stamp:'街坊',q:'“還樽先至會有下一樽啦～”',d:'紙盒奶普及前，喝完鮮奶是必須要交還玻璃樽的。',back:1},say:'是樽裝鮮奶！'},
   duddell_street:{area:'中環',year:'1889',photo:null,q:'“煤氣燈一亮，就收工去食飯！”',
     p:'都爹利街的石階上有香港僅存的煤氣街燈，每晚準時亮起。本喵跟着燈光走落樓梯，附近茶餐廳的火腿通粉香氣就飄過來了。',
-    food:{n:'火腿通粉',img:'Food-Ham-Macaroni',stamp:'常餐',q:'“常餐一定要有佢！”',d:'清湯通粉加幾片火腿，簡單又暖胃。茶餐廳嘅常餐、早餐都少不了佢，係香港人最日常嘅一碗。'},say:'是火腿通粉！常餐一定要有佢！'},
+    food:{n:'紅豆冰',img:'Food-Red-Bean-Ice',stamp:'招牌',q:'“成杯大半都畀碎冰霸晒？”',d:'喺冰塊好珍貴嘅年代，堆到成座小山咁嘅碎冰，不但顯得老闆大方豪爽。',back:1},say:'是紅豆冰！'},
   the_pawn:{area:'灣仔',year:'1888',photo:null,q:'“當舖樓下，飄住燒鵝香。”',
     p:'和昌大押是一百多年前的當舖，騎樓下總是很熱鬧。本喵以前在這裏避雨，對面燒味舖掛滿一排排燒鵝，香到本喵捨不得走。',
-    food:{n:'燒鵝',img:'Food-Roast-Goose',stamp:'招牌',q:'“皮脆肉嫩，點酸梅醬！”',d:'炭火燒到皮脆油亮，肉汁豐富，點一點酸梅醬解膩。燒鵝飯係香港人心目中最滋味嘅一餐。'},say:'是燒鵝！皮脆肉嫩，點酸梅醬！'}
+    food:{n:'油雞大髀',img:'Food-Soy-Sauce-Chicken-Leg',stamp:'常餐',q:'“雞髀夠肥，先算有誠意！”',d:'五六十年代的香港，「斬料」可是件大事。',back:1},say:'是油雞大髀！'}
 };
 /* 有中文故事的錨點才走新流程；文案是示範稿，之後換成正式內容 */
 const STORY_ZH={
@@ -8780,21 +9254,22 @@ function taleFill(idx){
   const id=PLACES[idx].id, T=TALES[id], card=document.getElementById('tl-card'), f=document.getElementById('tl-flip');
   const q=s=>card.querySelector(s), b=s=>f.querySelector(s);
   if(!_taleBack.bt){ ['bt','bq','bp'].forEach(k=>_taleBack[k]=b('.tl-'+k).innerHTML); _taleBack.stamp=b('.tl-stamp i').textContent; _taleBack.loc=b('.tl-bf span').textContent; }
-  card.classList.toggle('gen',!!T); f.classList.toggle('gen',!!T);
+  card.classList.add('gen'); card.classList.toggle('own',!T); f.classList.toggle('gen',!!T);
+  document.getElementById('tl-card-img').src='assets/story/tale/card-blank.png?v=1';
+  f.classList.remove('designed','front-designed'); f.querySelector('.tl-face.back>img').src='assets/food/cards/pineapple-back.png?v=2';
   if(!T){
-    document.getElementById('tl-card-img').src='assets/story/story-polyu-unlock-v2.png?v=1';
-    document.getElementById('tl-front-img').src='assets/food/cards/pineapple-front.png?v=1';
+    S._taleTxt={q:'“等一塊香香菠蘿油當作旁聽獎勵！”',h2:'紅磡　香港理工大學',p:'那時候，這裡還叫香港工業專門學院，好多優秀的工程師都來自這裡。本喵每天陪人類溫書，偷偷等着被投餵菠蘿油。悄悄吃一口就趕緊坐好，今天也有認真旁聽！'};
+    document.getElementById('tl-front-img').src='assets/food/cards/front/polyu.png?v=1'; f.classList.add('front-designed');
     document.getElementById('tl-bg').style.backgroundImage="url('assets/story/story-polyu-unlock-orig.png')";
     b('.tl-ft').textContent='菠蘿油';
     ['bt','bq','bp'].forEach(k=>b('.tl-'+k).innerHTML=_taleBack[k]); b('.tl-stamp i').textContent=_taleBack.stamp; b('.tl-bf span').textContent=_taleBack.loc;
-    S._taleSay=['太好了，我想起來了！是菠蘿油！可以去附近嘗一嘗！','菠蘿油'];
+    S._taleSay=['想起來了！是國民平價美食！','菠蘿油'];
     return;
   }
   const name=PLACE_ZH[id]||'', photo=T.photo||PLACES[idx].img;
-  document.getElementById('tl-card-img').src='assets/story/story-template.png?v=1';
+  S._taleTxt={q:T.q,h2:T.area+'　'+name,p:T.p};
   document.getElementById('tl-photo').src=photo;
   document.getElementById('tl-bg').style.backgroundImage=`url('${photo}')`;
-  q('.tl-h2').textContent=T.area+'　'+name; q('.tl-q').textContent=T.q; q('.tl-p').textContent=T.p;
   document.getElementById('tl-front-img').src='assets/food/cards/pineapple-back.png?v=2';
   document.getElementById('tl-fimg').src='assets/food/'+T.food.img+'.png';
   document.getElementById('tl-fstamp').textContent=T.food.stamp;
@@ -8802,33 +9277,120 @@ function taleFill(idx){
   b('.tl-bq').innerHTML='<span class="fp-lk"></span>'; b('.tl-bq').append(T.food.q);
   b('.tl-bp').textContent=T.food.d; b('.tl-stamp i').textContent=T.food.stamp;
   b('.tl-bf span').textContent='收集於 '+T.area+' '+name;
-  S._taleSay=['太好了，'+T.say+'可以去附近嘗一嘗！',T.food.n];
+  // 有設計好的食物故事卡（背面），直接用那張圖，不再疊程式寫的字
+  f.classList.toggle('designed',!!T.food.back);
+  // 有設計好的正面：整張用設計稿，不再疊食物圖和程式寫的字
+  const FRONT_READY=['halfway_coffee','the_pawn','fringe_club','central_market','duddell_street'];
+  const hasFront=FRONT_READY.includes(id);
+  f.classList.toggle('front-designed',hasFront);
+  if(hasFront) document.getElementById('tl-front-img').src='assets/food/cards/front/'+id+'.png?v=1';
+  f.querySelector('.tl-face.back>img').src=T.food.back?'assets/food/cards/back/'+id+'.png?v=1':'assets/food/cards/pineapple-back.png?v=2';
+  S._taleSay=['想起來了！是'+T.food.n+'！',T.food.n];
+}
+/* 中文標點收窄成半格（跟設計稿一樣，句號可以留在行尾不被擠到下一行） */
+function punctHTML(t){ return String(t).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])).replace(/([，。！？、；：])/g,'<span class="pn">$1</span>'); }
+/* 打字效果：一個字一個字出來；el._type.finish() 可以直接打完 */
+function typeText(el,text,ms,done){
+  if(el._type) el._type.stop();
+  const chars=[...text]; let i=0, t=null;
+  const ctl={done:false,
+    stop(){ clearTimeout(t); el.classList.remove('cp-typing'); },
+    finish(){ if(ctl.done) return; ctl.stop(); el.innerHTML=punctHTML(text); ctl.done=true; el._type=null; done&&done(); }};
+  el._type=ctl; el.textContent=''; el.classList.add('cp-typing');
+  (function step(){ if(i>=chars.length) return ctl.finish(); el.innerHTML=punctHTML(chars.slice(0,++i).join('')); t=setTimeout(step,/[，。！？、]/.test(chars[i-1])?ms*4:ms); })();
+  return ctl;
 }
 function openTale(idx){
   hideLuckyBubble();
   S.currentPopup=idx; if(S.targetIdx==null) S.targetIdx=idx;
   S._tale=true;
-  const v=document.getElementById('view-tale'), card=document.getElementById('tl-card');
-  v.dataset.step='story';
+  const v=document.getElementById('view-tale');
   taleFill(idx);
   document.getElementById('tl-btn-t').textContent='收下故事';
   document.getElementById('tl-flip').classList.remove('flipped');
   document.getElementById('tl-fp-date').textContent=cardDateText(null);
   document.getElementById('tl-tip').classList.remove('on');
-  v.classList.add('show');
   fillCardDates();
-  card.classList.remove('in','out'); void card.offsetWidth; card.classList.add('in');
-  setTimeout(()=>burstSparks(card,28),520);     // 卡片彈到最高點時噴星星
-  setTimeout(()=>burstSparks(card,14),900);
+  // ① Memo 吃菠蘿油，下面的對話框打字說出這裡的那句話
+  v.dataset.step='intro'; v.classList.remove('ready','xfer'); document.getElementById('tl-peek').classList.remove('on');
+  const eat=document.getElementById('tl-eat'), say=document.getElementById('tl-quote');
+  eat.getAnimations().forEach(a=>a.cancel());
+  // 上一次還在打字的話先停掉，免得舊文字打到新卡上
+  [say,...document.querySelectorAll('#tl-card .tl-h2,#tl-card .tl-p')].forEach(e=>{ if(e._type){ e._type.stop(); e._type=null; } e.textContent=''; });
+  // 從錨點的位置圓形展開進入故事畫面（沒有起點就從畫面中間）
+  const vr=v.getBoundingClientRect(), from=S._revealFrom; S._revealFrom=null;
+  v.style.setProperty('--rx',(from?from.x-vr.left:vr.width/2)+'px'); v.style.setProperty('--ry',(from?from.y-vr.top:vr.height*.45)+'px');
+  v.classList.remove('reveal'); void v.offsetWidth; v.classList.add('reveal');
+  clearTimeout(v._revT); v._revT=setTimeout(()=>v.classList.remove('reveal'),900);
+  eat.style.animation='none'; void eat.offsetWidth; eat.style.animation=''; eat.style.animationDelay='.5s';
+  // 每個地點的開場動畫：預設是吃菠蘿油；紅豆冰（都爹利街）換成 Memo 喝紅豆冰
+  const EAT_ANIM={duddell_street:'assets/story/tale/memo-redbean-ice.webp'};
+  eat.src=(EAT_ANIM[PLACES[idx].id]||'assets/story/tale/memo-eat.webp')+'?t='+Date.now();   // 動圖從頭播
+  say.textContent=''; say.classList.remove('on');
+  v.classList.add('show');
+  clearTimeout(S._taleT);
+  // 對話框：框先柔和浮上來，裡面的字一個一個淡入、往上飄（不是打字，沒有游標）；停一會再進故事卡
+  const chars=[...S._taleTxt.q];
+  say.innerHTML=chars.map((c,i)=>`<span class="tc" style="animation-delay:${.35+i*.07}s">${c}</span>`).join('');
+  S._taleT=setTimeout(()=>{
+    say.classList.add('on');
+    S._taleT=setTimeout(taleShowStory,350+chars.length*70+2000);
+  },1150);
+}
+function taleIntroTap(){
+  const say=document.getElementById('tl-quote');
+  if(say._type) return say._type.finish();
+  if(document.getElementById('view-tale').dataset.step==='intro'){ clearTimeout(S._taleT); taleShowStory(); }
+}
+/* ② 故事卡登場，上面的地名和故事一個字一個字打出來；打完才出現「收下故事」 */
+function taleShowStory(){
+  const v=document.getElementById('view-tale'), card=document.getElementById('tl-card');
+  clearTimeout(S._taleT);
+  if(v.dataset.step!=='intro') return;
+  const h2=card.querySelector('.tl-h2'), p=card.querySelector('.tl-p'), eat=document.getElementById('tl-eat');
+  h2.textContent=''; p.textContent='';
+  const er=eat.getBoundingClientRect();
+  v.classList.add('xfer'); v.dataset.step='story'; v.classList.remove('ready');
+  card.classList.remove('in','out','soft'); void card.offsetWidth;
+  // Memo 要走到的位置（量卡片最終位置，動畫開始前量）
+  const cr=card.getBoundingClientRect(), own=card.classList.contains('own');
+  const tgt=own?{x:.38,y:.394,w:.12}:{x:.857,y:.451,w:.13};
+  const tx=cr.left+cr.width*tgt.x, ty=cr.top+cr.height*tgt.y, sc=cr.width*tgt.w/er.width;
+  card.classList.add('in','soft');
+  eat.animate([
+    {transform:'none',opacity:1},
+    {transform:`translate(${tx-(er.left+er.width/2)}px,${ty-(er.top+er.height/2)}px) scale(${sc})`,opacity:.9,offset:.85},
+    {transform:`translate(${tx-(er.left+er.width/2)}px,${ty-(er.top+er.height/2)}px) scale(${sc*.8})`,opacity:0}
+  ],{duration:820,delay:120,easing:'cubic-bezier(.5,0,.3,1)',fill:'forwards'}).onfinish=()=>{
+    v.classList.remove('xfer'); eat.getAnimations().forEach(a=>a.cancel());
+    if(v.dataset.step==='story') burstSparks(card,10);
+  };
+  S._taleT=setTimeout(()=>{
+    h2.classList.toggle('long',[...S._taleTxt.h2].length>9);
+    typeText(h2,S._taleTxt.h2,70,()=>{
+      typeText(p,S._taleTxt.p,55,()=>v.classList.add('ready'));
+    });
+  },1000);
+}
+function taleTypeSkip(){
+  const v=document.getElementById('view-tale'), card=document.getElementById('tl-card');
+  if(v.dataset.step!=='story'||v.classList.contains('ready')) return;
+  clearTimeout(S._taleT);
+  const h2=card.querySelector('.tl-h2'), p=card.querySelector('.tl-p');
+h2.classList.toggle('long',[...S._taleTxt.h2].length>9);
+  if(h2._type) h2._type.stop(); h2.textContent=S._taleTxt.h2;
+  if(p._type) p._type.stop(); p.innerHTML=punctHTML(S._taleTxt.p); p._type=null; h2._type=null;
+  v.classList.add('ready');
 }
 function taleFlip(){
   const f=document.getElementById('tl-flip');
-  f.classList.remove('in'); f.classList.toggle('flipped');
-  document.getElementById('tl-hint').style.visibility='hidden';
+  f.classList.remove('in'); f.classList.toggle('flipped');   // 翻面提示一直留著（閃爍），隨時可以再翻
 }
 function taleNext(){
   const v=document.getElementById('view-tale');
+  if(v.dataset.step==='intro') return taleIntroTap();
   if(v.dataset.step==='story'){
+    if(!v.classList.contains('ready')) return taleTypeSkip();
     const card=document.getElementById('tl-card');
     card.classList.remove('in'); card.classList.add('out');
     document.getElementById('tl-tip').classList.remove('on');
@@ -8840,7 +9402,9 @@ function taleNext(){
       document.getElementById('tl-hint').style.visibility='';
       document.getElementById('tl-btn-t').textContent='完成';
       setTimeout(()=>burstSparks(f,22),400);
-      taleSay((S._taleSay||[])[0]||'太好了，我想起來了！','hungry');
+      // Memo 趴到卡片上，說的話放進對話框
+      const pk=document.getElementById('tl-peek'); document.getElementById('tl-pbub-t').textContent=(S._taleSay||[])[0]||'想起來了！';
+      pk.classList.remove('on'); void pk.offsetWidth; setTimeout(()=>pk.classList.add('on'),250);
     },330);
     return;
   }
@@ -8927,7 +9491,7 @@ function skipNoteToUnlock(){
 function showUnlock(flip){
   if(S._boardPhoto){ boardPhotoDone(); return; }
   const idx=S.targetIdx, p=PLACES[idx], st=STORY_ZH[p.id];
-  const photo=S.photos[0]||p.img;
+  const photo=S.photos[0]||NO_PHOTO;
   document.getElementById('ul-bg').style.backgroundImage=`url('${photo}')`;
   setCardPhoto('ul-photo',photo);
   document.getElementById('ul-sub').textContent=`${st.place.replace('　',' ')} 的故事已經收進你的回憶牆`;
@@ -8941,13 +9505,14 @@ function showUnlock(flip){
   }
   const view=document.getElementById('view-unlock'), card=document.getElementById('ul-card');
   if(flip){
+    // 不翻轉：從下面一點點淡入
     card.style.transition='none';
-    card.style.transform='perspective(800px) rotateY(-90deg)';
+    card.style.transform='translateY(14px) scale(.97)'; card.style.opacity='0';
     view.classList.add('show');
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      card.style.transition='transform 0.5s cubic-bezier(.2,.9,.3,1.15)';
-      card.style.transform='perspective(800px) rotateY(0deg)';
-      setTimeout(()=>{ card.style.transition=''; card.style.transform=''; },500);
+      card.style.transition='transform .45s cubic-bezier(.2,.8,.3,1),opacity .45s ease-out';
+      card.style.transform='none'; card.style.opacity='1';
+      setTimeout(()=>{ card.style.transition=''; card.style.transform=''; card.style.opacity=''; },460);
     }));
   } else view.classList.add('show');
   setTimeout(()=>burstSparks(card,18),400);
@@ -9419,7 +9984,7 @@ function showWelcomeCat(hint){
   if(typeof _curTab!=='undefined'&&_curTab!=='map') return;
   const el=document.getElementById('welcome-cat'), txt=document.getElementById('wc-text'), bubble=el.querySelector('.wc-bubble');
   const msg=S.welcomeMsg||'走吧人類！陪本喵重遊老地方去～';
-  document.getElementById('wc-hint').textContent=typeof hint==='string'?hint:'點一下開始探索 🐾';
+  const wh=document.getElementById('wc-hint'); wh.textContent=typeof hint==='string'?hint:'點一下開始探索 🐾'; wh.style.display=wh.textContent?'':'none';   // 傳空字串＝不要下面的小字
   el.classList.remove('out'); bubble.classList.remove('done'); txt.textContent='';
   txt.classList.toggle('one-line',msg.length<=13);
   el.classList.add('show');
@@ -9471,7 +10036,7 @@ function closeWelcomeCat(action){
     if(!S.guideShown){
       S.guideShown=true;
       S.welcomeMsg='四處走走看看，附近說不定藏着本喵的回憶！';
-      setTimeout(()=>showWelcomeCat('拖動地圖或四處走走 🐾'),250);
+      setTimeout(()=>showWelcomeCat('四處走走看看 🐾'),250);
       return;
     }
     S.mapReady=true;
@@ -9682,6 +10247,7 @@ function finishShare(){
 }
 function _finishShareLand(){
   S.diaryEdited=true; try{ saveState(); }catch(e){}
+  return djLand();
   const tdv=document.getElementById('tab-diary'); if(tdv) tdv.classList.add('edited');
   const r0=document.getElementById('schermata-recap0'), w=document.getElementById('r0-wrap'), st=document.getElementById('r8-stage');
   r0.style.display='flex';
@@ -9704,6 +10270,7 @@ function _finishShareLand(){
 }
 /* Demo 第 1 輪：日記結算頁按「確認」→ 今天這頁直接收納進抽屜（不經過編輯，也不設成已編輯版） */
 function finishDayToDrawer(){
+  return djLand();
   const r0=document.getElementById('schermata-recap0'), w=document.getElementById('r0-wrap');
   r0.style.display='flex';
   w.classList.remove('closing'); w.classList.add('open','landing');
@@ -9728,6 +10295,7 @@ function shareDiaryToCommunity(){
   setTimeout(()=>scSheet('post'),350);
 }
 function apriRecap0(){
+  return djLand();
   /* animazione: overlay-recap8 scende verso il basso */
   var r8=document.getElementById('overlay-recap8');
   if(r8){
@@ -9760,9 +10328,9 @@ const DD_PIECES=[
 function buildDiaryDay(el){
   if(el._built) return; el._built=true;
   const pct=(v,t)=>v/t*100+'%';
-  el.innerHTML='<img class="dd-base" src="assets/diary/base.png" alt="">';
+  el.innerHTML='<img class="dd-base" src="assets/diary/base.webp" alt="">';
   DD_PIECES.forEach(([n,x,y,w,h,k,from])=>{
-    const im=document.createElement('img'); im.className='dd-pt '+k; im.src=`assets/diary/${n}.png`; im.alt='';
+    const im=document.createElement('img'); im.className='dd-pt '+k; im.src=`assets/diary/${n}${n.startsWith('p-')?'.webp':'.png'}`; im.alt='';
     Object.assign(im.style,{left:pct(x,1206),top:pct(y,2622),width:pct(w,1206),height:pct(h,2622)});
     if(from) im.style.setProperty('--from',from);
     el.appendChild(im);
@@ -9770,11 +10338,17 @@ function buildDiaryDay(el){
 }
 function playDiaryDay(el,delay){
   buildDiaryDay(el);
+  // 檔案標籤上的日期換成今天（圖上寫死 2026.5.12）
+  if(!el.querySelector('.dd-date')) el.insertAdjacentHTML('beforeend','<span class="dd-date"></span>');
+  const t=S.dj&&S.dj.date?S.dj.date:djToday(); el.querySelector('.dd-date').textContent=t;
   el.classList.remove('play','shown'); void el.offsetWidth;
   el.querySelectorAll('.dd-pt').forEach((im,i)=>im.style.animationDelay=(delay||0)+i*420+'ms');
   el.classList.add('play');
 }
 document.querySelectorAll('.dd').forEach(buildDiaryDay);
+// 結算用的大圖先在背景載入＋解碼，結算時不會卡一下
+setTimeout(()=>{ ['assets/diary/base.webp','assets/recap/r8-page.webp','assets/recap/r2-panel.png?v=1','assets/recap/dj-thumb-0512.jpg','assets/recap/dj-folder.png',
+  'assets/diary/p-polyu.webp','assets/diary/p-haian.webp','assets/diary/p-western.webp','assets/diary/p-mine.webp'].forEach(u=>{ const i=new Image(); i.src=u; i.decode&&i.decode().catch(()=>{}); }); },2500);
 if(S&&S.diaryEdited){ const tdv=document.getElementById('tab-diary'); if(tdv) tdv.classList.add('edited'); }
 
 /* 平時看日記：點日期文件夾 → 那一份從抽屜裡抽出來停在抽屜中，前排的文件夾還擋在前面 */
@@ -9790,7 +10364,172 @@ function pullDiary(tab,date){
   const w=document.getElementById('r0-wrap');
   w.classList.remove('closing'); w.classList.add('open');
 }
+
+/* ═══ 日記（橫向翻閱）：把一天的各種情況都分開處理 ═══
+   今天的卡片（永遠在最右邊、預設停在這張）：
+   ① 還沒打卡　→「今天還沒有出發」＋ 去地圖探索
+   ② 探索中　　→ 已打卡的地點清單 ＋「結束今天，生成日記」／繼續探索（不會自動跳結算）
+   ③ 已結束　　→ 今天的日記縮圖 ＋ 打開日記；剛生成還沒看過時標籤是黃色＋「新」
+   ④ 結束後又打卡 → 提示「結束後又打卡了 N 處」＋ 重新整理日記
+   換日時今天還沒結束：自動收進過去的日記（Lucky 幫你整理好），標「新」 */
+function djToday(){ const d=new Date(); return d.getFullYear()+'.'+(d.getMonth()+1)+'.'+d.getDate(); }
+S.dj=S.dj||{date:djToday(),checkins:[],ended:false,endedCount:0,seen:true};
+S.djPast=S.djPast||[{date:'2026.5.12',places:['香港理工大學','海安咖啡','西港城'],spots:4,km:'4.2',page:'assets/recap/r8-page.webp',thumb:'assets/recap/dj-thumb-0512.jpg',seen:true}];
+function djPlaceName(i){ return PLACE_ZH[PLACES[i].id]||PLACES[i].name.replace('\n',' '); }
+function djRecord(idx){
+  djRollover();
+  if(!S.dj.checkins.includes(idx)) S.dj.checkins.push(idx);
+}
+function djRollover(){
+  if(S.dj.date===djToday()) return;
+  if(S.dj.checkins.length) S.djPast.push({date:S.dj.date,places:S.dj.checkins.map(djPlaceName),spots:S.dj.checkins.length,km:null,page:'assets/recap/r8-page.webp',thumb:'assets/recap/dj-thumb-0512.jpg',seen:false,auto:!S.dj.ended});
+  S.dj={date:djToday(),checkins:[],ended:false,endedCount:0,seen:true};
+}
+function djState(){
+  const t=S.dj;
+  if(!t.checkins.length) return 'empty';
+  if(!t.ended) return 'ongoing';
+  return t.checkins.length>t.endedCount?'stale':'ended';
+}
+function djRender(focusToday,pop){
+  djRollover();
+  const rail=document.getElementById('dj-rail'), dots=document.getElementById('dj-dots');
+  rail.innerHTML=''; dots.innerHTML='';
+  const track=document.createElement('div'); track.className='dj-track'; rail.appendChild(track);
+  const md=s=>s.split('.').slice(1).join('.');
+  S.djPast.forEach((d,k)=>{
+    const f=document.createElement('div'); f.className='djf'+(d.seen?'':' new');
+    f.innerHTML=`<div class="tb">${d.date}${d.seen?'':'<span class="nw">新</span>'}</div>
+      <div class="in"><span class="st done">${d.auto?'Lucky 幫你整理好了':'已完成'}</span><img class="pic" src="${d.thumb||d.page}" alt=""><h3>漫步日記</h3><small class="m">${d.places.join('・')}・${d.spots} 個貓點${d.km?'・'+d.km+' km':''}</small></div>
+      <div class="go"><button class="cp-btn cp-btn--solid cp-btn--lg" onclick="djOpen(${k})">打開日記</button></div>`;
+    track.appendChild(f);
+  });
+  // 今天
+  const st=djState(), t=S.dj, n=t.checkins.length, f=document.createElement('div');
+  f.className='djf today'+((st==='ended'||st==='stale')&&!t.seen?' new':'');
+  const names=t.checkins.map(i=>`<div><i>✓</i>${djPlaceName(i)}</div>`).join('');
+  let tab=`今天 ${md(t.date)}`, body='', go='';
+  if(st==='empty'){
+    body=`<span class="st idle">還沒出發</span><div class="empty"><img src="assets/wardrobe/Lucky.png" alt=""><b>今天還沒有出發喔～</b><p>走到錨點打卡，<br>Lucky 就會幫你記進今天的日記</p></div>`;
+    go=`<button class="cp-btn cp-btn--solid cp-btn--lg" onclick="djGoMap()">去地圖探索</button>`;
+  } else if(st==='ongoing'){
+    body=`<span class="st"><span class="live"></span>探索中</span><div class="prog"><b class="big">今天已打卡<em>${n}</em>處</b></div><div class="list">${names}<div class="todo"><i>＋</i>下一個錨點等你來</div></div>
+      <p class="note">今天的日記會在你「結束今天」後生成；忘了也沒關係，過了午夜 Lucky 會自動幫你整理。</p>`;
+    go=`<button class="cp-btn cp-btn--solid cp-btn--lg" onclick="djSheet(true)">結束今天，生成日記</button><a onclick="djGoMap()">繼續探索</a>`;
+  } else {
+    if(!t.seen) tab+='<span class="nw">新</span>';
+    body=`<span class="st done">今天的日記${st==='stale'?'・有新打卡':'已生成'}</span><img class="pic" src="assets/recap/dj-thumb-0512.jpg" alt=""><h3>今天的漫步日記</h3><small class="m">${t.checkins.slice(0,t.endedCount).map(djPlaceName).join('・')}・${t.endedCount} 個貓點</small>
+      ${st==='stale'?`<div class="stale">結束後又打卡了 ${n-t.endedCount} 處，要放進今天的日記嗎？</div>`:''}`;
+    go=st==='stale'?`<button class="cp-btn cp-btn--solid cp-btn--lg" onclick="djSheet(true,true)">重新整理日記</button><a onclick="djOpen('today')">先看原本的日記</a>`
+      :`<button class="cp-btn cp-btn--solid cp-btn--lg" onclick="djOpen('today')">打開日記</button>`;
+  }
+  f.innerHTML=`<div class="tb">${tab}</div><div class="in">${body}</div><div class="go">${go}</div>`;
+  track.appendChild(f);
+  const N=track.children.length;
+  for(let k=0;k<N;k++) dots.insertAdjacentHTML('beforeend','<i></i>');
+  document.getElementById('dj-hint').style.display=N>1?'':'none';
+  const all=[...S.djPast.map(d=>d.date),t.date];
+  // 旁邊的卡片完全放到畫面外，兩側不會露出一條條綠框
+  // 間距每次都重新量（畫面剛打開時寬度可能還是 0，量錯就會露出旁邊卡片的邊）
+  const gap=()=>{ const c=track.children[0], w=rail.clientWidth||(rail.closest('#app')||document.body).clientWidth; return c?Math.max(14,(w-c.offsetWidth)/2+24):14; };
+  rail._step=()=>{ const c=track.children[0]; track.style.gap=gap()+'px'; return c?c.offsetWidth+gap():1; };
+  rail._n=N;
+  rail._go=(i,anim)=>{
+    i=Math.max(0,Math.min(N-1,i)); rail._i=i;
+    track.style.transition=anim===false?'none':'';
+    track.style.transform=`translateX(${-i*rail._step()}px)`;
+    [...track.children].forEach((c,k)=>c.classList.toggle('cur',k===i));
+    [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i));
+    const dd=(all[i]||t.date).split('.'); document.getElementById('dj-month').textContent=`${dd[0]} 年 ${dd[1]} 月`;
+  };
+  const start=focusToday===false&&rail._i!=null?Math.min(rail._i,N-1):N-1;
+  rail._go(start,false);
+  requestAnimationFrame(()=>rail._go(rail._i,false));
+  if(!window._djResize){ window._djResize=true; addEventListener('resize',()=>{ const r=document.getElementById('dj-rail'); if(r._go) r._go(r._i,false); }); }
+  djDragInit(rail);
+  if(pop) requestAnimationFrame(()=>{ f.classList.remove('pop'); void f.offsetWidth; f.classList.add('pop'); setTimeout(()=>burstSparks(f,16),300); });
+}
+/* 拖動（滑鼠、觸控都一樣）：卡片跟手，兩頭有一點橡皮筋；放開時看拖的距離和速度決定翻到哪一張；滾輪上下也能翻 */
+function djDragInit(rail){
+  if(rail._drag) return; rail._drag=true;
+  let down=false,sx=0,sy=0,dx=0,lastX=0,lastT=0,vel=0,moved=false,axis=null,pid=null;
+  const track=()=>rail.querySelector('.dj-track');
+  rail.addEventListener('pointerdown',e=>{ if(e.button>0) return; down=true; moved=false; axis=null; pid=e.pointerId; sx=lastX=e.clientX; sy=e.clientY; dx=0; vel=0; lastT=performance.now(); });
+  window.addEventListener('pointermove',e=>{
+    if(!down||e.pointerId!==pid) return;
+    const mx=e.clientX-sx, my=e.clientY-sy;
+    if(!axis){ if(Math.abs(mx)<6&&Math.abs(my)<6) return; axis=Math.abs(mx)>Math.abs(my)?'x':'y'; if(axis==='x'){ moved=true; rail.classList.add('dragging'); } }
+    if(axis!=='x') return;
+    const now=performance.now(); vel=(e.clientX-lastX)/Math.max(1,now-lastT); lastX=e.clientX; lastT=now;
+    dx=mx; const i=rail._i, n=rail._n;
+    if((i===0&&dx>0)||(i===n-1&&dx<0)) dx*=.35;            // 頭尾橡皮筋
+    track().style.transform=`translateX(${-i*rail._step()+dx}px)`;
+  });
+  const up=e=>{
+    if(!down||(e&&e.pointerId!==pid)) return; down=false; rail.classList.remove('dragging');
+    if(axis!=='x') return;
+    const st=rail._step(); let i=rail._i;
+    if(dx<-st*.18||vel<-.45) i++; else if(dx>st*.18||vel>.45) i--;
+    rail._go(i);
+  };
+  window.addEventListener('pointerup',up); window.addEventListener('pointercancel',up);
+  rail.addEventListener('click',e=>{ if(moved){ e.stopPropagation(); e.preventDefault(); moved=false; } },true);
+  let wl=0; rail.addEventListener('wheel',e=>{ const d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY; if(Math.abs(d)<4) return; e.preventDefault();
+    const now=Date.now(); if(now-wl<450) return; wl=now; rail._go(rail._i+(d>0?1:-1)); },{passive:false});
+}
+function djGoMap(){ _mapShopState='map'; switchTab('map'); }
+function djSheet(on,redo){
+  const sh=document.getElementById('dj-sheet');
+  if(on){ const n=S.dj.checkins.length;
+    sh.querySelector('b').textContent=redo?'重新整理今天的日記？':'要結束今天的探索嗎？';
+    document.getElementById('djs-txt').innerHTML=redo?`把新打卡的地點也放進日記，共 ${n} 處`:`Lucky 會把今天的 ${n} 處打卡寫成日記`; }
+  sh.classList.toggle('show',!!on);
+}
+/* 結束今天 → 走原本的結算動畫（今日漫步完成 → 確認），最後回到日記、今天這張變成日記 */
+function djEndDay(){
+  djSheet(false);
+  S._djGenerating=true;
+  const _tdv=document.getElementById('tab-diary'); _tdv.classList.remove('decorated'); _tdv.classList.add('settling');   // 結算中不顯示返回鍵
+  document.getElementById('nav-btn-diary').classList.remove('has-new');
+  openDayComplete();
+  // 今天的路線畫完後，「今日漫步完成」面板自動滑上來（不用再點一下）
+  clearTimeout(window._r2OpenT);
+  // 路線 7 段、每段 0.42 秒，約 3.3 秒畫完 → 淡入裝飾頁 → 再滑出「今日漫步完成」
+  const _tdd=_tdv.querySelector('#td-edited .td-date'); if(_tdd) _tdd.textContent=S.dj.date;
+  clearTimeout(window._tdDecoT); window._tdDecoT=setTimeout(()=>_tdv.classList.add('decorated'),3700);
+  window._r2OpenT=setTimeout(()=>{ const td=document.getElementById('tab-diary'); if(td&&td.classList.contains('show')&&document.getElementById('view-recap2').style.display!=='flex'){ td.onclick=null; openRecap2(); } },4700);
+}
+function djLand(){
+  const r0=document.getElementById('schermata-recap0');
+  r0.style.display='flex';
+  document.getElementById('dj-view').classList.remove('show');
+  document.getElementById('tab-diary').classList.remove('settling','decorated');
+  if(S._djGenerating){ S._djGenerating=false; S.dj.ended=true; S.dj.endedCount=S.dj.checkins.length; S.dj.seen=false; }
+  djRender(true,true);
+  _showUI();
+  setTimeout(()=>{
+    ['overlay-recap8','overlay-recap7','schermata-recap6','schermata56','schermata55','view-recap5-3','view-recap2','view-recap3','view-recap4','view-recap5'].forEach(id=>{
+      const el=document.getElementById(id); if(el){ el.style.display='none'; el.classList.remove('active','sliding-down'); }
+    });
+    const td=document.getElementById('tab-diary'); if(td) td.classList.remove('show','day-done');
+  },400);
+}
+function djOpen(k){
+  const v=document.getElementById('dj-view'), pg=document.getElementById('djv-page');
+  let date;
+  if(k==='today'){ date=S.dj.date; S.dj.seen=true;
+    pg.innerHTML='<div class="djv-clip"><div class="dd"></div></div>'; playDiaryDay(pg.querySelector('.dd'),250);
+  } else { const d=S.djPast[k]; d.seen=true; date=d.date; pg.innerHTML='<div class="djv-clip"><div class="dd"></div></div>'; playDiaryDay(pg.querySelector('.dd'),150); }
+  // 日期只寫在檔案標籤上，標題不再重複
+  pg.firstChild.insertAdjacentHTML('beforeend',`<span class="djv-tabdate">${date}</span>`);
+  document.getElementById('djv-ttl').textContent='漫步日記';
+  document.getElementById('djv-lock').style.display=myLevel()>=DIARY_EDIT_LV?'none':'';
+  v.classList.add('show');
+}
+function djCloseView(){ document.getElementById('dj-view').classList.remove('show'); djRender(false); }
 function r0Back(){
+  if(document.getElementById('dj-sheet').classList.contains('show')) return djSheet(false);
+  if(document.getElementById('dj-view').classList.contains('show')) return djCloseView();
   if(document.getElementById('r0-wrap').classList.contains('open')) closeDrawer();
   else { _mapShopState='map'; switchTab('map'); }
 }
@@ -9800,6 +10539,11 @@ function closeDrawer(){
   w.classList.remove('landing');
   w.classList.add('closing');
   setTimeout(()=>w.classList.remove('open','closing'),980);   // 先收回 .55s，再縮回關著的抽屜 .45s
+}
+function tdBack(){
+  const r0=document.getElementById('schermata-recap0');
+  if(r0){ r0.style.display='flex'; const w=document.getElementById('r0-wrap'); if(w) w.classList.remove('open','closing','landing'); }
+  else { _mapShopState='map'; switchTab('map'); }
 }
 function chiudiRecap0(){
   document.getElementById('schermata-recap0').style.display='none';
@@ -9896,7 +10640,7 @@ function chiudiSchermata55(){
    切回繁體時把每個被改過的文字還原成原文。
    圖片裡畫死的字無法轉換：做好簡體版的圖，放到 assets-hans/ 底下相同路徑，再把路徑加進 HANS_IMAGES，就會自動換圖。 */
 const HANS_IMAGES=['assets/tabbar/navbar-map.png','assets/tabbar/navbar-diary.png','assets/tabbar/navbar-social.png',
-  'assets/checkin/arrive.png','assets/checkin/arriveinformation.png','assets/checkin/arrivewesternmarket.png','assets/checkin/checkin.png','assets/checkin/checkinpolyu.png','assets/checkin/checkinwesternmarket.png','assets/diary/base.png','assets/diary/pages/frame-diary-other.jpg','assets/diary/pages/frame-diary1.png','assets/diary/pages/frame-diary2-2.png','assets/diary/pages/frame-diary2.png','assets/diary/pages/frame-diary4.png','assets/diary/pages/frame-diary5.png','assets/map/arrived.png','assets/map/companion-bubble.png','assets/map/frame221.png','assets/map/frame223.png','assets/map/map-notif-route.png','assets/onboarding/hm1-base.jpg','assets/onboarding/hm2.jpg','assets/onboarding/hm3.jpg','assets/onboarding/hm4.jpg','assets/onboarding/hm5.jpg','assets/onboarding/hm6-base.jpg','assets/profile/profileui.png','assets/recap/diary-card-0512.png','assets/recap/frame-recap2.png','assets/recap/frame-recap7.png','assets/recap/r8-page.png','assets/story/afterpic.png','assets/story/photo-confirm.png','assets/story/photo-frame.png','assets/story/story-polyu.png','assets/story/story1.png','assets/story/storywasternmarket.png','assets/story/westernmarketemoji.png','assets/story/westernmarketend.png','assets/story/westernmarketnote.png','assets/story/westernmarketphoto-confirm.png'];
+  'assets/checkin/arrive.png','assets/checkin/arriveinformation.png','assets/checkin/arrivewesternmarket.png','assets/checkin/checkin.png','assets/checkin/checkinpolyu.png','assets/checkin/checkinwesternmarket.png','assets/diary/base.png','assets/diary/pages/frame-diary-other.jpg','assets/diary/pages/frame-diary1.png','assets/diary/pages/frame-diary2-2.png','assets/diary/pages/frame-diary2.png','assets/diary/pages/frame-diary4.png','assets/diary/pages/frame-diary5.png','assets/map/arrived.png','assets/map/companion-bubble.png','assets/map/frame221.png','assets/map/frame223.png','assets/map/map-notif-route.png','assets/onboarding/hm1-base.jpg','assets/onboarding/hm2.jpg','assets/onboarding/hm3.jpg','assets/onboarding/hm4.jpg','assets/onboarding/hm5.jpg','assets/onboarding/hm6-base.jpg','assets/profile/profileui.png','assets/recap/diary-card-0512.png','assets/recap/frame-recap2.png','assets/recap/frame-recap7.png','assets/recap/r8-page.png','assets/recap/r8-page.webp','assets/diary/base.webp','assets/story/afterpic.png','assets/story/photo-confirm.png','assets/story/photo-frame.png','assets/story/story-polyu.png','assets/story/story1.png','assets/story/storywasternmarket.png','assets/story/westernmarketemoji.png','assets/story/westernmarketend.png','assets/story/westernmarketnote.png','assets/story/westernmarketphoto-confirm.png'];
 let CP_LANG='hant', _t2s=null, _langObs=null, _langBusy=false;
 const _origText=new WeakMap(), _origAttr=new WeakMap();
 const _CJK=/[\u3400-\u9fff]/;
