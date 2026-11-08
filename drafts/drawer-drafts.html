@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>日記抽屜草稿</title>
+<style>
+  @font-face{font-family:CPKai;src:url('../assets/fonts/cp-kai-w7-subset.woff2') format('woff2');font-weight:100 700;}
+  @font-face{font-family:CPKai;src:url('../assets/fonts/cp-kai-w9-subset.woff2?v=2') format('woff2');font-weight:800 900;}
+  @font-face{font-family:CPKaiFull;src:url('../assets/fonts/df-yankai-simp-trad-w7.ttf') format('truetype');font-weight:100 700;}
+  @font-face{font-family:CPKaiFull;src:url('../assets/fonts/df-yankai-simp-trad-w9.ttf') format('truetype');font-weight:800 900;}
+  :root{--green:#4E6B4A;--green-d:#3F5A3C;--green-l:#A9BBA4;--cream:#FBFAEA;--paper:#FFFDF6;--ink:#3D2B1F;--ink2:#7A6A5A;--gold:#E2B44E;--or:#DA9B3F;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#2E2A26;color:#F3EEE2;font-family:CPKai,CPKaiFull,'Kaiti TC','STKaiti',serif;padding:28px 24px 60px}
+  h1{font-size:24px;font-weight:900;letter-spacing:.06em}
+  .lead{margin:8px 0 26px;color:#CFC6B5;font-size:14px;line-height:1.7;max-width:1000px}
+  .lead b{color:var(--gold)}
+  .row{display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
+  .draft{width:375px}
+  .tag{display:inline-block;padding:3px 12px;border-radius:999px;background:var(--gold);color:var(--ink);font-weight:900;font-size:14px;margin-bottom:8px}
+  .draft h2{font-size:18px;font-weight:900;margin-bottom:4px}
+  .draft p.d{font-size:13px;color:#CFC6B5;line-height:1.65;margin-bottom:12px;min-height:66px}
+  .phone{position:relative;width:375px;height:780px;border-radius:40px;overflow:hidden;background:var(--cream);color:var(--ink);box-shadow:0 16px 40px rgba(0,0,0,.45)}
+  .drawer{position:absolute;left:0;right:0;bottom:0;height:268px;background:url(board/drawer.jpg) center top/100% auto no-repeat}
+  .back{position:absolute;left:14px;top:46px;width:40px;height:40px;border-radius:50%;border:3px solid #4E3325;background:#FFFDF4;display:grid;place-items:center;font-size:20px;font-weight:900;color:#4E3325;z-index:3}
+  .ttl{position:absolute;left:0;right:0;top:50px;text-align:center;font-size:22px;font-weight:900;letter-spacing:.12em}
+  .hint{position:absolute;left:22px;bottom:282px;padding:8px 14px;border:2.5px solid var(--green);border-radius:12px;background:var(--paper);font-size:13px;font-weight:900;letter-spacing:.12em;box-shadow:inset 0 0 0 3px var(--paper),inset 0 0 0 4.5px rgba(78,107,74,.35)}
+  .hint::after{content:'↘';margin-left:6px;color:var(--green)}
+
+  /* W：本月統計＋最近一天預覽 */
+  .stats{position:absolute;left:16px;right:16px;top:104px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .stats div{padding:10px 6px;border-radius:14px;background:var(--paper);border:1.5px solid #E2DCC6;text-align:center}
+  .stats b{display:block;font:900 22px 'Nunito',CPKai,sans-serif;color:var(--green-d)}
+  .stats span{font-size:11.5px;color:var(--ink2);font-weight:800}
+  .latest{position:absolute;left:16px;right:16px;top:190px;height:250px;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 6px 16px rgba(61,43,31,.18);transform:rotate(-1.5deg)}
+  .latest i{position:absolute;inset:0;background:url(board/day512.jpg?v=2) center 28%/cover}
+  .latest .cap{position:absolute;left:0;right:0;bottom:0;padding:26px 14px 10px;background:linear-gradient(transparent,rgba(30,22,15,.75));color:#fff;font-size:13px;font-weight:900}
+  .latest .cap small{display:block;font-size:11px;opacity:.9;font-weight:700}
+  .latest .tape{position:absolute;left:50%;top:-6px;width:80px;height:22px;margin-left:-40px;background:rgba(226,180,78,.6);transform:rotate(2deg);z-index:2}
+
+  /* X：月曆蓋章 */
+  .cal{position:absolute;left:16px;right:16px;top:100px;padding:12px;border-radius:18px;background:var(--paper);border:1.5px solid #E2DCC6;box-shadow:0 3px 0 rgba(61,43,31,.06)}
+  .cal h3{display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:900;margin-bottom:8px}
+  .cal h3 small{font-size:12px;color:var(--ink2)}
+  .cal .g{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+  .cal .w{font-size:11px;color:var(--ink2);font-weight:900}
+  .cal .d{position:relative;height:38px;border-radius:10px;font:800 13px 'Nunito',sans-serif;color:#B3A896;display:grid;place-items:center}
+  .cal .d.on{color:var(--ink);background:#FFF4D8}
+  .cal .d.on::after{content:'';position:absolute;inset:3px;border-radius:50%;border:2px dashed var(--or);opacity:.8}
+  .cal .d.on.paw::before{content:'🐾';position:absolute;right:1px;bottom:0;font-size:10px}
+  .cal .d.sel{background:var(--green);color:#fff}.cal .d.sel::after{border-color:#fff}
+  .say{position:absolute;left:16px;right:16px;top:420px;display:flex;align-items:center;gap:8px}
+  .say img{width:52px}
+  .say div{flex:1;padding:9px 12px;border:2.5px solid var(--green);border-radius:14px;background:var(--paper);font-size:13px;font-weight:800;line-height:1.5}
+
+  /* Y：照片牆＋Lucky */
+  .polas{position:absolute;left:0;right:0;top:92px;height:400px;background:url(board/polas.jpg) center/cover;opacity:.95}
+  .polas::after{content:'';position:absolute;inset:0;background:linear-gradient(var(--cream) 0,transparent 12%,transparent 82%,var(--cream) 100%)}
+  .mem{position:absolute;left:16px;right:16px;top:440px;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:var(--paper);border:2px solid var(--green)}
+  .mem img{width:46px;height:46px;border-radius:12px;object-fit:cover;object-position:center 30%}
+  .mem b{font-size:14px}.mem small{display:block;font-size:11.5px;color:var(--ink2)}
+  .mem em{margin-left:auto;font-style:normal;padding:6px 10px;border-radius:10px;background:var(--green);color:#fff;font-size:12px;font-weight:900}
+
+  /* Z：抽屜放大，日期用大標籤 */
+  .big{position:absolute;left:0;right:0;bottom:0;height:520px;background:url(board/drawer.jpg) center top/120% auto no-repeat}
+  .top2{position:absolute;left:16px;right:16px;top:104px;display:flex;align-items:center;gap:10px}
+  .top2 img{width:64px}
+  .top2 .bb{flex:1;padding:10px 12px;border:2.5px solid var(--green);border-radius:14px;background:var(--paper);font-size:13.5px;font-weight:800;line-height:1.5}
+  .chips{position:absolute;left:16px;right:16px;top:196px;display:flex;flex-wrap:wrap;gap:8px}
+  .chips span{padding:6px 12px;border-radius:999px;background:#EEF1E7;font-size:12.5px;font-weight:900;color:var(--green-d)}
+  .chips span.on{background:var(--green);color:#fff}
+  .note{margin-top:16px;padding:12px 14px;border-radius:12px;background:#3A3530;color:#E6DFD0;font-size:12.5px;line-height:1.7;max-width:1640px}
+  .note b{color:var(--gold)}
+</style>
+</head>
+<body>
+<h1>日記抽屜・重新設計草稿</h1>
+<p class="lead">底部不放導航，左上角返回鍵回地圖。抽屜維持在下面，<b>上面空的那一大塊</b>換成有用的內容。四種方向：</p>
+<div class="row">
+  <div class="draft"><span class="tag">草稿 W・統計＋最新一天</span><h2>上面看數字和最近一天</h2>
+    <p class="d">頂部三格：這個月探索了幾天、走了幾公里、收集幾樣美食。下面一張貼著膠帶的「最近一天」日記預覽（點了直接打開）。抽屜裡是所有日期。</p>
+    <div class="phone"><span class="back">←</span><div class="ttl">我的日記</div>
+      <div class="stats"><div><b>6</b><span>天探索</span></div><div><b>24.8</b><span>公里</span></div><div><b>9</b><span>樣美食</span></div></div>
+      <div class="latest"><i class="tape"></i><i></i><div class="cap">2026.5.12・最近一天<small>理工大學・海安咖啡・西港城・4 個貓點</small></div></div>
+      <div class="hint">點擊檔案日期查看</div><div class="drawer"></div></div></div>
+
+  <div class="draft"><span class="tag">草稿 X・月曆蓋章</span><h2>一個月一頁，有去探索的日子蓋章</h2>
+    <p class="d">上面是月曆，出去探索過的日子有虛線圈和小貓爪，點日期 = 把那天的日記從抽屜抽出來。Lucky 在下面說一句這個月的小總結。</p>
+    <div class="phone"><span class="back">←</span><div class="ttl">我的日記</div>
+      <div class="cal"><h3>2026 年 5 月<small>探索了 6 天</small></h3><div class="g">
+        <span class="w">日</span><span class="w">一</span><span class="w">二</span><span class="w">三</span><span class="w">四</span><span class="w">五</span><span class="w">六</span>
+        <span class="d"></span><span class="d"></span><span class="d"></span><span class="d"></span><span class="d">1</span><span class="d">2</span><span class="d">3</span>
+        <span class="d">4</span><span class="d">5</span><span class="d">6</span><span class="d">7</span><span class="d">8</span><span class="d">9</span><span class="d on paw">10</span>
+        <span class="d on">11</span><span class="d on paw sel">12</span><span class="d on">13</span><span class="d on paw">14</span><span class="d on">15</span><span class="d">16</span><span class="d">17</span>
+        <span class="d">18</span><span class="d">19</span><span class="d">20</span><span class="d">21</span><span class="d">22</span><span class="d">23</span><span class="d">24</span>
+        <span class="d">25</span><span class="d">26</span><span class="d">27</span><span class="d">28</span><span class="d">29</span><span class="d">30</span><span class="d">31</span></div></div>
+      <div class="say"><img src="../assets/wardrobe/Lucky.png" alt=""><div>這個月連續走了 6 天！本喵想起好多老地方～</div></div>
+      <div class="drawer"></div></div></div>
+
+  <div class="draft"><span class="tag">草稿 Y・Lucky 的照片牆</span><h2>保留現在的照片牆，加一張「今天」卡</h2>
+    <p class="d">延續現在的風格：上面 Lucky 的拍立得照片牆更清楚（不再淡淡的），下面一張小卡「今天的日記已整理好」，點一下直接看。改動最小。</p>
+    <div class="phone"><span class="back">←</span><div class="ttl">我的日記</div><div class="polas"></div>
+      <div class="mem"><img src="board/day512.jpg?v=2"><div><b>今天的日記整理好了</b><small>2026.5.12・4 個貓點</small></div><em>打開</em></div>
+      <div class="drawer"></div></div></div>
+
+  <div class="draft"><span class="tag">草稿 Z・抽屜放大</span><h2>抽屜本身變大，佔大半個畫面</h2>
+    <p class="d">抽屜放大到畫面一半以上，日期文件夾更大更好點。上面 Lucky 一句話，加一排月份篩選（5 月／4 月…）。最簡單、最好點。</p>
+    <div class="phone"><span class="back">←</span><div class="ttl">我的日記</div>
+      <div class="top2"><img src="../assets/wardrobe/Lucky.png" alt=""><div class="bb">人類，想翻哪一天的日記？點檔案日期就幫你抽出來！</div></div>
+      <div class="chips"><span class="on">2026 年 5 月</span><span>4 月</span><span>3 月</span></div>
+      <div class="big"></div></div></div>
+</div>
+<div class="note"><b>四種都一樣</b>：底部沒有導航，左上角「←」回地圖；點檔案日期 → 那天的日記從抽屜抽出來（現在的動畫不變）。</div>
+</body>
+</html>

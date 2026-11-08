@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>日記抽屜草稿 3</title>
+<style>
+  @font-face{font-family:CPKai;src:url('../assets/fonts/cp-kai-w7-subset.woff2') format('woff2');font-weight:100 700;}
+  @font-face{font-family:CPKai;src:url('../assets/fonts/cp-kai-w9-subset.woff2?v=2') format('woff2');font-weight:800 900;}
+  @font-face{font-family:CPKaiFull;src:url('../assets/fonts/df-yankai-simp-trad-w7.ttf') format('truetype');font-weight:100 700;}
+  @font-face{font-family:CPKaiFull;src:url('../assets/fonts/df-yankai-simp-trad-w9.ttf') format('truetype');font-weight:800 900;}
+  :root{--line:#4E6B4A;--line-l:#9DB197;--cream:#FBFAEA;--card:#FFFEF7;--ink:#3D2B1F;--ink2:#8A7B6B;--gold:#F2D16B;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#2E2A26;color:#F3EEE2;font-family:CPKai,CPKaiFull,'Kaiti TC','STKaiti',serif;padding:28px 24px 60px}
+  h1{font-size:24px;font-weight:900;letter-spacing:.06em}
+  .lead{margin:8px 0 22px;color:#CFC6B5;font-size:14px;line-height:1.7;max-width:900px}
+  .lead b{color:#E2B44E}
+  .wrap{display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap}
+  .side{max-width:420px;font-size:13.5px;line-height:1.8;color:#D8CFBF}
+  .side b{color:#E2B44E}
+  .phone{position:relative;width:375px;height:780px;border-radius:40px;overflow:hidden;background:var(--cream);color:var(--ink);box-shadow:0 16px 40px rgba(0,0,0,.45)}
+  .back{position:absolute;left:14px;top:46px;width:40px;height:40px;border-radius:50%;border:3px solid #4E3325;background:#FFFDF4;display:grid;place-items:center;font-size:20px;font-weight:900;color:#4E3325;z-index:200}
+  .ttl{position:absolute;left:0;right:0;top:52px;text-align:center;font-size:21px;font-weight:900;letter-spacing:.14em;z-index:200}
+  .sub{position:absolute;left:0;right:0;top:84px;text-align:center;font-size:12px;color:var(--ink2);z-index:200}
+
+  /* 卡片 */
+  .card{position:absolute;left:50%;height:420px;translate:-50% 0;border:1.5px solid var(--line);border-radius:6px 6px 0 0;background:var(--card);
+    transition:top .5s cubic-bezier(.3,.9,.3,1),width .5s,box-shadow .3s;cursor:pointer;box-shadow:0 -1px 0 rgba(0,0,0,.03)}
+  .card .tab{position:absolute;top:-22px;height:23px;min-width:120px;display:flex;align-items:center;gap:10px;padding:0 10px;border:1.5px solid var(--line);border-bottom:none;border-radius:6px 6px 0 0;background:var(--card);
+    font:700 12px/1 'Nunito',CPKai,sans-serif;color:var(--ink);white-space:nowrap}
+  .card .tab .n{font-weight:900;color:var(--line)}
+  .card .tab .p{font-family:CPKai,CPKaiFull,serif;font-weight:700}
+  .card.L .tab{left:14px}.card.R .tab{right:14px}.card.M .tab{left:38%}
+  .card.month .tab{background:#3D2B1F;color:#FBFAEA;border-color:#3D2B1F;min-width:110px;justify-content:space-between}
+  .card.month .tab .n{color:var(--gold)}
+  .card.lock .tab .p{color:#B0A595}
+  .card.new .tab{background:var(--gold);border-color:#C79A2E}
+  .card:not(.open):hover{box-shadow:0 -6px 10px rgba(61,43,31,.08)}
+  .card .body{position:absolute;inset:12px 14px auto;opacity:0;transition:opacity .25s}
+  .card.open{cursor:default}
+  .card.open .body{opacity:1;transition-delay:.25s}
+  .body h3{font-size:16px;font-weight:900}
+  .body small{display:block;font-size:11.5px;color:var(--ink2);margin-top:2px}
+  .body .pic{margin-top:10px;height:200px;border-radius:6px;background:#fff url(board/day512.jpg?v=2) center 14%/cover;border:1px solid #E5E2D2}
+  .body .row{display:flex;gap:6px;margin-top:10px}
+  .body .row span{padding:3px 9px;border-radius:999px;background:#EEF1E7;font-size:11.5px;font-weight:900;color:var(--line)}
+  .body .go{margin-left:auto;padding:5px 12px;border-radius:8px;background:var(--line);color:#fff;font-size:12px;font-weight:900}
+
+  /* 抽屜正面（透視） */
+  .front{position:absolute;left:0;right:0;bottom:0;height:96px;z-index:150;pointer-events:none}
+  .front .rim{position:absolute;left:8px;right:8px;top:0;height:22px;background:var(--cream);border:1.5px solid var(--line);clip-path:polygon(3% 0,97% 0,100% 100%,0 100%)}
+  .front .face{position:absolute;left:0;right:0;top:20px;bottom:-2px;background:var(--cream);border:1.5px solid var(--line);border-bottom:none;border-radius:4px 4px 0 0}
+  .front .face::before{content:'';position:absolute;left:12px;right:12px;top:10px;bottom:0;border:1.5px solid var(--line-l);border-bottom:none;border-radius:3px 3px 0 0}
+  .front .label{position:absolute;left:50%;top:30px;translate:-50% 0;padding:4px 14px;border-radius:6px;background:var(--gold);border:1.5px solid #3D2B1F;font-size:13px;font-weight:900;letter-spacing:.08em;white-space:nowrap}
+  .toast{position:absolute;left:50%;bottom:130px;translate:-50% 0;padding:7px 14px;border-radius:999px;background:rgba(61,43,31,.85);color:#fff;font-size:12.5px;z-index:210;opacity:0;transition:opacity .2s;white-space:nowrap}
+  .toast.on{opacity:1}
+</style>
+</head>
+<body>
+<h1>日記抽屜・草稿 3（參考圖的索引卡抽屜）</h1>
+<p class="lead">照參考圖的做法：<b>從斜上方看進一個卡片抽屜</b>，每一天是一張卡、標籤左右錯開；月份用深色的分隔卡。<b>點標籤</b>，那張卡從中間升起來、展開那天的日記，前面的卡往下退、後面的往上收；再點一次收回去。</p>
+<div class="wrap">
+  <div class="phone" id="ph">
+    <span class="back">←</span><div class="ttl">我的日記</div><div class="sub">點卡片標籤翻看那一天</div>
+    <div id="cards"></div>
+    <div class="front"><div class="rim"></div><div class="face"><span class="label">Lucky 的時光日記</span></div></div>
+    <div class="toast" id="toast"></div>
+  </div>
+  <div class="side">
+    <p><b>點點看</b>：點「5.12 理工大學」那張（黃色標籤＝最新一天）會升起來；其他日期是「整理中」會提示。</p><br>
+    <p><b>跟參考圖一樣的地方</b>：細線條、卡片一層層疊、標籤左右兩排錯開、深色的分類卡（這裡是月份）、抽屜正面一個黃色小標籤。</p><br>
+    <p><b>換成 CityPaws 的地方</b>：線條是綠色、底是奶油色、字是楷體；標籤寫「日期＋那天去的地方」；打開的卡片裡是那天的日記縮圖、去過的貓點、「打開日記」。</p><br>
+    <p>喜歡的話我就照這個做進正式版（換掉現在整張圖的抽屜）。</p>
+  </div>
+</div>
+<script>
+const DATA=[
+  {m:'4 月',n:'04'},{d:'4.18',p:'中環街市',s:'L'},{d:'4.22',p:'都爹利街',s:'R'},{d:'4.26',p:'舊牛奶公司',s:'L'},{d:'4.30',p:'和昌大押',s:'R'},
+  {m:'5 月',n:'06'},{d:'5.10',p:'紅磡站',s:'L'},{d:'5.11',p:'尖沙咀',s:'R'},{d:'5.12',p:'理工大學',s:'L',new:1},{d:'5.13',p:'海安咖啡',s:'R'},{d:'5.14',p:'西港城',s:'L'},{d:'5.15',p:'中環街市',s:'R'}
+];
+const box=document.getElementById('cards'), ph=document.getElementById('ph');
+const BASE=190, GAP=30, OPEN=318, W0=318, WI=3;
+let open=-1;
+DATA.forEach((it,i)=>{
+  const c=document.createElement('div'); c.className='card '+(it.m?'month M':(it.s+(it.new?' new':' lock')));
+  c.style.zIndex=10+i; c.style.width=(W0+i*WI)+'px';
+  c.innerHTML=it.m?`<div class="tab"><span class="p">${it.m}</span><span class="n">${it.n} 篇</span></div>`
+    :`<div class="tab"><span class="n">${it.d}</span><span class="p">${it.new?it.p:it.p+'・整理中'}</span></div>
+      <div class="body"><h3>2026.${it.d}・漫步日記</h3><small>理工大學・海安咖啡・西港城・4 個貓點・4.2 km</small><div class="pic"></div>
+      <div class="row"><span>菠蘿油</span><span>腸粉</span><span class="go">打開日記</span></div></div>`;
+  c.onclick=()=>{ if(it.m) return; if(!it.new){ toast(`${it.d} 的日記還在整理中 🐾`); c.animate([{translate:'-50% 0'},{translate:'calc(-50% - 5px) 0'},{translate:'calc(-50% + 5px) 0'},{translate:'-50% 0'}],{duration:300}); return; }
+    open=open===i?-1:i; layout(); };
+  box.appendChild(c);
+});
+function layout(){
+  const cs=[...box.children];
+  cs.forEach((c,i)=>{
+    let t;
+    if(open<0) t=BASE+i*GAP;
+    else if(i<open) t=130+i*16;                       // 後面的卡往上收
+    else if(i===open) t=130+i*16+26;                  // 打開的這張升起來
+    else t=130+open*16+26+OPEN+(i-open-1)*24;        // 前面的卡往下退
+    c.style.top=t+'px'; c.classList.toggle('open',i===open);
+  });
+}
+function toast(t){ const el=document.getElementById('toast'); el.textContent=t; el.classList.add('on'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('on'),1500); }
+layout();
+</script>
+</body>
+</html>

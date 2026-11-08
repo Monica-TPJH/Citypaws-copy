@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>留言板草稿 4</title>
+<style>
+  @font-face{font-family:CPKai;src:url('../assets/fonts/cp-kai-w7-subset.woff2') format('woff2');font-weight:100 700;}
+  @font-face{font-family:CPKai;src:url('../assets/fonts/cp-kai-w9-subset.woff2?v=2') format('woff2');font-weight:800 900;}
+  @font-face{font-family:CPKaiFull;src:url('../assets/fonts/df-yankai-simp-trad-w7.ttf') format('truetype');font-weight:100 700;}
+  @font-face{font-family:CPKaiFull;src:url('../assets/fonts/df-yankai-simp-trad-w9.ttf') format('truetype');font-weight:800 900;}
+  :root{--green:#4E6B4A;--green-d:#3F5A3C;--green-l:#A9BBA4;--cream:#FBF9EF;--paper:#FFFDF6;--ink:#3D2B1F;--ink2:#7A6A5A;--gold:#E2B44E;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#2E2A26;color:#F3EEE2;font-family:CPKai,CPKaiFull,'Kaiti TC','STKaiti',serif;padding:28px 24px 60px}
+  h1{font-size:24px;font-weight:900;letter-spacing:.06em}
+  .lead{margin:8px 0 26px;color:#CFC6B5;font-size:14px;line-height:1.7;max-width:1000px}
+  .lead b{color:var(--gold)}
+  .row{display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
+  .draft{width:375px}
+  .tag{display:inline-block;padding:3px 12px;border-radius:999px;background:var(--gold);color:var(--ink);font-weight:900;font-size:14px;margin-bottom:8px}
+  .draft h2{font-size:18px;font-weight:900;margin-bottom:4px}
+  .draft p.d{font-size:13px;color:#CFC6B5;line-height:1.65;margin-bottom:12px;min-height:86px}
+  .try{color:var(--gold);font-weight:900}
+
+  .phone{position:relative;width:375px;height:780px;border-radius:40px;overflow:hidden;background:var(--cream);color:var(--ink);box-shadow:0 16px 40px rgba(0,0,0,.45)}
+  .scroll{position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding-bottom:110px;scroll-behavior:smooth}
+  .scroll::-webkit-scrollbar{display:none}
+  .head{height:112px;background:url(board/head.jpg) top/cover}
+  .sheet{position:relative;margin-top:-18px;background:var(--cream);border-radius:22px 22px 0 0;padding:16px 16px 0}
+  .lucky{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .lucky .bub{flex:1;position:relative;padding:10px 12px;border:2.5px solid var(--green);border-radius:14px;background:var(--paper);font-size:13px;font-weight:800}
+  .lucky .bub b{color:#C0573E;font-size:16px;margin:0 2px}
+  .lucky img{width:58px;border-radius:12px}
+
+  .sec{display:flex;align-items:center;gap:8px;margin:14px 0 8px;font-size:13px;font-weight:900;color:var(--ink2)}
+  .sec::after{content:'';flex:1;border-top:1.5px dashed #C9CFC0}
+  .card{position:relative;display:flex;gap:10px;padding:10px;margin-bottom:10px;background:var(--paper);border:1.5px solid #D9DDCF;border-radius:14px;transition:box-shadow .3s,border-color .3s}
+  .card .ph{width:84px;height:84px;flex-shrink:0;border-radius:8px;background:center/cover;border:3px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+  .card .bd{flex:1;min-width:0}
+  .who{display:flex;align-items:center;gap:6px}
+  .who img{width:24px;height:24px;border-radius:50%;border:2px solid #D7DCCD}
+  .who b{font-size:14px;font-weight:900}
+  .who time{margin-left:auto;font-size:11px;color:var(--ink2);font-family:'Songti TC',serif}
+  .card p{margin-top:5px;font-size:12.5px;line-height:1.55;color:#5E4D42;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .card.me{border:2px solid var(--green);background:#F6F9F1}
+  .me-b{padding:1px 7px;border-radius:999px;background:var(--green);color:#fff;font-size:10px;font-weight:900}
+  .card.flash{animation:flash 1.6s ease-out}
+  @keyframes flash{0%,40%{box-shadow:0 0 0 4px rgba(226,180,78,.85)}100%{box-shadow:0 0 0 0 rgba(226,180,78,0)}}
+  .dock{position:absolute;left:0;right:0;bottom:0;padding:14px 18px 26px;background:linear-gradient(rgba(251,249,239,0),var(--cream) 30%);z-index:5}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;height:46px;border-radius:14px;background:var(--green);color:#FFFDF2;font-size:17px;font-weight:900;letter-spacing:.12em;
+    box-shadow:inset 0 0 0 3px var(--green),inset 0 0 0 4.5px rgba(255,253,242,.55),0 4px 10px rgba(61,43,31,.2);cursor:pointer}
+
+  /* D：頂部「我的足跡」膠囊 + 上下跳 */
+  .fp-pill{position:absolute;z-index:6;top:122px;right:16px;display:flex;align-items:center;gap:6px;padding:6px 6px 6px 12px;border-radius:999px;background:var(--paper);border:2px solid var(--green);
+    font-size:13px;font-weight:900;color:var(--green-d);box-shadow:0 3px 8px rgba(61,43,31,.18);cursor:pointer}
+  .fp-pill img{width:22px;height:22px;border-radius:50%}
+  .fp-pill .n{padding:0 8px;border-radius:999px;background:var(--green);color:#fff;font-size:12px}
+  .fp-nav{position:absolute;z-index:6;top:122px;right:16px;display:none;align-items:center;gap:4px;padding:4px;border-radius:999px;background:var(--green);color:#fff;font-size:13px;font-weight:900;box-shadow:0 3px 8px rgba(61,43,31,.25)}
+  .fp-nav span{padding:0 8px}
+  .fp-nav a{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.18);display:grid;place-items:center;cursor:pointer}
+  .on-fp .fp-pill{display:none}.on-fp .fp-nav{display:flex}
+  .on-fp .card:not(.me){opacity:.45}
+
+  /* E：時間軸上的腳印 + 右側捲軸標記 */
+  .rail{position:absolute;z-index:6;right:5px;top:150px;bottom:110px;width:10px;border-radius:5px;background:rgba(78,107,74,.12)}
+  .rail i{position:absolute;left:-5px;width:20px;height:20px;margin-top:-10px;border-radius:50%;border:2px solid #fff;background:center/cover;box-shadow:0 2px 4px rgba(0,0,0,.25);cursor:pointer}
+  .rail .thumb{position:absolute;left:2px;width:6px;border-radius:3px;background:rgba(78,107,74,.45)}
+  .railtip{position:absolute;z-index:6;right:28px;top:118px;padding:4px 10px;border-radius:10px;background:var(--green);color:#fff;font-size:11.5px;font-weight:900}
+  .railtip::after{content:'';position:absolute;right:-5px;top:50%;width:8px;height:8px;margin-top:-4px;background:var(--green);transform:rotate(45deg)}
+
+  /* F：底部抽屜列出我的足跡 */
+  .fp-entry{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:6px;border-radius:14px;background:#EEF1E7;cursor:pointer}
+  .fp-entry .stack{display:flex}
+  .fp-entry .stack i{width:34px;height:34px;border-radius:8px;border:2px solid #fff;background:center/cover;margin-left:-10px;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .fp-entry .stack i:first-child{margin-left:0}
+  .fp-entry b{font-size:14px;font-weight:900;color:var(--green-d)}
+  .fp-entry small{display:block;font-size:11px;color:var(--ink2)}
+  .fp-entry em{margin-left:auto;font-style:normal;color:var(--green-d);font-weight:900}
+  .shade{position:absolute;inset:0;z-index:7;background:rgba(40,30,20,.35);opacity:0;pointer-events:none;transition:opacity .25s}
+  .bsheet{position:absolute;left:0;right:0;bottom:0;z-index:8;background:var(--paper);border-radius:22px 22px 0 0;padding:10px 16px 26px;transform:translateY(105%);transition:transform .32s cubic-bezier(.3,.9,.3,1)}
+  .bsheet .grab{width:40px;height:4px;border-radius:2px;background:#D5D9CC;margin:0 auto 10px}
+  .bsheet h3{font-size:16px;font-weight:900;margin-bottom:10px}
+  .bsheet h3 small{font-size:12px;color:var(--ink2);margin-left:6px}
+  .visit{display:flex;gap:10px;align-items:center;padding:8px;border-radius:12px;border:1.5px solid #E1E4D8;margin-bottom:8px;cursor:pointer}
+  .visit i{width:52px;height:52px;border-radius:8px;background:center/cover;flex-shrink:0}
+  .visit b{font-size:13px;font-weight:900}
+  .visit p{font-size:12px;color:#5E4D42;line-height:1.45;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+  .visit em{margin-left:auto;font-style:normal;font-size:12px;color:var(--green-d);font-weight:900;white-space:nowrap}
+  .open-sheet .shade{opacity:1;pointer-events:auto}.open-sheet .bsheet{transform:none}
+
+  /* G：日期篩選列，我去過的日期有我的頭像 */
+  .dates{position:sticky;top:0;z-index:4;display:flex;gap:8px;overflow-x:auto;margin:0 -16px 6px;padding:8px 16px;background:var(--cream);scrollbar-width:none}
+  .dates::-webkit-scrollbar{display:none}
+  .dchip{flex:0 0 auto;position:relative;padding:7px 12px;border-radius:12px;background:#EEF1E7;font-size:12.5px;font-weight:900;color:var(--ink2);cursor:pointer}
+  .dchip.on{background:var(--green);color:#fff}
+  .dchip.mine::after{content:'';position:absolute;right:-5px;top:-6px;width:18px;height:18px;border-radius:50%;border:2px solid var(--cream);background:url(board/a0.jpg) center/cover}
+  .legend{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink2);margin:-2px 0 6px}
+  .legend i{width:14px;height:14px;border-radius:50%;background:url(board/a0.jpg) center/cover}
+
+  .note{margin-top:16px;padding:12px 14px;border-radius:12px;background:#3A3530;color:#E6DFD0;font-size:12.5px;line-height:1.7;max-width:1640px}
+  .note b{color:var(--gold)}
+</style>
+<style>
+  .slot{display:flex;align-items:center;gap:10px;padding:12px;margin-bottom:10px;border:2px dashed var(--green-l);border-radius:14px;background:rgba(255,253,246,.7);color:var(--green-d);cursor:pointer}
+  .slot i{width:56px;height:56px;border-radius:10px;background:#E6EADF;display:grid;place-items:center;font-style:normal;font-size:24px}
+  .slot b{font-size:15px;font-weight:900}.slot small{display:block;font-size:11.5px;color:var(--ink2);margin-top:2px}
+  .hd-cam{position:absolute;z-index:6;right:18px;top:48px;width:40px;height:40px;border-radius:50%;background:#EEF0E6;border:3px solid #C9D3C3;display:grid;place-items:center;font-size:18px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  .hero{position:relative;border-radius:16px;overflow:hidden;margin-bottom:10px;box-shadow:0 4px 12px rgba(61,43,31,.18)}
+  .hero .ph{height:190px;background:center/cover}
+  .hero .cap{position:absolute;left:0;right:0;bottom:0;padding:26px 12px 10px;background:linear-gradient(transparent,rgba(30,22,15,.75));color:#fff}
+  .hero .cap b{font-size:15px;font-weight:900}.hero .cap p{font-size:12px;line-height:1.5;margin-top:3px;opacity:.95}
+  .hero .badge{position:absolute;left:10px;top:10px;padding:3px 10px;border-radius:999px;background:var(--gold);color:var(--ink);font-size:11.5px;font-weight:900}
+  .mas{columns:2;column-gap:10px}
+  .mt{break-inside:avoid;margin-bottom:10px;background:#fff;padding:6px 6px 8px;border-radius:6px;box-shadow:0 3px 8px rgba(61,43,31,.14)}
+  .mt .ph{background:center/cover;border-radius:3px}
+  .mt .nm{display:flex;align-items:center;gap:5px;margin-top:6px;font-size:12px;font-weight:900}.mt .nm img{width:18px;height:18px;border-radius:50%}
+  .mt p{font-size:11.5px;line-height:1.45;color:#5E4D42;margin-top:3px}
+  .mt.add{background:rgba(255,253,246,.7);border:2px dashed var(--green-l);box-shadow:none;display:flex;flex-direction:column;align-items:center;justify-content:center;height:170px;color:var(--green-d);font-weight:900;font-size:13px;gap:6px}
+  .mt.add i{font-style:normal;font-size:26px;width:46px;height:46px;border-radius:50%;background:#E6EADF;display:grid;place-items:center}
+  .mt.me{outline:2.5px solid var(--green);outline-offset:2px}
+  .chat .msg{display:flex;gap:8px;margin-bottom:12px;align-items:flex-end}
+  .chat .msg>img{width:30px;height:30px;border-radius:50%;border:2px solid #D7DCCD;flex-shrink:0}
+  .chat .bb{max-width:76%;background:var(--paper);border:1.5px solid #D9DDCF;border-radius:16px 16px 16px 4px;padding:6px;box-shadow:0 2px 0 rgba(61,43,31,.05)}
+  .chat .bb .ph{height:130px;border-radius:11px;background:center/cover}
+  .chat .bb p{font-size:12.5px;line-height:1.5;color:#5E4D42;padding:6px 4px 2px}
+  .chat .bb b{display:block;font-size:11.5px;color:var(--ink2);padding:0 4px 4px}
+  .chat .msg.me{flex-direction:row-reverse}
+  .chat .msg.me .bb{border-radius:16px 16px 4px 16px;background:#EDF3E8;border-color:var(--green-l)}
+  .chat .day{text-align:center;margin:6px 0 12px}.chat .day span{padding:3px 12px;border-radius:999px;background:#E6EADF;font-size:11.5px;font-weight:900;color:var(--ink2)}
+  .bar{position:absolute;left:0;right:0;bottom:0;z-index:5;display:flex;gap:8px;align-items:center;padding:10px 14px 24px;background:var(--cream);border-top:1.5px solid #E3E6DA}
+  .bar .inp{flex:1;height:42px;border-radius:21px;background:#fff;border:1.5px solid #D9DDCF;display:flex;align-items:center;padding:0 14px;font-size:13px;color:#A99C8E}
+  .bar .cam{width:42px;height:42px;border-radius:50%;background:var(--green);display:grid;place-items:center;font-size:18px;box-shadow:0 2px 6px rgba(61,43,31,.25)}
+  .lk-line{display:flex;align-items:center;gap:6px;margin:-2px 0 10px;font-size:12px;font-weight:800;color:var(--green-d)}
+</style></head>
+<body><h1>留言板草稿・第四輪（不要我的足跡）</h1>
+<p class="lead">去掉「我的足跡」，只留<b>大家的留言</b>；自己的留言用綠色標出來。這輪主要試<b>不同的版面</b>和<b>打卡合拍放哪裡</b>。<span class="try">L、O 可以點點看。</span></p>
+<div class="row">
+<div class="draft"><span class="tag">草稿 L・時間軸＋虛線空位</span><h2>最簡單：打卡合拍是今天的第一格</h2>
+<p class="d">一條時間軸，日期當分隔。「打卡合拍」不是大按鈕，而是「今天」最上面一格虛線空位；拍完那格就變成你的卡片。底部完全空出來。<br><span class="try">→ 點虛線那格</span></p><div class="phone" id="L"><div class="scroll"><div class="head"></div><div class="sheet"></div></div></div></div>
+<div class="draft"><span class="tag">草稿 M・拍立得雙欄</span><h2>像翻相簿，第一張是「＋」</h2>
+<p class="d">照片變大、雙欄錯落排，像在看大家的相簿。左上第一張是虛線「＋ 留下今天的合拍」，自己的照片有綠框。文字只留一行，點開看全文。</p><div class="phone" id="M"><div class="scroll"><div class="head"></div><div class="sheet"><div class="lucky"><div class="bub">你是第<b>20</b>個發現本喵在這裡記憶的人類！</div><img src="board/cat.jpg" alt=""></div><div class="mas"><div class="mt add"><i>＋</i>留下今天的合拍</div><div class="mt me"><div class="ph" style="background-image:url(board/p0.jpg);height:150px"></div><div class="nm"><img src="board/a0.jpg">紳士雞・我</div><p>獨自一人漫步在理工大學…</p></div><div class="mt"><div class="ph" style="background-image:url(board/p1.jpg);height:120px"></div><div class="nm"><img src="board/a1.jpg">大灰熊</div><p>又來到我的夢校了</p></div><div class="mt"><div class="ph" style="background-image:url(board/p2.jpg);height:170px"></div><div class="nm"><img src="board/a2.jpg">陸源源</div><p>想起熬夜通宵的日子</p></div><div class="mt"><div class="ph" style="background-image:url(board/p3.jpg);height:110px"></div><div class="nm"><img src="board/a3.jpg">鱈魚</div><p>紅磚樓也太好拍了吧！</p></div><div class="mt"><div class="ph" style="background-image:url(board/p4.jpg);height:140px"></div><div class="nm"><img src="board/a4.jpg">力力</div><p>期末週在圖書館爆肝</p></div><div class="mt"><div class="ph" style="background-image:url(board/p5.jpg);height:130px"></div><div class="nm"><img src="board/a5.jpg">Sky</div><p>終於忙完今天的工作了</p></div></div></div></div></div></div>
+<div class="draft"><span class="tag">草稿 N・聊天室</span><h2>像大家在這裡聊天</h2>
+<p class="d">每則留言是一個對話泡泡（照片＋一句話），別人在左、你的在右（綠色）。底部像聊天輸入列：「說點什麼…」＋相機鍵。最直覺、最有「留言」的感覺。</p><div class="phone" id="N"><div class="scroll"><div class="head"></div><div class="sheet"><div class="lucky"><div class="bub">你是第<b>20</b>個發現本喵在這裡記憶的人類！</div><img src="board/cat.jpg" alt=""></div><div class="chat"><div class="day"><span>05.11</span></div><div class="msg"><img src="board/a1.jpg"><div class="bb"><b>大灰熊</b><div class="ph" style="background-image:url(board/p1.jpg)"></div><p>又來到我的夢校了，好有設計感的樓啊。</p></div></div><div class="msg"><img src="board/a2.jpg"><div class="bb"><b>陸源源</b><div class="ph" style="background-image:url(board/p2.jpg)"></div><p>想起和組員熬夜通宵的日子~</p></div></div><div class="msg"><img src="board/a3.jpg"><div class="bb"><b>鱈魚</b><div class="ph" style="background-image:url(board/p3.jpg)"></div><p>紅磚樓也太好拍了吧！</p></div></div><div class="day"><span>今天</span></div><div class="msg"><img src="board/a4.jpg"><div class="bb"><b>力力</b><div class="ph" style="background-image:url(board/p4.jpg)"></div><p>期末週在圖書館爆肝，還能再肝三小時。</p></div></div><div class="msg"><img src="board/a5.jpg"><div class="bb"><b>Sky</b><div class="ph" style="background-image:url(board/p5.jpg)"></div><p>終於忙完今天的工作了！</p></div></div><div class="msg me"><img src="board/a0.jpg"><div class="bb"><b>我・剛剛</b><div class="ph" style="background-image:url(board/p0.jpg)"></div><p>獨自一人漫步在香港理工大學，享受一個人的午後。</p></div></div></div></div></div><div class="bar"><div class="inp">在這裡說點什麼…</div><div class="cam">📸</div></div></div></div>
+<div class="draft"><span class="tag">草稿 O・精選＋清單＋右上相機</span><h2>先看最受歡迎的一張</h2>
+<p class="d">最上面一張大圖「本週最多讚」，下面是時間軸清單。打卡合拍縮成右上角的小相機（返回鍵的對面），不佔內容空間。</p><div class="phone" id="O"><div class="scroll"><div class="head"></div><div class="sheet"></div></div><div class="hd-cam">📸</div></div></div>
+</div><div class="note"><b>建議</b>：L 最順（流程上剛拍完照，看板上「今天」最上面就是你的那格）；想要更有氛圍選 M；想要更像社交選 N。</div>
+<script>
+const P=['p0','p1','p2','p3','p4','p5'];
+const OTHERS=[['大灰熊','a1','又來到我的夢校了，好好看，好有設計感的樓啊。雖然申請了兩年都沒申請上…'],['陸源源','a2','想起過去和組員一起熬夜通宵的日子。好懷念啊~'],
+ ['鱈魚','a3','哇——理工大的紅磚樓也太好拍了吧！這樓梯、這光影，隨手一張都是雜誌封面。'],['力力','a4','期末週在圖書館爆肝，抬頭看見設計感十足的天花板，突然覺得還能再肝三小時。'],
+ ['Sky','a5','終於忙完今天的工作了！學生的論文太難讀了！'],['小黃鴨','a2','路過買了一個菠蘿油，坐在草地上吃，好幸福。']];
+const MINE=[{d:'今天',t:'Hi！這裡是24歲的紳士雞，獨自一人漫步在香港理工大學，享受一個人的午後。',p:'p0'},{d:'03.02',t:'第一次來，紅磚樓好有味道，Lucky 說牠以前在這裡等菠蘿油 😂',p:'p3'}];
+const DAYS=[['今天',[ 'me0',0 ]],['11.02',[1,2]],['09.18',[3,4]],['07.05',[5,0]],['05.11',[1,2,3]],['03.02',['me1',4]],['01.20',[5,1]]];
+function build(id,opt={}){
+  const ph=document.getElementById(id), sc=ph.querySelector('.scroll');
+  let h='<div class="head"></div><div class="sheet">';
+  h+='<div class="lucky"><div class="bub">你是第<b>20</b>個發現本喵在這裡記憶的人類！</div><img src="board/cat.jpg" alt=""></div>';
+  if(opt.entry) h+=`<div class="fp-entry"><span class="stack"><i style="background-image:url(board/p0.jpg)"></i><i style="background-image:url(board/p3.jpg)"></i></span><div><b>你來過這裡 2 次</b><small>上次：今天・第一次：2026.03.02</small></div><em>›</em></div>`;
+  if(opt.dates){ h+='<div class="dates">'+DAYS.map(([d,l])=>`<span class="dchip${l.some(x=>typeof x==='string')?' mine':''}" data-day="${d}">${d}</span>`).join('')+'</div><div class="legend"><i></i>有頭像＝你那天來過</div>'; }
+  DAYS.forEach(([d,list])=>{
+    h+=`<div class="sec" data-day="${d}">${d==='今天'?'今天':d.replace('.',' 月 ')+' 日'}</div>`;
+    list.forEach(x=>{
+      if(typeof x==='string'){ const m=MINE[+x.slice(2)];
+        h+=`<div class="card me" data-me="${x.slice(2)}"><div class="ph" style="background-image:url(board/${m.p}.jpg)"></div><div class="bd"><div class="who"><img src="board/a0.jpg"><b>紳士雞</b><span class="me-b">我</span><time>${m.d}</time></div><p>${m.t}</p></div></div>`;
+      } else { const o=OTHERS[x];
+        h+=`<div class="card"><div class="ph" style="background-image:url(board/${P[(x+1)%6]}.jpg)"></div><div class="bd"><div class="who"><img src="board/${o[1]}.jpg"><b>${o[0]}</b><time>${d}</time></div><p>${o[2]}</p></div></div>`; }
+    });
+  });
+  sc.innerHTML=h+'</div>';
+  return {ph,sc};
+}
+function goTo(sc,el,off=150){ sc.scrollTop=el.offsetTop-off+ (el.closest('.sheet')?el.closest('.sheet').offsetTop:0); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+
+// L
+(()=>{ const {ph,sc}=build('L'); const sh=sc.querySelector('.sheet'); const me=sc.querySelector('.card.me[data-me="0"]'); me.style.display='none';
+  const sec=sc.querySelector('.sec'); sec.insertAdjacentHTML('afterend','<div class="slot"><i>📸</i><div><b>留下今天的合拍</b><small>跟 Lucky 拍一張，貼在這裡</small></div></div>');
+  sc.querySelector('.slot').onclick=e=>{ e.currentTarget.replaceWith(me); me.style.display=''; goTo(sc,me,160); };
+  ph.querySelector('.dock')?.remove();
+})();
+// O
+(()=>{ const {ph,sc}=build('O'); ph.querySelector('.dock')?.remove();
+  sc.querySelector('.lucky').insertAdjacentHTML('afterend','<div class="hero"><span class="badge">♥ 本週最多讚</span><div class="ph" style="background-image:url(board/p1.jpg)"></div><div class="cap"><b>大灰熊</b><p>又來到我的夢校了，好好看，好有設計感的樓啊。</p></div></div>');
+})();
+</script></body></html>

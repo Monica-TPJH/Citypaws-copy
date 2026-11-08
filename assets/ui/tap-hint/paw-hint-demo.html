@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paw Tap Hint</title>
+<style>
+  body{margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:48px;
+    background:#FBF4E4;font:700 14px 'PingFang SC',sans-serif;color:#8A7458;}
+  .row{display:flex;gap:80px;flex-wrap:wrap;justify-content:center;}
+
+  /* 示例：需要解锁的目标 */
+  .demo-target{position:relative;width:96px;height:96px;border-radius:50%;border:3px dashed #D9C7A3;background:#F4EBC8;
+    display:flex;align-items:center;justify-content:center;font-size:30px;}
+
+  /* ===== 猫爪点击提示（可直接拷进 index.html） =====
+     用法：把 .paw-hint 放进目标元素（目标需 position:relative），爪尖会对准目标中心。
+     --paw-size 控制大小；加 .flip 镜像到另一侧。 */
+  .paw-hint{--paw-size:72px;position:absolute;left:50%;top:50%;width:var(--paw-size);height:var(--paw-size);
+    pointer-events:none;z-index:20;
+    /* 爪尖(图里左上方的趾头)对准目标中心，整体放在目标右下 */
+    translate:-18% -6%;}
+  .paw-hint.flip{scale:-1 1;translate:-82% -6%;}
+  .paw-hint{--dur:1.3s;}
+  .paw-hint .paw{position:absolute;inset:0;transform-origin:62% 92%;
+    animation:pawMove var(--dur) cubic-bezier(.45,0,.3,1) infinite;
+    filter:drop-shadow(0 3px 3px rgba(138,116,88,.25));}
+  .paw-hint .paw img{position:absolute;inset:0;width:100%;height:100%;}
+
+  /* 爪子：抬起蓄力 → 用力按下（压扁）→ Q 弹回来 */
+  @keyframes pawMove{
+    0%  {transform:translate(0,0) rotate(0) scale(1);}
+    12% {transform:translate(4%,4%) rotate(3deg) scale(1.04,.95);}      /* 蓄力 */
+    30% {transform:translate(18%,18%) rotate(10deg) scale(1.06);}      /* 抬高 */
+    42% {transform:translate(-6%,-9%) rotate(-5deg) scale(1.08,.88);}  /* 用力按下，压扁 */
+    51% {transform:translate(-4%,-6%) rotate(-3deg) scale(.96,1.05);}  /* 回弹 */
+    62% {transform:translate(-3%,-4%) rotate(-2deg) scale(1);}
+    100%{transform:translate(0,0) rotate(0) scale(1);}
+  }
+
+  /* 按下点的黄色光圈（在爪子下面） */
+  .paw-hint .ring{position:absolute;left:12%;top:4%;width:90%;aspect-ratio:1;border-radius:50%;
+    border:3px solid #F3C969;box-shadow:0 0 10px rgba(243,201,105,.6);opacity:0;
+    translate:-50% -50%;animation:pawRing var(--dur) ease-out infinite;}
+  @keyframes pawRing{
+    0%,40%{opacity:0;transform:scale(.25);}
+    45%{opacity:1;}
+    85%,100%{opacity:0;transform:scale(1.45);}
+  }
+
+  /* 按下时弹出两颗黄色小星星（在爪子上面） */
+  .paw-hint .pop{position:absolute;left:12%;top:4%;width:26%;aspect-ratio:1;opacity:0;z-index:1;
+    animation:pawPop var(--dur) ease-out infinite;}
+  .paw-hint .pop svg{width:100%;height:100%;display:block;overflow:visible;}
+  .paw-hint .pop path{fill:#F6CC5A;stroke:#E0A93A;stroke-width:1.5;stroke-linejoin:round;}
+  .paw-hint .pop.p1{--dx:-150%;--dy:-110%;--r:-20deg;}
+  .paw-hint .pop.p2{--dx:-20%;--dy:-230%;--r:18deg;width:19%;animation-delay:.05s;}
+  @keyframes pawPop{
+    0%,42%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(0);}
+    52%{opacity:1;transform:translate(calc(-50% + var(--dx)*.7),calc(-50% + var(--dy)*.7)) scale(1.15) rotate(var(--r));}
+    80%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.85) rotate(var(--r));}
+    100%{opacity:0;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .paw-hint .paw,.paw-hint .pop,.paw-hint .ring{animation:none;}
+  }
+</style>
+</head>
+<body>
+  <div class="demo-target">🔒
+    <div class="paw-hint">
+      <span class="ring"></span>
+      <div class="paw">
+        <img src="final/paw-closed.png" alt="">
+      </div>
+      <span class="pop p1"><svg viewBox="0 0 24 24"><path d="M12 1l2.8 8.2L23 12l-8.2 2.8L12 23l-2.8-8.2L1 12l8.2-2.8z"/></svg></span>
+      <span class="pop p2"><svg viewBox="0 0 24 24"><path d="M12 1l2.8 8.2L23 12l-8.2 2.8L12 23l-2.8-8.2L1 12l8.2-2.8z"/></svg></span>
+    </div>
+  </div>
+</body>
+</html>

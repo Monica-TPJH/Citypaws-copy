@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>留言板草稿</title>
+<style>
+  @font-face{font-family:CPKai;src:url('../assets/fonts/cp-kai-w7-subset.woff2') format('woff2');font-weight:100 700;}
+  @font-face{font-family:CPKai;src:url('../assets/fonts/cp-kai-w9-subset.woff2?v=2') format('woff2');font-weight:800 900;}
+  @font-face{font-family:CPKaiFull;src:url('../assets/fonts/df-yankai-simp-trad-w7.ttf') format('truetype');font-weight:100 700;}
+  @font-face{font-family:CPKaiFull;src:url('../assets/fonts/df-yankai-simp-trad-w9.ttf') format('truetype');font-weight:800 900;}
+  :root{--green:#4E6B4A;--green-d:#3F5A3C;--green-l:#A9BBA4;--cream:#FBF9EF;--paper:#FFFDF6;--ink:#3D2B1F;--ink2:#7A6A5A;--line:#C9CFC0;--gold:#E2B44E;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#2E2A26;color:#F3EEE2;font-family:CPKai,CPKaiFull,'Kaiti TC','STKaiti',serif;padding:28px 24px 60px}
+  h1{font-size:24px;font-weight:900;letter-spacing:.06em}
+  .lead{margin:8px 0 26px;color:#CFC6B5;font-size:14px;line-height:1.7;max-width:980px}
+  .row{display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
+  .draft{width:375px}
+  .tag{display:inline-block;padding:3px 12px;border-radius:999px;background:var(--gold);color:var(--ink);font-weight:900;font-size:14px;margin-bottom:8px}
+  .draft h2{font-size:18px;font-weight:900;margin-bottom:4px}
+  .draft p.d{font-size:13px;color:#CFC6B5;line-height:1.65;margin-bottom:12px;min-height:64px}
+
+  /* ── 手機框 ── */
+  .phone{position:relative;width:375px;height:780px;border-radius:40px;overflow:hidden;background:var(--cream);color:var(--ink);box-shadow:0 16px 40px rgba(0,0,0,.45)}
+  .scroll{position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding-bottom:110px}
+  .scroll::-webkit-scrollbar{display:none}
+  .head{position:relative;height:112px;background:url(board/head.jpg) top/cover;}
+  .head .bk,.head .tt,.head .pl{display:none}  /* 頭圖本身已經畫了返回鍵、標題和地點 */
+  .head .bk{position:absolute;left:18px;top:44px;width:40px;height:40px;border-radius:50%;background:#EEF0E6;border:3px solid #C9D3C3;display:grid;place-items:center;font-size:20px;color:var(--green);font-weight:900}
+  .head .tt{position:absolute;left:0;right:0;top:40px;text-align:center;color:#FFFDF2;font-size:24px;font-weight:900;letter-spacing:.1em}
+  .head .pl{position:absolute;left:0;right:0;top:74px;text-align:center;color:#F4EFD9;font-size:13px;font-weight:700}
+  .sheet{position:relative;margin-top:-18px;background:var(--cream);border-radius:22px 22px 0 0;border-top:3px dashed rgba(78,107,74,.35);padding:16px 16px 0}
+
+  /* Lucky 一句話 */
+  .lucky{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+  .lucky .bub{flex:1;position:relative;padding:10px 12px;border:2.5px solid var(--green);border-radius:14px;background:var(--paper);font-size:13px;font-weight:800;box-shadow:inset 0 0 0 3px var(--paper),inset 0 0 0 4.5px rgba(78,107,74,.35)}
+  .lucky .bub b{color:#C0573E;font-size:16px;margin:0 2px}
+  .lucky .bub::after{content:'';position:absolute;right:-9px;top:50%;width:12px;height:12px;background:var(--paper);border-right:2.5px solid var(--green);border-top:2.5px solid var(--green);transform:translateY(-50%) rotate(45deg)}
+  .lucky img{width:62px;height:auto;border-radius:12px}
+
+  /* 數字 */
+  .stats{display:flex;gap:8px;margin-bottom:12px}
+  .stats div{flex:1;padding:8px 10px;border-radius:12px;background:#EEF1E7;text-align:center}
+  .stats b{display:block;font-size:20px;font-weight:900;color:var(--green-d)}
+  .stats span{font-size:11px;color:var(--ink2);font-weight:700}
+
+  /* 分頁 */
+  .tabs{position:sticky;top:0;z-index:3;display:flex;padding:4px;margin:0 -16px 12px;padding:6px 16px;background:var(--cream)}
+  .tabs .in{display:flex;flex:1;padding:4px;border-radius:999px;background:#E6EADF}
+  .tabs a{flex:1;text-align:center;padding:8px 0;border-radius:999px;font-size:14px;font-weight:800;color:var(--ink2)}
+  .tabs a.on{background:var(--green);color:#FFFDF2;box-shadow:0 2px 0 rgba(0,0,0,.12)}
+  .tabs a i{font-style:normal;font-size:11px;margin-left:3px;opacity:.85}
+
+  .sec{display:flex;align-items:center;gap:8px;margin:14px 0 8px;font-size:13px;font-weight:900;color:var(--ink2)}
+  .sec::after{content:'';flex:1;border-top:1.5px dashed var(--line)}
+
+  /* 留言卡（清單） */
+  .card{display:flex;gap:10px;padding:10px;margin-bottom:10px;background:var(--paper);border:1.5px solid #D9DDCF;border-radius:14px;box-shadow:0 2px 0 rgba(61,43,31,.05)}
+  .card .ph{width:92px;height:92px;flex-shrink:0;border-radius:8px;background:center/cover;border:3px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+  .card .bd{flex:1;min-width:0;display:flex;flex-direction:column}
+  .who{display:flex;align-items:center;gap:6px}
+  .who img{width:26px;height:26px;border-radius:50%;border:2px solid #D7DCCD}
+  .who b{font-size:14px;font-weight:900}
+  .who time{margin-left:auto;font-size:11px;color:var(--ink2);font-family:'Songti TC',serif}
+  .card p{margin-top:5px;font-size:12.5px;line-height:1.55;color:#5E4D42;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .acts{margin-top:auto;display:flex;gap:14px;font-size:12px;color:var(--ink2);padding-top:4px}
+  .acts .on{color:#C0573E}
+  .card.me{border:2px solid var(--green);background:#F6F9F1;position:relative}
+  .me-badge{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--green);color:#fff;font-size:10px;font-weight:900;margin-left:4px}
+
+  /* 底部固定按鈕 */
+  .dock{position:absolute;left:0;right:0;bottom:0;padding:14px 18px 26px;background:linear-gradient(rgba(251,249,239,0),var(--cream) 30%)}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;border-radius:14px;background:var(--green);color:#FFFDF2;font-size:17px;font-weight:900;letter-spacing:.12em;
+    box-shadow:inset 0 0 0 3px var(--green),inset 0 0 0 4.5px rgba(255,253,242,.55),0 4px 10px rgba(61,43,31,.2)}
+  .btn.soft{background:#E6EADF;color:var(--green-d);box-shadow:inset 0 0 0 2px var(--green-l)}
+
+  /* 我的足跡（時間軸） */
+  .mine-sum{display:flex;gap:10px;align-items:center;padding:12px;border-radius:14px;background:#EEF1E7;margin-bottom:12px;font-size:13px;font-weight:700;color:var(--ink2)}
+  .mine-sum b{font-size:26px;color:var(--green-d);font-weight:900}
+  .tl{position:relative;padding-left:22px}
+  .tl::before{content:'';position:absolute;left:7px;top:8px;bottom:8px;border-left:2px dashed var(--green-l)}
+  .tl .it{position:relative;margin-bottom:14px}
+  .tl .it::before{content:'🐾';position:absolute;left:-23px;top:4px;width:18px;height:18px;border-radius:50%;background:var(--paper);border:2px solid var(--green);font-size:9px;display:grid;place-items:center}
+  .tl .dt{font-size:12px;font-weight:900;color:var(--green-d);margin-bottom:5px}
+  .pol{background:#fff;padding:8px 8px 10px;border-radius:6px;box-shadow:0 3px 8px rgba(61,43,31,.15)}
+  .pol .ph{height:150px;border-radius:3px;background:center/cover}
+  .pol p{margin-top:8px;font-size:13px;line-height:1.55;color:#5E4D42}
+  .pol .meta{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--ink2)}
+  .pol .meta a{color:var(--green-d);font-weight:900}
+  .empty-add{border:2px dashed var(--green-l);border-radius:12px;padding:14px;text-align:center;color:var(--green-d);font-weight:900;font-size:14px}
+
+  /* B：我的足跡橫向卡＋大家的雙欄 */
+  .strip{display:flex;gap:10px;overflow-x:auto;margin:0 -16px 6px;padding:2px 16px 10px;scrollbar-width:none}
+  .strip::-webkit-scrollbar{display:none}
+  .strip .pol{flex:0 0 132px;transform:rotate(-2deg)}
+  .strip .pol:nth-child(2){transform:rotate(2deg)}
+  .strip .pol .ph{height:104px}
+  .strip .pol p{font-size:11.5px;-webkit-line-clamp:2;display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
+  .strip .add{flex:0 0 112px;border:2px dashed var(--green-l);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--green-d);font-weight:900;font-size:13px}
+  .strip .add i{font-style:normal;font-size:26px;width:44px;height:44px;border-radius:50%;background:#E6EADF;display:grid;place-items:center}
+  .grid{columns:2;column-gap:10px}
+  .gcard{break-inside:avoid;margin-bottom:10px;background:var(--paper);border:1.5px solid #D9DDCF;border-radius:12px;overflow:hidden}
+  .gcard .ph{background:center/cover}
+  .gcard .bd{padding:8px}
+  .gcard p{font-size:12px;line-height:1.5;color:#5E4D42;margin-top:5px}
+  .gcard .who img{width:22px;height:22px}
+  .gcard .who b{font-size:12.5px}
+
+  /* C：照片牆 */
+  .wall{position:relative;margin:0 -16px;padding:14px 12px 20px;background:#E9DFC8 url('../assets/diary/pages/wall-cork.png') center/420px;min-height:640px}
+  .wall .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .chip{padding:6px 12px;border-radius:999px;background:var(--paper);font-size:12.5px;font-weight:900;color:var(--green-d);box-shadow:0 2px 0 rgba(0,0,0,.1)}
+  .chip.on{background:var(--green);color:#fff}
+  .wgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px}
+  .wp{position:relative;background:#fff;padding:7px 7px 9px;box-shadow:0 4px 8px rgba(61,43,31,.25)}
+  .wp:nth-child(4n+1){transform:rotate(-3deg)}.wp:nth-child(4n+2){transform:rotate(2.5deg)}.wp:nth-child(4n+3){transform:rotate(1.5deg)}.wp:nth-child(4n){transform:rotate(-2deg)}
+  .wp .ph{height:118px;background:center/cover}
+  .wp .nm{display:flex;align-items:center;gap:5px;margin-top:6px;font-size:12px;font-weight:900}
+  .wp .nm img{width:18px;height:18px;border-radius:50%}
+  .wp .tx{font-size:11px;line-height:1.45;color:#5E4D42;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .wp .pin{position:absolute;left:50%;top:-9px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#F28B7B,#C0573E);box-shadow:0 2px 2px rgba(0,0,0,.3)}
+  .wp.me{outline:3px solid var(--green);outline-offset:2px}
+  .wp.me .pin{background:radial-gradient(circle at 35% 35%,#9FC28F,#4E6B4A)}
+  .wp.me::after{content:'我';position:absolute;right:-8px;top:-8px;width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;font-weight:900;display:grid;place-items:center}
+  .wp.ghost{background:rgba(255,253,246,.7);border:2px dashed var(--green-l);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:172px;color:var(--green-d);font-weight:900;font-size:13px;box-shadow:none}
+  .note{margin-top:14px;padding:12px 14px;border-radius:12px;background:#3A3530;color:#E6DFD0;font-size:12.5px;line-height:1.7}
+  .note b{color:var(--gold)}
+</style>
+</head>
+<body>
+  <h1>留言板・重新排版草稿</h1>
+  <p class="lead">功能重新整理成四塊：① 地點資訊和「你是第 N 個發現的人類」 ② 大家的留言 ③ <b style="color:#E2B44E">我的足跡</b>（新增：我以前在這裡留過的所有留言） ④ 「打卡合拍」固定在底部。<br>
+  四種都用現在的配色和字體、真實的留言照片。看看哪一個方向比較喜歡，或者混搭（例如 A 的分頁＋C 的照片牆），我再做成正式版。</p>
+
+  <div class="row">
+
+    <!-- ══ A1 ══ -->
+    <div class="draft">
+      <span class="tag">草稿 A・分頁清單</span>
+      <h2>大家的留言 ／ 我的足跡 兩個分頁</h2>
+      <p class="d">去掉左邊的時間軸，日期變成小分隔線；卡片更整齊、可以按讚。自己的留言用綠框和「我」標籤。最穩、最好用。</p>
+      <div class="phone"><div class="scroll">
+        <div class="head"><span class="bk">←</span><div class="tt">留言板</div><div class="pl">📍 香港理工大學</div></div>
+        <div class="sheet">
+          <div class="lucky"><div class="bub">你是第<b>20</b>個發現本喵在這裡記憶的人類！</div><img src="board/cat.jpg" alt=""></div>
+          <div class="tabs"><div class="in"><a class="on">大家的留言<i>19</i></a><a>我的足跡<i>2</i></a></div></div>
+          <div class="sec">剛剛</div>
+          <div class="card me"><div class="ph" style="background-image:url(board/p0.jpg)"></div><div class="bd">
+            <div class="who"><img src="board/a0.jpg"><b>紳士雞</b><span class="me-badge">我</span><time>剛剛</time></div>
+            <p>Hi！這裡是24歲的紳士雞，獨自一人漫步在香港理工大學，只有你自己知道，享受一個人的午後。</p>
+            <div class="acts"><span>♡ 0</span><span>💬 0</span></div></div></div>
+          <div class="sec">5 月 11 日</div>
+          <div class="card"><div class="ph" style="background-image:url(board/p1.jpg)"></div><div class="bd">
+            <div class="who"><img src="board/a1.jpg"><b>大灰熊</b><time>5/11</time></div>
+            <p>又來到我的夢校了，好好看，好豪華，好有設計感的樓啊。雖然申請了兩年都沒申請上…</p>
+            <div class="acts"><span class="on">♥ 12</span><span>💬 3</span></div></div></div>
+          <div class="card"><div class="ph" style="background-image:url(board/p2.jpg)"></div><div class="bd">
+            <div class="who"><img src="board/a2.jpg"><b>陸源源</b><time>5/11</time></div>
+            <p>想起過去和組員一起熬夜通宵的日子。好懷念啊~</p>
+            <div class="acts"><span>♡ 8</span><span>💬 1</span></div></div></div>
+          <div class="card"><div class="ph" style="background-image:url(board/p3.jpg)"></div><div class="bd">
+            <div class="who"><img src="board/a3.jpg"><b>鱈魚</b><time>5/11</time></div>
+            <p>哇——理工大的紅磚樓也太好拍了吧！這樓梯、這光影，隨手一張都是雜誌封面。</p>
+            <div class="acts"><span>♡ 5</span><span>💬 0</span></div></div></div>
+          <div class="sec">5 月 10 日</div>
+          <div class="card"><div class="ph" style="background-image:url(board/p4.jpg)"></div><div class="bd">
+            <div class="who"><img src="board/a4.jpg"><b>力力</b><time>5/10</time></div>
+            <p>期末週在圖書館爆肝，抬頭看見設計感十足的天花板，突然覺得還能再肝三小時。</p>
+            <div class="acts"><span>♡ 21</span><span>💬 4</span></div></div></div>
+        </div>
+      </div>
+      <div class="dock"><div class="btn">📸 打卡合拍</div></div></div>
+    </div>
+
+    <!-- ══ A2 ══ -->
+    <div class="draft">
+      <span class="tag">草稿 A・切到「我的足跡」</span>
+      <h2>我以前在這裡留下的</h2>
+      <p class="d">按時間排的拍立得：每一次來的照片、留言、表情。可以「再看一次故事卡」。最下面一格虛線提示再留一則。</p>
+      <div class="phone"><div class="scroll">
+        <div class="head"><span class="bk">←</span><div class="tt">留言板</div><div class="pl">📍 香港理工大學</div></div>
+        <div class="sheet">
+          <div class="tabs"><div class="in"><a>大家的留言<i>19</i></a><a class="on">我的足跡<i>2</i></a></div></div>
+          <div class="mine-sum"><b>2</b><div>次來到香港理工大學<br>第一次：2026.03.02</div></div>
+          <div class="tl">
+            <div class="it"><div class="dt">2026.11.08・今天</div>
+              <div class="pol"><div class="ph" style="background-image:url(board/p0.jpg)"></div>
+                <p>Hi！這裡是24歲的紳士雞，獨自一人漫步在香港理工大學，享受一個人的午後。</p>
+                <div class="meta"><span>♡ 0・😋</span><a>看故事卡 ›</a></div></div></div>
+            <div class="it"><div class="dt">2026.03.02</div>
+              <div class="pol"><div class="ph" style="background-image:url(board/p3.jpg)"></div>
+                <p>第一次來，紅磚樓好有味道，Lucky 說牠以前在這裡等菠蘿油 😂</p>
+                <div class="meta"><span>♥ 6・🥰</span><a>看故事卡 ›</a></div></div></div>
+            <div class="it"><div class="empty-add">＋ 今天再留一則</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="dock"><div class="btn">📸 打卡合拍</div></div></div>
+    </div>
+
+    <!-- ══ B ══ -->
+    <div class="draft">
+      <span class="tag">草稿 B・我的置頂＋雙欄</span>
+      <h2>自己的回憶放最上面，大家的鋪成雙欄</h2>
+      <p class="d">一進來先看到「我在這裡的足跡」橫向拍立得（可左右滑），下面是大家的留言雙欄瀑布流，照片更大、更像在逛相簿。</p>
+      <div class="phone"><div class="scroll">
+        <div class="head"><span class="bk">←</span><div class="tt">留言板</div><div class="pl">📍 香港理工大學</div></div>
+        <div class="sheet">
+          <div class="stats"><div><b>20</b><span>位人類來過</span></div><div><b>2</b><span>次是你</span></div><div><b>1937</b><span>Lucky 的記憶</span></div></div>
+          <div class="sec">我在這裡的足跡</div>
+          <div class="strip">
+            <div class="pol"><div class="ph" style="background-image:url(board/p0.jpg)"></div><p>獨自一人漫步在香港理工大學…</p><div class="meta"><span>11.08</span></div></div>
+            <div class="pol"><div class="ph" style="background-image:url(board/p3.jpg)"></div><p>第一次來，紅磚樓好有味道</p><div class="meta"><span>03.02</span></div></div>
+            <div class="add"><i>＋</i>再留一則</div>
+          </div>
+          <div class="sec">大家的留言・19</div>
+          <div class="grid">
+            <div class="gcard"><div class="ph" style="background-image:url(board/p1.jpg);height:150px"></div><div class="bd"><div class="who"><img src="board/a1.jpg"><b>大灰熊</b></div><p>又來到我的夢校了，好有設計感的樓啊。</p><div class="acts"><span class="on">♥ 12</span></div></div></div>
+            <div class="gcard"><div class="ph" style="background-image:url(board/p2.jpg);height:110px"></div><div class="bd"><div class="who"><img src="board/a2.jpg"><b>陸源源</b></div><p>想起和組員熬夜通宵的日子~</p><div class="acts"><span>♡ 8</span></div></div></div>
+            <div class="gcard"><div class="ph" style="background-image:url(board/p4.jpg);height:120px"></div><div class="bd"><div class="who"><img src="board/a4.jpg"><b>力力</b></div><p>期末週在圖書館爆肝，突然覺得還能再肝三小時。</p><div class="acts"><span>♡ 21</span></div></div></div>
+            <div class="gcard"><div class="ph" style="background-image:url(board/p3.jpg);height:150px"></div><div class="bd"><div class="who"><img src="board/a3.jpg"><b>鱈魚</b></div><p>紅磚樓也太好拍了吧！</p><div class="acts"><span>♡ 5</span></div></div></div>
+            <div class="gcard"><div class="ph" style="background-image:url(board/p5.jpg);height:110px"></div><div class="bd"><div class="who"><img src="board/a5.jpg"><b>Sky</b></div><p>終於忙完今天的工作了！</p><div class="acts"><span>♡ 3</span></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="dock"><div class="btn">📸 打卡合拍</div></div></div>
+    </div>
+
+    <!-- ══ C ══ -->
+    <div class="draft">
+      <span class="tag">草稿 C・軟木照片牆</span>
+      <h2>像回憶牆一樣，大家的拍立得釘在軟木板上</h2>
+      <p class="d">跟「回憶牆」同一套軟木板風格。右上「只看我的」一按，就只剩自己以前釘上去的照片（綠色圖釘＋「我」）。空位是虛線「釘上你的照片」。最有氛圍。</p>
+      <div class="phone"><div class="scroll">
+        <div class="head"><span class="bk">←</span><div class="tt">留言板</div><div class="pl">📍 香港理工大學</div></div>
+        <div class="sheet" style="padding-bottom:0">
+          <div class="lucky"><div class="bub">你是第<b>20</b>個發現本喵在這裡記憶的人類！</div><img src="board/cat.jpg" alt=""></div>
+          <div class="wall">
+            <div class="top"><span class="chip">📌 20 張回憶</span><span style="display:flex;gap:6px"><span class="chip on">全部</span><span class="chip">只看我的 2</span></span></div>
+            <div class="wgrid">
+              <div class="wp me"><i class="pin"></i><div class="ph" style="background-image:url(board/p0.jpg)"></div><div class="nm"><img src="board/a0.jpg">紳士雞</div><div class="tx">獨自一人漫步在香港理工大學…</div></div>
+              <div class="wp"><i class="pin"></i><div class="ph" style="background-image:url(board/p1.jpg)"></div><div class="nm"><img src="board/a1.jpg">大灰熊</div><div class="tx">又來到我的夢校了，好有設計感</div></div>
+              <div class="wp"><i class="pin"></i><div class="ph" style="background-image:url(board/p2.jpg)"></div><div class="nm"><img src="board/a2.jpg">陸源源</div><div class="tx">想起和組員熬夜通宵的日子</div></div>
+              <div class="wp me"><i class="pin"></i><div class="ph" style="background-image:url(board/p3.jpg)"></div><div class="nm"><img src="board/a0.jpg">紳士雞・03.02</div><div class="tx">第一次來，紅磚樓好有味道</div></div>
+              <div class="wp"><i class="pin"></i><div class="ph" style="background-image:url(board/p4.jpg)"></div><div class="nm"><img src="board/a4.jpg">力力</div><div class="tx">期末週在圖書館爆肝…</div></div>
+              <div class="wp ghost"><span style="font-size:26px">＋</span>釘上你的照片</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dock"><div class="btn">📸 打卡合拍</div></div></div>
+    </div>
+
+  </div>
+  <div class="note"><b>共同的改動</b>：「打卡合拍」固定在最底，不用滑回頂部找；「篩選」拿掉（改成分頁／只看我的）；每則留言可以點開看大圖和完整文字、按讚。<b>我的足跡</b>只顯示自己在這個地點的留言，其他地點的會在「日記」裡。</div>
+</body>
+</html>

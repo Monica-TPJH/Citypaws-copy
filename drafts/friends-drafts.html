@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>好友草稿</title>
+<style>
+  @font-face{font-family:CPKai;src:url('../assets/fonts/cp-kai-w7-subset.woff2') format('woff2');font-weight:100 700;}
+  @font-face{font-family:CPKai;src:url('../assets/fonts/cp-kai-w9-subset.woff2?v=2') format('woff2');font-weight:800 900;}
+  @font-face{font-family:CPKaiFull;src:url('../assets/fonts/df-yankai-simp-trad-w7.ttf') format('truetype');font-weight:100 700;}
+  @font-face{font-family:CPKaiFull;src:url('../assets/fonts/df-yankai-simp-trad-w9.ttf') format('truetype');font-weight:800 900;}
+  :root{--green:#4E6B4A;--green-d:#3F5A3C;--green-l:#A9BBA4;--cream:#FBF9EF;--paper:#FFFDF6;--ink:#3D2B1F;--ink2:#7A6A5A;--gold:#E2B44E;--or:#DA9B3F;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#2E2A26;color:#F3EEE2;font-family:CPKai,CPKaiFull,'Kaiti TC','STKaiti',serif;padding:28px 24px 60px}
+  h1{font-size:24px;font-weight:900;letter-spacing:.06em}
+  .lead{margin:8px 0 26px;color:#CFC6B5;font-size:14px;line-height:1.7;max-width:1000px}
+  .lead b{color:var(--gold)}
+  .row{display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
+  .draft{width:375px}
+  .tag{display:inline-block;padding:3px 12px;border-radius:999px;background:var(--gold);color:var(--ink);font-weight:900;font-size:14px;margin-bottom:8px}
+  .draft h2{font-size:18px;font-weight:900;margin-bottom:4px}
+  .draft p.d{font-size:13px;color:#CFC6B5;line-height:1.65;margin-bottom:12px;min-height:66px}
+  .phone{position:relative;width:375px;height:780px;border-radius:40px;overflow:hidden;background:var(--cream);color:var(--ink);box-shadow:0 16px 40px rgba(0,0,0,.45)}
+  .scroll{position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:0 0 120px}
+  .scroll::-webkit-scrollbar{display:none}
+  .nav{position:absolute;left:0;right:0;bottom:0;height:86px;background:linear-gradient(rgba(251,249,239,0),var(--cream) 40%);z-index:5}
+  .nav::after{content:'底部導航列';position:absolute;left:50%;bottom:20px;translate:-50% 0;padding:10px 60px;border-radius:30px;background:#E6E2D3;color:#A79C8C;font-size:12px}
+
+  /* 頂部 */
+  .top{position:sticky;top:0;z-index:4;display:flex;align-items:center;gap:10px;padding:52px 16px 10px;background:var(--cream)}
+  .tabs{display:flex;gap:18px;align-items:flex-end}
+  .tabs a{font-size:17px;font-weight:900;color:#B9AE9E;padding-bottom:4px;border-bottom:3px solid transparent}
+  .tabs a.on{color:var(--ink);border-color:var(--or)}
+  .ics{margin-left:auto;display:flex;gap:12px}
+  .ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--or)}
+  .ic svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .ic.dot{position:relative}.ic.dot::after{content:'';position:absolute;right:3px;top:3px;width:8px;height:8px;border-radius:50%;background:#C0605A}
+  .seg{display:flex;padding:3px;border-radius:999px;background:#ECE7D6}
+  .seg a{padding:6px 14px;border-radius:999px;font-size:13.5px;font-weight:900;color:var(--ink2)}
+  .seg a.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+
+  /* 卡片通用 */
+  .who{display:flex;align-items:center;gap:8px}
+  .who img{width:36px;height:36px;border-radius:50%;border:2px solid #E2DACA;background:#FBF4E4;object-fit:cover}
+  .who b{font-size:15px;font-weight:900}.who small{display:block;font-size:11.5px;color:var(--ink2)}
+  .acts{display:flex;gap:16px;color:var(--ink2);font-size:12.5px;font-weight:800;align-items:center}
+  .acts span{display:flex;align-items:center;gap:4px}
+  .acts svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+  .acts .on{color:#C0605A}.acts .on svg{fill:#C0605A;stroke:#C0605A}
+  .map{position:relative;background:url(../assets/social/parts/map-route.png) center top/cover;border-radius:14px}
+  .stat{position:absolute;left:10px;top:10px;padding:6px 10px;border-radius:10px;background:rgba(255,253,246,.94);border:2px solid var(--ink);font:800 12px/1.5 'Nunito',CPKai,sans-serif}
+  .foods{display:flex;gap:6px;flex-wrap:wrap}
+  .fchip{display:flex;align-items:center;gap:5px;padding:3px 9px 3px 4px;border-radius:999px;background:#FFF4D8;border:1.5px solid #EBCB7E;font-size:12px;font-weight:900;color:#7A5A20}
+  .fchip img{width:26px;height:26px;object-fit:cover;object-position:18% 50%;border-radius:50%;background:#fff}
+  .fchip.n{background:#FFE9D6;border-color:#E9A774;color:#8A4A1E}
+  .route{font-size:12px;color:var(--ink2);font-weight:800}
+
+  /* P */
+  .pcard{margin:0 14px 14px;padding:12px;border-radius:18px;background:var(--paper);border:1.5px solid #E6DFCC;box-shadow:0 2px 0 rgba(61,43,31,.05)}
+  .pcard .map{height:220px;margin:10px 0}
+  .pcard .bot{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+
+  /* Q 足跡故事 */
+  .stories{display:flex;gap:12px;overflow-x:auto;padding:4px 16px 12px;scrollbar-width:none}
+  .stories::-webkit-scrollbar{display:none}
+  .st{flex:0 0 auto;text-align:center;font-size:11px;font-weight:800;color:var(--ink2)}
+  .st i{display:block;width:58px;height:58px;border-radius:50%;padding:3px;background:conic-gradient(var(--or),#F2C14E,var(--green),var(--or));margin-bottom:4px}
+  .st i img{width:100%;height:100%;border-radius:50%;border:2.5px solid var(--cream);object-fit:cover;background:#FBF4E4}
+  .st.add i{background:#E6E2D3;display:grid;place-items:center;font-style:normal;font-size:24px;color:var(--ink2)}
+  .st.seen i{background:#D8D2C2}
+  .qcard{margin:0 0 16px;border-top:1.5px solid #ECE6D6;padding-top:12px}
+  .qcard .who{padding:0 16px}
+  .qcard .map{height:300px;border-radius:0;margin:10px 0 8px}
+  .qcard .acts{padding:0 16px}
+  .qcard .cap{padding:6px 16px 0;font-size:13px;line-height:1.55}
+  .qcard .foods{padding:8px 16px 0}
+
+  /* R 雙欄 */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 12px}
+  .gc{background:var(--paper);border:1.5px solid #E6DFCC;border-radius:14px;overflow:hidden}
+  .gc .map{height:150px;border-radius:0}
+  .gc .map .km{position:absolute;right:6px;bottom:6px;padding:2px 8px;border-radius:999px;background:rgba(61,43,31,.75);color:#fff;font:800 11px 'Nunito',sans-serif}
+  .gc .b{padding:8px}
+  .gc .who img{width:22px;height:22px}.gc .who b{font-size:12.5px}
+  .gc .route{margin:4px 0;font-size:11px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+  .gc .acts{gap:10px;font-size:11px}.gc .acts svg{width:14px;height:14px}
+  .feat{margin:0 12px 12px;border-radius:16px;overflow:hidden;position:relative}
+  .feat .map{height:180px;border-radius:0}
+  .feat .cap{position:absolute;left:0;right:0;bottom:0;padding:30px 12px 10px;background:linear-gradient(transparent,rgba(30,22,15,.8));color:#fff}
+  .feat .cap b{font-size:15px}.feat .cap small{display:block;font-size:11.5px;opacity:.9}
+  .feat .badge{position:absolute;left:10px;top:10px;padding:3px 10px;border-radius:999px;background:var(--gold);color:var(--ink);font-size:11.5px;font-weight:900}
+
+  /* S 日記本 */
+  .scard{margin:0 14px 18px;background:#fff;padding:10px 10px 12px;border-radius:6px;box-shadow:0 4px 12px rgba(61,43,31,.15);transform:rotate(-1deg)}
+  .scard:nth-child(even){transform:rotate(1deg)}
+  .scard .tape{position:absolute;left:50%;top:-10px;width:70px;height:20px;margin-left:-35px;background:rgba(226,180,78,.55);transform:rotate(-3deg)}
+  .scard{position:relative}
+  .scard .map{height:200px;border-radius:3px}
+  .scard .meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+  .scard .hand{font-size:14px;font-weight:900;margin:8px 2px 0;line-height:1.5}
+  .note{margin-top:16px;padding:12px 14px;border-radius:12px;background:#3A3530;color:#E6DFD0;font-size:12.5px;line-height:1.7;max-width:1640px}
+  .note b{color:var(--gold)}
+</style>
+<style>
+  .idcard{margin:0 14px 12px;padding:12px;border-radius:16px;background:var(--paper);border:2px solid var(--green);display:flex;align-items:center;gap:10px}
+  .idcard img{width:44px;height:44px;border-radius:50%;border:2px solid #E2DACA;background:#FBF4E4}
+  .idcard b{font-size:15px}.idcard small{display:block;font:800 13px 'Nunito',sans-serif;color:var(--green-d);letter-spacing:.04em}
+  .idcard .cp{margin-left:auto;padding:6px 12px;border-radius:10px;background:var(--green);color:#fff;font-size:12.5px;font-weight:900}
+  .search{margin:0 14px 12px;display:flex;gap:8px}
+  .search .in{flex:1;height:42px;border-radius:12px;background:#fff;border:1.5px solid #D9DDCF;display:flex;align-items:center;gap:8px;padding:0 12px;font-size:13px;color:#A99C8E}
+  .search .in svg{width:18px;height:18px;fill:none;stroke:#A99C8E;stroke-width:2}
+  .search .go{padding:0 14px;border-radius:12px;background:var(--green);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:900}
+  .sec2{display:flex;align-items:center;gap:8px;margin:6px 16px 8px;font-size:13px;font-weight:900;color:var(--ink2)}
+  .sec2::after{content:'';flex:1;border-top:1.5px dashed #D5CFBE}
+  .fr{display:flex;align-items:center;gap:10px;margin:0 14px 8px;padding:10px;border-radius:14px;background:var(--paper);border:1.5px solid #E6DFCC}
+  .fr img{width:42px;height:42px;border-radius:50%;border:2px solid #E2DACA;background:#FBF4E4}
+  .fr b{font-size:14.5px}.fr small{display:block;font-size:11.5px;color:var(--ink2)}
+  .fr .on{display:inline-block;width:8px;height:8px;border-radius:50%;background:#6DAA5C;margin-right:4px}
+  .fr .km{margin-left:auto;text-align:right;font:900 15px 'Nunito',sans-serif;color:var(--green-d)}
+  .fr .km small{font:700 10.5px CPKai,serif}
+  .tabs2{position:sticky;top:0;z-index:4;display:flex;gap:18px;padding:52px 16px 10px;background:var(--cream);align-items:center}
+  .tabs2 a{font-size:17px;font-weight:900;color:#B9AE9E;padding-bottom:4px;border-bottom:3px solid transparent}
+  .tabs2 a.on{color:var(--ink);border-color:var(--or)}
+  .tabs2 .addb{margin-left:auto;display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:999px;background:var(--green);color:#fff;font-size:13px;font-weight:900}
+  .shade2{position:absolute;inset:0;z-index:7;background:rgba(40,30,20,.35)}
+  .sheet2{position:absolute;left:0;right:0;bottom:0;z-index:8;background:var(--paper);border-radius:22px 22px 0 0;padding:10px 16px 28px}
+  .sheet2 .grab{width:40px;height:4px;border-radius:2px;background:#D5D9CC;margin:0 auto 12px}
+  .sheet2 h3{font-size:17px;font-weight:900;margin-bottom:12px}
+  .myid{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:12px;background:#EEF1E7;margin-bottom:12px}
+  .myid small{font-size:11.5px;color:var(--ink2)}.myid b{display:block;font:900 18px 'Nunito',sans-serif;color:var(--green-d);letter-spacing:.05em}
+  .myid .cp{padding:6px 12px;border-radius:10px;background:var(--green);color:#fff;font-size:12.5px;font-weight:900}
+  .found{display:flex;align-items:center;gap:10px;margin-top:12px;padding:12px;border-radius:14px;border:2px dashed var(--green-l)}
+  .found img{width:46px;height:46px;border-radius:50%;background:#FBF4E4}
+  .found b{font-size:15px}.found small{display:block;font-size:11.5px;color:var(--ink2)}
+  .found .add{margin-left:auto;padding:8px 14px;border-radius:10px;background:var(--or);color:#fff;font-size:13px;font-weight:900}
+  .req{display:flex;align-items:center;gap:8px;margin:0 14px 12px;padding:10px 12px;border-radius:14px;background:#FFF4D8;border:1.5px solid #EBCB7E;font-size:12.5px;font-weight:800;color:#7A5A20}
+  .req img{width:28px;height:28px;border-radius:50%}
+  .req .y{margin-left:auto;padding:5px 10px;border-radius:8px;background:var(--green);color:#fff}
+  .req .n{padding:5px 10px;border-radius:8px;background:#E6E2D3;color:var(--ink2)}
+  .st.add i{background:#E6E2D3}
+</style></head>
+<body><h1>好友・草稿（拿掉「世界」，用編號加好友）</h1>
+<p class="lead">每個人都有自己的<b>編號</b>（個人中心裡的 Lucky_123123）。這頁變成<b>「好友」</b>：分享我的編號、輸入別人的編號加好友、看好友列表和好友走過的路線。三種排法：</p>
+<div class="row" id="rows"></div>
+<div class="note"><b>三種都有</b>：我的編號（可複製分享）、輸入編號搜尋→看到對方資料卡→加好友、好友請求（接受／略過）、好友列表顯示今天有沒有出去走。</div>
+<script>const U={gentleman:['紳士雞','../assets/social/parts/avatar-gentleman.png'],bear:['大衣熊','../assets/emoji/smug.png'],dream:['甜夢','../assets/emoji/yawn.png'],duck:['小黃鴨','../assets/emoji/love.png'],sam:['Sam仔','../assets/emoji/thumbs-up.png'],mei:['阿美','../assets/emoji/hungry.png']};
+
+const I={like:'<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9.6A4 4 0 0 1 12 7.6a4 4 0 0 1 7 2.8C19 15.6 12 20 12 20z"/></svg>',cmt:'<svg viewBox="0 0 24 24"><path d="M4 11.5C4 7.4 7.6 5 12 5s8 2.4 8 6.5S16.4 18 12 18c-1.1 0-2.1-.1-3-.4L5 19l1-3.2C4.7 14.7 4 13.2 4 11.5z"/></svg>',
+ star:'<svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg>',share:'<svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+ bell:'<svg viewBox="0 0 24 24"><path d="M12 4c-3.2 0-5 2.4-5 5.6v3.6L5 17h14l-2-3.8V9.6C17 6.4 15.2 4 12 4zM10 19.5a2.2 2.2 0 0 0 4 0"/></svg>',plus:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
+ search:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>'};
+const U0={gentleman:['紳士雞','../assets/social/parts/avatar-gentleman.png'],bear:['大衣熊','../assets/emoji/smug.png'],dream:['甜夢','../assets/emoji/yawn.png'],mei:['阿美','../assets/emoji/hungry.png'],kit:['Kit','../assets/emoji/spotlight.png'],duck:['小黃鴨','../assets/emoji/love.png'],sam:['Sam仔','../assets/emoji/thumbs-up.png']};
+const F={pine:['菠蘿油','food-pineapple-bun',1],roll:['腸粉','food-rice-roll',1],beef:['牛肉治','food-beef-sandwich',0],toast:['奶油多','food-butter-toast',0]};
+const POSTS=[{u:'gentleman',t:'16小時前',d:'2026.06.05',km:'5.6',n:10,f:['pine','roll'],like:10,cmt:8,star:2,route:'上環・西港城・理工大學',cap:'今天跟 Lucky 走了一圈，菠蘿油真的要趁熱吃！',liked:1},
+ {u:'bear',t:'1天前',d:'2026.06.04',km:'10.1',n:10,f:['pine','beef','toast','roll'],like:23,cmt:5,star:6,route:'海安咖啡・西港城・紅磡',cap:'一口氣收了四張美食圖鑑 💪'},
+ {u:'dream',t:'2天前',d:'2026.06.03',km:'3.2',n:6,f:['toast'],like:7,cmt:2,star:1,route:'中環街市・海安咖啡',cap:'下雨天也要出來走走'}];
+const who=(p,extra='')=>`<div class="who"><img src="${U[p.u][1]}"><div><b>${U[p.u][0]}</b><small>${p.t}${extra}</small></div></div>`;
+const acts=p=>`<div class="acts"><span class="${p.liked?'on':''}">${I.like}${p.like}</span><span>${I.cmt}${p.cmt}</span><span>${I.star}${p.star}</span><span>${I.share}</span></div>`;
+const foods=p=>`<div class="foods">${p.f.map(k=>`<span class="fchip${F[k][2]?' n':''}"><img src="../assets/social/parts/${F[k][1]}.png">${F[k][0]}</span>`).join('')}</div>`;
+const stat=p=>'';   // 路線圖本身已經印了日期／公里／貓點
+const topBar=(left)=>`<div class="top">${left}<div class="ics"><span class="ic dot">${I.bell}</span><span class="ic">${I.plus}</span></div></div>`;
+const FR=[['gentleman',1,'今天走了 3 個貓點','5.6'],['bear',1,'正在探索・西港城','10.1'],['dream',0,'2 天前','3.2'],['duck',0,'5 天前','0'],['sam',1,'今天走了 1 個貓點','1.4']];
+const me='<img src="../assets/emoji/hungry.png">';
+const idcard=`<div class="idcard">${me}<div><b>八方来財</b><small>我的編號 Lucky_123123</small></div><span class="cp">複製分享</span></div>`;
+const frRow=([k,on,s,km])=>`<div class="fr"><img src="${U[k][1]}"><div><b>${U[k][0]}</b><small>${on?'<i class="on"></i>':''}${s}</small></div><div class="km">${km}<small> km</small></div></div>`;
+const search='<div class="search"><div class="in">'+I.search+'輸入好友編號，例如 Lucky_456789</div><span class="go">搜尋</span></div>';
+const req='<div class="req"><img src="../assets/emoji/spotlight.png">Kit 想加你為好友<span class="y">接受</span><span class="n">略過</span></div>';
+const pbar=(right)=>`<div class="top"><div class="tabs"><a class="on" style="font-size:20px">好友</a></div><div class="ics">${right}</div></div>`;
+const drafts=[
+ ['草稿 T・一頁搞定','編號、加好友、好友列表都在同一頁','最上面是「我的編號」可以複製分享；下面直接一個搜尋框輸入對方編號；再下面好友請求、好友列表（今天有沒有出去走、走了幾公里），最後是好友動態。最直接。',
+  pbar('<span class="ic dot">'+I.bell+'</span>')+idcard+search+req+'<div class="sec2">我的好友・5</div>'+FR.map(frRow).join('')+'<div class="sec2">好友動態</div>'+POSTS.slice(0,1).map(p=>`<div class="pcard">${who(p)}<div class="map" style="height:200px;margin:10px 0"></div>${foods(p)}<div class="bot" style="display:flex;justify-content:space-between;margin-top:10px"><span class="route">📍 ${p.route}</span>${acts(p)}</div></div>`).join('')],
+ ['草稿 U・動態｜好友 兩個分頁','平時看動態，加好友收在分頁裡','兩個分頁「動態」「好友」。動態就是好友走過的路線卡；切到「好友」看列表和好友請求。右上角「＋ 加好友」打開底部抽屜：上面顯示我的編號，下面輸入對方編號，搜到後一按就加。',
+  '<div class="tabs2"><a>動態</a><a class="on">好友 5</a><span class="addb">＋ 加好友</span></div>'+req+FR.map(frRow).join(''),
+  '<div class="shade2"></div><div class="sheet2"><div class="grab"></div><h3>加好友</h3><div class="myid"><div><small>我的編號</small><b>Lucky_123123</b></div><span class="cp">複製分享</span></div>'+search.replace('class="search"','class="search" style="margin:0"')+'<div class="found"><img src="../assets/emoji/love.png"><div><b>小黃鴨</b><small>Lucky_456789・已收集 12 個貓點</small></div><span class="add">加好友</span></div></div>'],
+ ['草稿 V・動態為主，好友在上排','像社交 App：頭像一排，第一個是「＋」','主畫面是好友動態；上面一排好友頭像（今天有出去走的有彩色圈），第一個是「＋ 加好友」，點了一樣跳出輸入編號的抽屜。「全部」看完整好友列表。最輕量。',
+  pbar('<span class="ic dot">'+I.bell+'</span>')+`<div class="stories"><div class="st add"><i>＋</i>加好友</div>${FR.map(([k,on])=>`<div class="st${on?'':' seen'}"><i><img src="${U[k][1]}"></i>${U[k][0]}</div>`).join('')}<div class="st"><i style="background:#E6E2D3;display:grid;place-items:center;font-style:normal;font-size:12px;color:#7A6A5A">全部</i>5 位</div></div>`+req+POSTS.map(p=>`<div class="qcard">${who(p,'・'+p.km+'km・'+p.n+' 個貓點')}<div class="map"></div>${acts(p)}<div class="cap"><b>${U[p.u][0]}</b> ${p.cap}</div>${foods(p)}</div>`).join('')]
+];
+document.getElementById('rows').innerHTML=drafts.map(([t,h,d,inner,over])=>`<div class="draft"><span class="tag">${t}</span><h2>${h}</h2><p class="d">${d}</p><div class="phone"><div class="scroll">${inner}</div><div class="nav"></div>${over||''}</div></div>`).join('');
+</script></body></html>

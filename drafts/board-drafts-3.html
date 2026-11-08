@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>留言板草稿 3</title>
+<style>
+  @font-face{font-family:CPKai;src:url('../assets/fonts/cp-kai-w7-subset.woff2') format('woff2');font-weight:100 700;}
+  @font-face{font-family:CPKai;src:url('../assets/fonts/cp-kai-w9-subset.woff2?v=2') format('woff2');font-weight:800 900;}
+  @font-face{font-family:CPKaiFull;src:url('../assets/fonts/df-yankai-simp-trad-w7.ttf') format('truetype');font-weight:100 700;}
+  @font-face{font-family:CPKaiFull;src:url('../assets/fonts/df-yankai-simp-trad-w9.ttf') format('truetype');font-weight:800 900;}
+  :root{--green:#4E6B4A;--green-d:#3F5A3C;--green-l:#A9BBA4;--cream:#FBF9EF;--paper:#FFFDF6;--ink:#3D2B1F;--ink2:#7A6A5A;--gold:#E2B44E;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#2E2A26;color:#F3EEE2;font-family:CPKai,CPKaiFull,'Kaiti TC','STKaiti',serif;padding:28px 24px 60px}
+  h1{font-size:24px;font-weight:900;letter-spacing:.06em}
+  .lead{margin:8px 0 26px;color:#CFC6B5;font-size:14px;line-height:1.7;max-width:1000px}
+  .lead b{color:var(--gold)}
+  .row{display:flex;gap:34px;flex-wrap:wrap;align-items:flex-start}
+  .draft{width:375px}
+  .tag{display:inline-block;padding:3px 12px;border-radius:999px;background:var(--gold);color:var(--ink);font-weight:900;font-size:14px;margin-bottom:8px}
+  .draft h2{font-size:18px;font-weight:900;margin-bottom:4px}
+  .draft p.d{font-size:13px;color:#CFC6B5;line-height:1.65;margin-bottom:12px;min-height:86px}
+  .try{color:var(--gold);font-weight:900}
+
+  .phone{position:relative;width:375px;height:780px;border-radius:40px;overflow:hidden;background:var(--cream);color:var(--ink);box-shadow:0 16px 40px rgba(0,0,0,.45)}
+  .scroll{position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding-bottom:110px;scroll-behavior:smooth}
+  .scroll::-webkit-scrollbar{display:none}
+  .head{height:112px;background:url(board/head.jpg) top/cover}
+  .sheet{position:relative;margin-top:-18px;background:var(--cream);border-radius:22px 22px 0 0;padding:16px 16px 0}
+  .lucky{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .lucky .bub{flex:1;position:relative;padding:10px 12px;border:2.5px solid var(--green);border-radius:14px;background:var(--paper);font-size:13px;font-weight:800}
+  .lucky .bub b{color:#C0573E;font-size:16px;margin:0 2px}
+  .lucky img{width:58px;border-radius:12px}
+
+  .sec{display:flex;align-items:center;gap:8px;margin:14px 0 8px;font-size:13px;font-weight:900;color:var(--ink2)}
+  .sec::after{content:'';flex:1;border-top:1.5px dashed #C9CFC0}
+  .card{position:relative;display:flex;gap:10px;padding:10px;margin-bottom:10px;background:var(--paper);border:1.5px solid #D9DDCF;border-radius:14px;transition:box-shadow .3s,border-color .3s}
+  .card .ph{width:84px;height:84px;flex-shrink:0;border-radius:8px;background:center/cover;border:3px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+  .card .bd{flex:1;min-width:0}
+  .who{display:flex;align-items:center;gap:6px}
+  .who img{width:24px;height:24px;border-radius:50%;border:2px solid #D7DCCD}
+  .who b{font-size:14px;font-weight:900}
+  .who time{margin-left:auto;font-size:11px;color:var(--ink2);font-family:'Songti TC',serif}
+  .card p{margin-top:5px;font-size:12.5px;line-height:1.55;color:#5E4D42;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .card.me{border:2px solid var(--green);background:#F6F9F1}
+  .me-b{padding:1px 7px;border-radius:999px;background:var(--green);color:#fff;font-size:10px;font-weight:900}
+  .card.flash{animation:flash 1.6s ease-out}
+  @keyframes flash{0%,40%{box-shadow:0 0 0 4px rgba(226,180,78,.85)}100%{box-shadow:0 0 0 0 rgba(226,180,78,0)}}
+  .dock{position:absolute;left:0;right:0;bottom:0;padding:14px 18px 26px;background:linear-gradient(rgba(251,249,239,0),var(--cream) 30%);z-index:5}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;height:46px;border-radius:14px;background:var(--green);color:#FFFDF2;font-size:17px;font-weight:900;letter-spacing:.12em;
+    box-shadow:inset 0 0 0 3px var(--green),inset 0 0 0 4.5px rgba(255,253,242,.55),0 4px 10px rgba(61,43,31,.2);cursor:pointer}
+
+  /* D：頂部「我的足跡」膠囊 + 上下跳 */
+  .fp-pill{position:absolute;z-index:6;top:122px;right:16px;display:flex;align-items:center;gap:6px;padding:6px 6px 6px 12px;border-radius:999px;background:var(--paper);border:2px solid var(--green);
+    font-size:13px;font-weight:900;color:var(--green-d);box-shadow:0 3px 8px rgba(61,43,31,.18);cursor:pointer}
+  .fp-pill img{width:22px;height:22px;border-radius:50%}
+  .fp-pill .n{padding:0 8px;border-radius:999px;background:var(--green);color:#fff;font-size:12px}
+  .fp-nav{position:absolute;z-index:6;top:122px;right:16px;display:none;align-items:center;gap:4px;padding:4px;border-radius:999px;background:var(--green);color:#fff;font-size:13px;font-weight:900;box-shadow:0 3px 8px rgba(61,43,31,.25)}
+  .fp-nav span{padding:0 8px}
+  .fp-nav a{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.18);display:grid;place-items:center;cursor:pointer}
+  .on-fp .fp-pill{display:none}.on-fp .fp-nav{display:flex}
+  .on-fp .card:not(.me){opacity:.45}
+
+  /* E：時間軸上的腳印 + 右側捲軸標記 */
+  .rail{position:absolute;z-index:6;right:5px;top:150px;bottom:110px;width:10px;border-radius:5px;background:rgba(78,107,74,.12)}
+  .rail i{position:absolute;left:-5px;width:20px;height:20px;margin-top:-10px;border-radius:50%;border:2px solid #fff;background:center/cover;box-shadow:0 2px 4px rgba(0,0,0,.25);cursor:pointer}
+  .rail .thumb{position:absolute;left:2px;width:6px;border-radius:3px;background:rgba(78,107,74,.45)}
+  .railtip{position:absolute;z-index:6;right:28px;top:118px;padding:4px 10px;border-radius:10px;background:var(--green);color:#fff;font-size:11.5px;font-weight:900}
+  .railtip::after{content:'';position:absolute;right:-5px;top:50%;width:8px;height:8px;margin-top:-4px;background:var(--green);transform:rotate(45deg)}
+
+  /* F：底部抽屜列出我的足跡 */
+  .fp-entry{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:6px;border-radius:14px;background:#EEF1E7;cursor:pointer}
+  .fp-entry .stack{display:flex}
+  .fp-entry .stack i{width:34px;height:34px;border-radius:8px;border:2px solid #fff;background:center/cover;margin-left:-10px;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .fp-entry .stack i:first-child{margin-left:0}
+  .fp-entry b{font-size:14px;font-weight:900;color:var(--green-d)}
+  .fp-entry small{display:block;font-size:11px;color:var(--ink2)}
+  .fp-entry em{margin-left:auto;font-style:normal;color:var(--green-d);font-weight:900}
+  .shade{position:absolute;inset:0;z-index:7;background:rgba(40,30,20,.35);opacity:0;pointer-events:none;transition:opacity .25s}
+  .bsheet{position:absolute;left:0;right:0;bottom:0;z-index:8;background:var(--paper);border-radius:22px 22px 0 0;padding:10px 16px 26px;transform:translateY(105%);transition:transform .32s cubic-bezier(.3,.9,.3,1)}
+  .bsheet .grab{width:40px;height:4px;border-radius:2px;background:#D5D9CC;margin:0 auto 10px}
+  .bsheet h3{font-size:16px;font-weight:900;margin-bottom:10px}
+  .bsheet h3 small{font-size:12px;color:var(--ink2);margin-left:6px}
+  .visit{display:flex;gap:10px;align-items:center;padding:8px;border-radius:12px;border:1.5px solid #E1E4D8;margin-bottom:8px;cursor:pointer}
+  .visit i{width:52px;height:52px;border-radius:8px;background:center/cover;flex-shrink:0}
+  .visit b{font-size:13px;font-weight:900}
+  .visit p{font-size:12px;color:#5E4D42;line-height:1.45;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+  .visit em{margin-left:auto;font-style:normal;font-size:12px;color:var(--green-d);font-weight:900;white-space:nowrap}
+  .open-sheet .shade{opacity:1;pointer-events:auto}.open-sheet .bsheet{transform:none}
+
+  /* G：日期篩選列，我去過的日期有我的頭像 */
+  .dates{position:sticky;top:0;z-index:4;display:flex;gap:8px;overflow-x:auto;margin:0 -16px 6px;padding:8px 16px;background:var(--cream);scrollbar-width:none}
+  .dates::-webkit-scrollbar{display:none}
+  .dchip{flex:0 0 auto;position:relative;padding:7px 12px;border-radius:12px;background:#EEF1E7;font-size:12.5px;font-weight:900;color:var(--ink2);cursor:pointer}
+  .dchip.on{background:var(--green);color:#fff}
+  .dchip.mine::after{content:'';position:absolute;right:-5px;top:-6px;width:18px;height:18px;border-radius:50%;border:2px solid var(--cream);background:url(board/a0.jpg) center/cover}
+  .legend{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink2);margin:-2px 0 6px}
+  .legend i{width:14px;height:14px;border-radius:50%;background:url(board/a0.jpg) center/cover}
+
+  .note{margin-top:16px;padding:12px 14px;border-radius:12px;background:#3A3530;color:#E6DFD0;font-size:12.5px;line-height:1.7;max-width:1640px}
+  .note b{color:var(--gold)}
+</style>
+<style>
+  /* H：Lucky 帶路 */
+  .lk-fab{position:absolute;z-index:6;right:14px;bottom:96px;display:flex;align-items:flex-end;gap:4px;cursor:pointer}
+  .lk-fab .say{padding:6px 10px;border-radius:12px 12px 2px 12px;background:var(--paper);border:2px solid var(--green);font-size:12px;font-weight:900;color:var(--green-d);box-shadow:0 3px 8px rgba(61,43,31,.18)}
+  .lk-fab img{width:58px;height:auto;filter:drop-shadow(0 3px 4px rgba(61,43,31,.3));animation:bob 1.8s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateY(-4px)}}
+  .lk-run{position:absolute;z-index:6;width:46px;pointer-events:none;transition:top .6s cubic-bezier(.3,.8,.3,1),left .6s;display:none}
+  .lk-run.on{display:block}
+  /* I：全部／我的 切換＋回到原位 */
+  .seg{position:sticky;top:0;z-index:4;display:flex;margin:0 -16px 6px;padding:8px 16px;background:var(--cream)}
+  .seg .in{display:flex;flex:1;padding:4px;border-radius:999px;background:#E6EADF}
+  .seg a{flex:1;text-align:center;padding:7px 0;border-radius:999px;font-size:13.5px;font-weight:900;color:var(--ink2);cursor:pointer}
+  .seg a.on{background:var(--green);color:#fff}
+  .only-me .card:not(.me),.only-me .sec.nomine{display:none}
+  .only-me .card.me::after{content:'在時間軸中查看 ›';position:absolute;right:10px;bottom:8px;font-size:11px;font-weight:900;color:var(--green-d)}
+  /* J：Lucky 那句話裡直接帶出 */
+  .lucky .bub .jl{display:block;margin-top:5px;padding-top:5px;border-top:1.5px dashed #CBD3C4;color:var(--green-d);cursor:pointer}
+  .lucky .bub .jl img{width:16px;height:16px;border-radius:50%;vertical-align:-3px;margin-right:4px}
+  /* K：底部常駐縮圖列 */
+  .kdock{position:absolute;left:0;right:0;bottom:0;z-index:5;padding:8px 16px 24px;background:var(--cream);box-shadow:0 -6px 14px rgba(61,43,31,.08);border-radius:18px 18px 0 0}
+  .kdock .row2{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .kdock .lb{font-size:12px;font-weight:900;color:var(--ink2);white-space:nowrap}
+  .kdock .th{width:40px;height:40px;border-radius:9px;background:center/cover;border:2.5px solid var(--green);cursor:pointer;position:relative}
+  .kdock .th span{position:absolute;left:50%;bottom:-7px;translate:-50% 0;padding:0 4px;border-radius:5px;background:var(--green);color:#fff;font-size:9px;font-weight:900;white-space:nowrap}
+  .kdock .btn{flex:1;height:42px;font-size:15px}
+</style></head>
+<body>
+  <h1>留言板草稿・第三輪</h1>
+  <p class="lead">同樣是「只看自己在這裡的足跡＋一點就定位」，再換四種做法。<span class="try">都可以點點看。</span></p>
+  <div class="row">
+    <div class="draft"><span class="tag">草稿 H・Lucky 帶路</span><h2>右下角的 Lucky：「找你的足跡？」</h2>
+      <p class="d">右下角站著 Lucky。點牠，牠會跑到你的留言旁邊停下，時間軸捲過去、那則閃一下；再點一次跑到下一則。最有角色感、最好玩。<br><span class="try">→ 點右下角的 Lucky（點兩次）</span></p>
+      <div class="phone" id="H"><div class="scroll"></div><img class="lk-run" src="../assets/wardrobe/Lucky.png" alt="">
+        <div class="lk-fab"><span class="say">找你的足跡？</span><img src="../assets/wardrobe/Lucky.png" alt=""></div>
+        <div class="dock"><div class="btn">📸 打卡合拍</div></div></div></div>
+    <div class="draft"><span class="tag">草稿 I・全部｜我的＋回到原位</span><h2>切到「我的」只剩自己，點一則回到時間軸原位</h2>
+      <p class="d">頂部兩段切換。「我的」只列出你在這裡的留言；點其中一則，自動切回「全部」並捲到它在時間軸上的位置（前後是誰留的、那天還有誰都看得到）。<br><span class="try">→ 點「我的 2」再點一則</span></p>
+      <div class="phone" id="I"><div class="scroll"></div><div class="dock"><div class="btn">📸 打卡合拍</div></div></div></div>
+    <div class="draft"><span class="tag">草稿 J・寫進 Lucky 那句話</span><h2>不加按鈕，Lucky 直接告訴你</h2>
+      <p class="d">Lucky 的對話框多一行：「你自己也來過 2 次，上次是 03.02 👉」。點那行就跳到你的留言，再點跳下一則。版面完全不變，最省空間。<br><span class="try">→ 點對話框裡那一行</span></p>
+      <div class="phone" id="J"><div class="scroll"></div><div class="dock"><div class="btn">📸 打卡合拍</div></div></div></div>
+    <div class="draft"><span class="tag">草稿 K・底部常駐縮圖</span><h2>「打卡合拍」旁邊就是你的足跡</h2>
+      <p class="d">底部一列：你每次來的小縮圖（下面寫日期）＋「打卡合拍」。點縮圖就定位到那則。「看自己留過什麼」和「再留一張」放在一起，邏輯最順。<br><span class="try">→ 點底部的縮圖</span></p>
+      <div class="phone" id="K"><div class="scroll"></div>
+        <div class="kdock"><div class="row2"><span class="lb">我的足跡</span><i class="th" data-go="0" style="background-image:url(board/p0.jpg)"><span>今天</span></i><i class="th" data-go="1" style="background-image:url(board/p3.jpg)"><span>03.02</span></i><div class="btn">📸 打卡合拍</div></div></div></div></div>
+  </div>
+  <div class="note"><b>可以混搭</b>：例如 J 的對話框提示＋K 的底部縮圖；或 H 的 Lucky 帶路放在任何一種上面當彩蛋。</div>
+<script>
+const P=['p0','p1','p2','p3','p4','p5'];
+const OTHERS=[['大灰熊','a1','又來到我的夢校了，好好看，好有設計感的樓啊。雖然申請了兩年都沒申請上…'],['陸源源','a2','想起過去和組員一起熬夜通宵的日子。好懷念啊~'],
+ ['鱈魚','a3','哇——理工大的紅磚樓也太好拍了吧！這樓梯、這光影，隨手一張都是雜誌封面。'],['力力','a4','期末週在圖書館爆肝，抬頭看見設計感十足的天花板，突然覺得還能再肝三小時。'],
+ ['Sky','a5','終於忙完今天的工作了！學生的論文太難讀了！'],['小黃鴨','a2','路過買了一個菠蘿油，坐在草地上吃，好幸福。']];
+const MINE=[{d:'今天',t:'Hi！這裡是24歲的紳士雞，獨自一人漫步在香港理工大學，享受一個人的午後。',p:'p0'},{d:'03.02',t:'第一次來，紅磚樓好有味道，Lucky 說牠以前在這裡等菠蘿油 😂',p:'p3'}];
+const DAYS=[['今天',[ 'me0',0 ]],['11.02',[1,2]],['09.18',[3,4]],['07.05',[5,0]],['05.11',[1,2,3]],['03.02',['me1',4]],['01.20',[5,1]]];
+function build(id,opt={}){
+  const ph=document.getElementById(id), sc=ph.querySelector('.scroll');
+  let h='<div class="head"></div><div class="sheet">';
+  h+='<div class="lucky"><div class="bub">你是第<b>20</b>個發現本喵在這裡記憶的人類！</div><img src="board/cat.jpg" alt=""></div>';
+  if(opt.entry) h+=`<div class="fp-entry"><span class="stack"><i style="background-image:url(board/p0.jpg)"></i><i style="background-image:url(board/p3.jpg)"></i></span><div><b>你來過這裡 2 次</b><small>上次：今天・第一次：2026.03.02</small></div><em>›</em></div>`;
+  if(opt.dates){ h+='<div class="dates">'+DAYS.map(([d,l])=>`<span class="dchip${l.some(x=>typeof x==='string')?' mine':''}" data-day="${d}">${d}</span>`).join('')+'</div><div class="legend"><i></i>有頭像＝你那天來過</div>'; }
+  DAYS.forEach(([d,list])=>{
+    h+=`<div class="sec" data-day="${d}">${d==='今天'?'今天':d.replace('.',' 月 ')+' 日'}</div>`;
+    list.forEach(x=>{
+      if(typeof x==='string'){ const m=MINE[+x.slice(2)];
+        h+=`<div class="card me" data-me="${x.slice(2)}"><div class="ph" style="background-image:url(board/${m.p}.jpg)"></div><div class="bd"><div class="who"><img src="board/a0.jpg"><b>紳士雞</b><span class="me-b">我</span><time>${m.d}</time></div><p>${m.t}</p></div></div>`;
+      } else { const o=OTHERS[x];
+        h+=`<div class="card"><div class="ph" style="background-image:url(board/${P[(x+1)%6]}.jpg)"></div><div class="bd"><div class="who"><img src="board/${o[1]}.jpg"><b>${o[0]}</b><time>${d}</time></div><p>${o[2]}</p></div></div>`; }
+    });
+  });
+  sc.innerHTML=h+'</div>';
+  return {ph,sc};
+}
+function goTo(sc,el,off=150){ sc.scrollTop=el.offsetTop-off+ (el.closest('.sheet')?el.closest('.sheet').offsetTop:0); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+
+// H
+(()=>{ const {ph,sc}=build('H'); const run=ph.querySelector('.lk-run'); let i=-1;
+  ph.querySelector('.lk-fab').onclick=()=>{ const m=[...sc.querySelectorAll('.card.me')]; i=(i+1)%m.length; goTo(sc,m[i]);
+    setTimeout(()=>{ const r=m[i].getBoundingClientRect(), pr=ph.getBoundingClientRect(); run.classList.add('on'); run.style.left=(r.right-pr.left-40)+'px'; run.style.top=(r.top-pr.top-34)+'px'; },420);
+    ph.querySelector('.say').textContent=i===m.length-1?'這是你第一次來的時候！':'再點，看你上一次 ›'; };
+})();
+// I
+(()=>{ const {ph,sc}=build('I'); const sh=sc.querySelector('.sheet');
+  sh.querySelector('.lucky').insertAdjacentHTML('afterend','<div class="seg"><div class="in"><a class="on" data-v="all">全部 20</a><a data-v="me">我的 2</a></div></div>');
+  sc.querySelectorAll('.sec').forEach(s=>{ let n=s.nextElementSibling, has=false; while(n&&!n.classList.contains('sec')){ if(n.classList.contains('me')) has=true; n=n.nextElementSibling; } if(!has) s.classList.add('nomine'); });
+  const set=v=>{ sh.classList.toggle('only-me',v==='me'); sh.querySelectorAll('.seg a').forEach(a=>a.classList.toggle('on',a.dataset.v===v)); };
+  sh.querySelectorAll('.seg a').forEach(a=>a.onclick=()=>{ set(a.dataset.v); sc.scrollTop=0; });
+  sc.querySelectorAll('.card.me').forEach(c=>c.onclick=()=>{ if(!sh.classList.contains('only-me')) return; set('all'); requestAnimationFrame(()=>goTo(sc,c,190)); });
+})();
+// J
+(()=>{ const {ph,sc}=build('J'); let i=-1;
+  sc.querySelector('.lucky .bub').insertAdjacentHTML('beforeend','<span class="jl"><img src="board/a0.jpg">你自己也來過 <b>2</b> 次，上次是 03.02 👉</span>');
+  sc.querySelector('.jl').onclick=()=>{ const m=[...sc.querySelectorAll('.card.me')]; i=(i+1)%m.length; goTo(sc,m[i]); };
+})();
+// K
+(()=>{ const {ph,sc}=build('K'); ph.querySelectorAll('.th').forEach(t=>t.onclick=()=>goTo(sc,sc.querySelector(`.card.me[data-me="${t.dataset.go}"]`))); })();
+</script></body></html>
