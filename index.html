@@ -1248,7 +1248,7 @@
     filter:drop-shadow(0 10px 14px rgba(61,43,31,.22));opacity:0;}
   #intro-lucky.show .il-cat{animation:ilCatIn .8s .2s cubic-bezier(.3,1.5,.5,1) both;}
   /* 動畫原圖顏色偏深偏飽和，調淡成和其他 Lucky 貼紙一樣的奶油色調 */
-  #intro-lucky .il-cat-anim{width:74%;max-width:320px;filter:saturate(.78) brightness(1.04) contrast(.94) drop-shadow(0 6px 10px rgba(61,43,31,.18));}
+  #intro-lucky .il-cat-anim{width:74%;max-width:320px;filter:saturate(.78) brightness(1.04) contrast(.94);}
   #intro-lucky .il-cat.hop{animation:ilHop .7s cubic-bezier(.3,1.6,.5,1);opacity:1;}
   /* 對話框用手繪框圖（lucky-bubble.png，464×186，角 44px）九宮格拉伸；尖角另外一張圖接在底邊中間。
      邊框佔 24px，所以框裡的小元件（名牌、頁碼點、▼）位置都減掉 24px，看起來和原本一樣 */
@@ -1281,9 +1281,22 @@
   @keyframes ilGo{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
   @keyframes ilOut{to{opacity:0;transform:scale(1.06)}}
   @media (prefers-reduced-motion: reduce){ #intro-lucky *{animation:none !important;opacity:1;} }
-  #welcome-cat{position:absolute;left:12px;right:12px;bottom:150px;z-index:960;display:none;align-items:center;gap:6px;cursor:pointer;}
+  #welcome-cat{position:absolute;left:0;right:12px;bottom:200px;z-index:960;display:none;align-items:center;gap:0;cursor:pointer;}
   #welcome-cat.show{display:flex;}
-  #welcome-cat img{width:34%;flex-shrink:0;filter:drop-shadow(0 4px 8px rgba(61,43,31,.25));animation:wcCat .7s cubic-bezier(.3,1.5,.5,1) both,wcBob 2.4s ease-in-out .7s infinite;}
+  /* 對話框不要撐滿：跟著字長，最寬 230px，讓小貓有空間 */
+  /* 對話框大小照舊，整個靠右放，左邊留空間給小貓 */
+  /* 用設計稿的對話框（尾巴在左邊、裡面一圈虛線）；寬度固定，字多時往下長 */
+  #welcome-cat .wc-bubble{flex:0 0 auto;width:262px;margin-left:-4px;align-self:flex-start;box-sizing:border-box;min-height:93px;border:none !important;border-image:none !important;
+    padding:18px 22px 18px 46px;background:url('assets/onboarding/lucky-bubble-map.png?v=1') center/100% 100% no-repeat;
+    display:flex;flex-direction:column;justify-content:center;font-size:14px;line-height:1.42;}
+  #welcome-cat .wc-bubble.long{font-size:13px;line-height:1.38;}   /* 字很多時縮小一點，整張圖不用拉太長 */
+  #welcome-cat .wc-bubble::before{display:none;}
+  /* Lucky 從畫面左邊（當成牆）探出身子：身體不動、不歪，只有手在揮 */
+  #welcome-cat .wc-peek{position:relative;width:75px;margin-left:10px;flex-shrink:0;align-self:flex-end;}   /* 米白描邊已經畫在動圖裡；探頭那段左邊有一小段牆 */
+  #welcome-cat .wc-peek img{display:block;width:100%;height:auto;}
+  #welcome-cat .wc-peek .wc-arm{position:absolute;inset:0;transform-origin:69.2% 65.2%;animation:wcWave 1.1s ease-in-out .55s infinite;}
+  @keyframes wcPeek{from{transform:translateX(-100%)}to{transform:none}}
+  @keyframes wcWave{0%,100%{transform:rotate(0)}25%{transform:rotate(8deg)}75%{transform:rotate(-5deg)}}
   /* 地圖、冰室共用：對話框與小貓垂直置中，使用 assets/fonts 的品牌顏楷字型。 */
   .wc-bubble{position:relative;flex:1;min-width:0;margin:0;padding:0 2px;border:20px solid transparent;
     border-image:url('assets/onboarding/lucky-bubble-plain.png') 44 fill / 20px stretch;filter:drop-shadow(0 6px 10px rgba(61,43,31,.16));
@@ -1294,7 +1307,11 @@
   .wc-bubble.done small{opacity:1;}
   /* 短句（「歡迎跟著我一起探索香港！」）放在同一行，不要斷成兩行 */
   #wc-text.one-line{display:block;white-space:nowrap;font-size:15px;letter-spacing:0;}
-  #welcome-cat.out{animation:wcOut .35s ease-in forwards;}
+  #welcome-cat.out .wc-bubble{animation:wcFade .3s ease-in forwards;}
+  @keyframes wcFade{to{opacity:0}}
+  #welcome-cat .wc-peek.wave{width:91px;}   /* 第二段畫布比較寬，貓的大小跟第一段一樣 */
+  #welcome-cat.out .wc-peek{animation:wcFade .3s ease-in forwards;}
+  @keyframes wcHide{to{transform:translateX(-100%)}}
   #shop-cat{position:absolute;left:12px;right:12px;bottom:150px;z-index:960;display:none;align-items:center;gap:6px;cursor:pointer;}
   #shop-cat.show{display:flex;}
   #shop-cat img{width:34%;flex-shrink:0;filter:drop-shadow(0 4px 8px rgba(61,43,31,.25));animation:wcCat .7s cubic-bezier(.3,1.5,.5,1) both,wcBob 2.4s ease-in-out .7s infinite;}
@@ -1922,7 +1939,11 @@
   .nw-lucky{display:flex;align-items:center;gap:2cqw;margin-bottom:2cqw;}
   .nw-bub{flex:1;padding:2.2cqw 3.4cqw;border:2px solid #5F7A5C;border-radius:3.2cqw;background:#FFFDF6;font:700 3.3cqw/1.3 CPKai,CPKaiFull,'Kaiti TC',serif;color:#4A3A30;letter-spacing:.04em;}
   .nw-bub b{color:#C0573E;font:900 4cqw/1 CPKai,CPKaiFull,serif;margin:0 .8cqw;}
-  .nw-lucky img{width:13cqw;border-radius:3cqw;}
+  .nw-lucky img{width:15cqw;flex-shrink:0;}
+  /* 小貓在左、對話框尾巴指向小貓（跟地圖上 Lucky 的對話框同一款） */
+  #nw-card-wrap .nw-lucky{gap:0;margin:0 0 1cqw -1cqw;}
+  #nw-card-wrap .nw-bub{flex:0 1 auto;border:none;border-radius:0;background:url('assets/onboarding/lucky-bubble-map.png?v=1') center/100% 100% no-repeat;
+    padding:4.2cqw 6cqw 4.2cqw 9.5cqw;font-size:3.6cqw;white-space:nowrap;}
   .nw-sec{display:flex;align-items:center;gap:2cqw;margin:4cqw 0 2.2cqw;font:900 3.5cqw CPKai,CPKaiFull,'Kaiti TC',serif;color:#7A6A5A;}
   .nw-sec::after{content:'';flex:1;border-top:1.5px dashed #C9CFC0;}
   .nw-card{display:flex;gap:2.7cqw;padding:2.7cqw;margin-bottom:2.7cqw;background:#FFFDF6;border:1.5px solid #D9DDCF;border-radius:3.8cqw;}
@@ -1989,7 +2010,45 @@
   #nw-list .nw-slot small{font-family:CPKai,CPKaiFull,serif !important;font-weight:900 !important;font-size:2.95cqw !important;color:#7D8F7B !important;-webkit-text-stroke:0;margin-top:1.4cqw !important;white-space:nowrap;letter-spacing:0 !important;}
   .nw-slot small em{white-space:nowrap;}
   #nw-list .nw-sec{color:#9AA697 !important;font-size:3.4cqw !important;}
+  /* 排版統一：照片格和「＋」格同樣大小、同一條左邊線；文字欄垂直置中；每張卡高度一致 */
+  #nw-list .nw-card,#nw-list .nw-slot{display:flex !important;align-items:center !important;gap:3.4cqw !important;min-height:30cqw;box-sizing:border-box;padding:1.6cqw 2.4cqw !important;margin-bottom:3cqw !important;}
+  #nw-list .nw-card .ph,#nw-list .nw-slot i{box-sizing:border-box !important;width:24cqw !important;height:24cqw !important;flex-shrink:0;border-radius:2.2cqw !important;}
+  #nw-list .nw-card .ph{border:1cqw solid #fff !important;outline:1.5px solid #DADAD3 !important;}
+  #nw-list .nw-slot i{border:1cqw solid #fff !important;outline:1.5px dashed #B9C4B5 !important;}
+  #nw-list .nw-slot::before{display:none !important;}
+  #nw-list .nw-slot span{flex:1;min-width:0;text-align:left;}
+  #nw-list .nw-slot small{white-space:normal !important;}
+  #nw-list .nw-who img{box-shadow:none !important;width:9cqw !important;height:9cqw !important;}
+  #nw-list .nw-card .bd{justify-content:center;}
   #nw-card-wrap::-webkit-scrollbar{display:none;}
+  /* ══ 冰室・收集牆（照 drafts/wall-draft.html）：牆上掛地圖＋便利貼，點便利貼→桌上落下這一區的收集品；不顯示標題、不放小貓、便利貼不晃 ══ */
+  #view-wall{position:absolute;inset:0;z-index:820;display:none;align-items:center;justify-content:center;background:#2E2A26;overflow:hidden;}
+  #view-wall.show{display:flex;}
+  #wl-ph{position:relative;width:402px;height:874px;flex-shrink:0;transform-origin:50% 50%;color:#3D2B1F;font-family:CPKai,CPKaiFull,'Kaiti TC',serif;
+    background:#F6EDD9 url(assets/ui/bingshi-wall.jpg) center top/100% auto no-repeat;}
+  #wl-ph .back{position:absolute;left:16px;top:52px;width:44px;height:46px;background:url(assets/ui/btn-back.png) center/100% 100%;border:none;z-index:20;cursor:pointer}
+  #wl-ph .note{position:absolute;width:var(--w);translate:-50% -50%;cursor:pointer;z-index:3;filter:drop-shadow(2px 4px 4px rgba(61,43,31,.3));transition:transform .25s cubic-bezier(.3,1.5,.5,1),opacity .25s,filter .25s;}
+  #wl-ph .note img{display:block;width:100%;height:auto;}
+  #wl-ph .note small{position:absolute;left:50%;bottom:14%;translate:-50% 0;min-width:42%;text-align:center;padding:1px 6px;border-radius:999px;background:var(--c);font:800 12px CPKai,CPKaiFull,serif;color:#5A4436;box-shadow:0 0 0 3px var(--c);}
+  #wl-ph .note small.zero{color:#9A8C7C}
+  #wl-ph.picked .note:not(.on){opacity:.55;filter:saturate(.6)}
+  #wl-ph .note.on{transform:scale(1.12);z-index:5}
+  #wl-ph .tray{position:absolute;left:0;right:0;top:640px;height:128px;z-index:5;display:flex;gap:8px;align-items:flex-end;padding:0 16px 34px;overflow-x:auto;scrollbar-width:none;pointer-events:none;opacity:0;transition:opacity .3s}
+  #wl-ph .tray::-webkit-scrollbar{display:none}
+  #wl-ph.picked .tray{pointer-events:auto;opacity:1}
+  #wl-ph .grp{display:flex;gap:6px;align-items:flex-end;padding-right:6px;margin-right:4px;border-right:1.5px dashed rgba(90,55,20,.35)}
+  #wl-ph .grp:last-child{border:none}
+  #wl-ph .it{flex-shrink:0;width:58px;text-align:center;animation:wlItIn .45s cubic-bezier(.3,1.5,.5,1) both;cursor:pointer}
+  #wl-ph .it .pic{width:58px;height:58px;border-radius:8px;background:#FFFDF6 center/cover;border:3px solid #fff;box-shadow:0 3px 4px rgba(61,43,31,.3)}
+  #wl-ph .it.food .pic,#wl-ph .it.cat .pic{background-size:contain;background-repeat:no-repeat;border:none;box-shadow:none;background-color:transparent;filter:drop-shadow(0 3px 2px rgba(61,43,31,.3))}
+  #wl-ph .it span{display:block;margin-top:3px;font:800 10.5px/1.2 CPKai,CPKaiFull,serif;color:#4A2E14;white-space:nowrap}
+  #wl-ph .it.lock .pic{filter:grayscale(1) brightness(.7) opacity(.45)}
+  #wl-ph .it.lock span{color:#7A5A3A}
+  #wl-ph .gl{flex-shrink:0;align-self:center;writing-mode:vertical-rl;font:900 11px CPKai,CPKaiFull,serif;color:#5A3A1A;letter-spacing:.2em;margin-bottom:12px}
+  @keyframes wlItIn{from{opacity:0;transform:translateY(-30px) scale(.8)}to{opacity:1;transform:none}}
+  #wl-ph .label{position:absolute;left:12px;right:12px;top:796px;padding:5px 0;border-radius:999px;background:rgba(255,253,246,.85);text-align:center;font:700 12px CPKai,CPKaiFull,serif;color:#4E6B4A;opacity:0;transition:opacity .3s}
+  #wl-ph.picked .label{opacity:1}
+
   #btn-nw-back{
     position:absolute;
     top:var(--diary-back-top);left:var(--diary-back-left);
@@ -3123,6 +3182,7 @@
   #schermata-recap6.leaving .r6-card{animation:r6CardOut .55s cubic-bezier(.5,0,.75,.3) both;}
   @keyframes r6Leave{0%,40%{background-color:#FBFAEA}100%{background-color:rgba(251,250,234,0)}}
   @keyframes r6CardOut{0%{transform:none}30%{transform:translateY(-3%) scale(1.02)}100%{transform:translateY(45%) scale(.55);opacity:0}}
+  .r6-share.done{width:auto !important;padding:0 14px !important;white-space:nowrap;cursor:default;opacity:.9;}
   #schermata-recap6.leaving .r6-wrap > img:first-child,#schermata-recap6.leaving .r6-hit,#schermata-recap6.leaving .r6-share{animation:r6Fade .3s ease-in both;}
   @keyframes r6Fade{to{opacity:0}}
   #schermata-recap6{
@@ -3227,7 +3287,8 @@
   .sc-fr small i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#6DAA5C;margin-right:4px;}
   .sc-fr .km{margin-left:auto;font:900 16px Nunito,sans-serif;color:var(--cp-green);} .sc-fr .km em{font:700 11px CPKai,serif;font-style:normal;}
   .sc-share{display:flex;align-items:center;gap:10px;width:calc(100% - 28px);margin:6px 14px 12px;padding:12px;border:2px dashed #CDBF9F;border-radius:16px;background:rgba(255,253,246,.7);text-align:left;cursor:pointer;color:#5E4D42;}
-  .sc-share i{width:44px;height:44px;border-radius:12px;background:#F2EAD6;display:grid;place-items:center;font-style:normal;font-size:20px;flex-shrink:0;}
+  .sc-share i{width:44px;height:44px;border-radius:12px;background:#F2EAD6;display:grid;place-items:center;font-style:normal;font-size:0;flex-shrink:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236F826D' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;background-size:46%;}   /* 跟留言板「來打卡」一樣的加號 */
   .sc-share b{display:block;font:900 15px CPKai,CPKaiFull,serif;} .sc-share small{display:block;margin-top:2px;font:700 12px CPKai,serif;color:#9A8C7C;}
   .sc-sec{display:flex;align-items:baseline;gap:8px;margin:14px 2px 8px;font:900 14px CPKai,CPKaiFull,serif;color:#5E4D42;}
   .sc-sec small{font:700 11.5px CPKai,serif;color:#9A8C7C;}
@@ -3468,7 +3529,7 @@
   /* 解鎖開場：Memo 吃菠蘿油 → 下方對話框打字 → 故事卡（文字打出來） → 食物卡 */
   #view-tale[data-step="intro"] .tl-intro{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;}
   #view-tale[data-step="intro"] .tl-tip,#view-tale[data-step="intro"] .tl-go{display:none;}
-  .tl-eat{width:min(230px,58vw);height:auto;animation:tlEatIn .6s cubic-bezier(.3,1.4,.5,1) both;filter:drop-shadow(0 8px 16px rgba(0,0,0,.3));}
+  .tl-eat{width:min(230px,58vw);height:auto;animation:tlEatIn .6s cubic-bezier(.3,1.4,.5,1) both;}
   @keyframes tlEatIn{from{opacity:0;transform:translateY(24px) scale(.7)}to{opacity:1;transform:none}}
   .tl-say{min-width:220px;max-width:calc(100vw - 40px);min-height:58px;box-sizing:border-box;padding:20px 24px 12px;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;
     background:url('assets/story/tale/say-bubble.png') center/100% 100% no-repeat;font:700 17px/1.4 CPKai,CPKaiFull,'Kaiti TC',serif;color:#3D2B1F;letter-spacing:.04em;white-space:nowrap;
@@ -3520,7 +3581,7 @@
     font:400 14px/1.5 CPKai,CPKaiFull,'PingFang TC',sans-serif;}
   .ul-note img{width:42px;height:42px;object-fit:contain;flex-shrink:0;}
   .ul-note:empty,.ul-note.none{display:none;}
-  .ul-stamp{position:absolute;right:-6px;top:-14px;width:76px;transform:rotate(12deg);filter:drop-shadow(0 3px 6px rgba(61,43,31,.25));}
+  .ul-stamp{position:absolute;right:-6px;top:-14px;width:76px;transform:rotate(12deg);}
 
   /* 頭像：隨機的 Lucky 表情包 */
   #tab-ar .pf-avatar{position:absolute;left:13.1%;top:12.9%;width:20.2%;aspect-ratio:1;border-radius:50%;overflow:hidden;background:#FBF9EE;pointer-events:none;}
@@ -3664,11 +3725,11 @@
       <img class="r6-card" src="assets/recap/diary-card-0512.png" alt="2026.5.12 日記">
       <button class="r6-hit" style="left:7.4%;top:71.1%;width:40.2%;height:4.4%" onclick="event.stopPropagation();finishShare()" aria-label="完成"></button>
       <button class="r6-hit" style="left:52.6%;top:71.1%;width:40%;height:4.4%" onclick="event.stopPropagation();chiudiOverlayRecap7();chiudiRecap6();apriSchermata56();" aria-label="返回修改"></button>
-      <button class="r6-share cp-btn cp-btn--solid cp-btn--md" onclick="event.stopPropagation();apriOverlayRecap7()">分享</button>
+      <button class="r6-share cp-btn cp-btn--solid cp-btn--md" id="r6-share" onclick="event.stopPropagation();if(!this.classList.contains('done'))apriOverlayRecap7()">分享</button>
     </div>
     <div id="overlay-recap7" onclick="event.stopPropagation();closeShareSheet()">
       <div class="r7-sheet" style="position:relative;width:min(100%,calc(var(--app-h,100vh) * 402 / 874));">
-        <img src="assets/recap/frame-recap7.png?v=1780406366" alt="分享">
+        <img src="assets/recap/frame-recap7.png?v=1780406366" alt="分享" onclick="event.stopPropagation();markSharedDiary()" style="cursor:pointer">
         <button class="r7-x" onclick="event.stopPropagation();closeShareSheet()" aria-label="關閉"></button>
       </div>
     </div>
@@ -3802,7 +3863,7 @@
 
   <!-- 第一次進入地圖的貓咪歡迎語 -->
   <div id="welcome-cat" role="status" onclick="wcTap()">
-    <img src="assets/wardrobe/Lucky.png" alt="">
+    <div class="wc-peek"><img id="wc-peek-img" src="assets/onboarding/lucky-peek-anim.png?v=4" alt="Lucky"></div>
     <div class="wc-bubble"><span id="wc-text"></span><small id="wc-hint">點一下開始探索 🐾</small></div>
   </div>
 
@@ -4166,8 +4227,7 @@
         <i class="r2-lock" id="r2-lock" aria-hidden="true">🔒</i>
         <button onclick="event.stopPropagation();diaryEditLocked()" aria-label="編輯"
                 style="position:absolute;top:var(--recap2-tr-top);left:calc(var(--recap2-tr-left) + 28px);width:62px;height:var(--recap2-tr-h);background:none;border:none;cursor:pointer;z-index:3;touch-action:manipulation;"></button>
-        <button onclick="finishDayToDrawer()"
-                style="position:absolute;top:var(--recap2-btn-top);left:var(--recap2-btn-left);width:var(--recap2-btn-w);height:var(--recap2-btn-h);background:none;border:none;cursor:pointer;z-index:3;touch-action:manipulation;"></button>
+        <!-- 舊的隱形「確認」熱區拿掉：只有面板上的「確認」按鈕會結束今天 -->
       </div>
     </div>
 
@@ -4574,12 +4634,15 @@
     <div id="nw-card-wrap">
       <div class="nw-head"><img src="assets/social/board/head.jpg" alt=""><span class="nw-place" id="nw-place"></span></div>
       <div class="nw-sheet">
-        <div class="nw-lucky"><div class="nw-bub">你是第<b id="nw-rank">6</b>位到達這裡的人類！</div><img src="assets/social/board/cat.jpg" alt=""></div>
+        <div class="nw-lucky"><img src="assets/social/board/cat.png" alt=""><div class="nw-bub">你是第<b id="nw-rank">6</b>位到達這裡的人類！</div></div>
         <div id="nw-list"></div>
       </div>
       <button id="btn-nw-back" onclick="closeNoteWindow()" aria-label="返回"></button>
     </div>
   </div>
+
+  <!-- ══ 冰室・收集牆（取代原本的回憶牆畫面） ══ -->
+  <div id="view-wall"><div id="wl-ph"><button class="back" aria-label="返回" onclick="event.stopPropagation();closeDiary1()"></button><div class="tray" id="wl-tray"></div><div class="label" id="wl-lab"></div></div></div>
 
   <!-- ══ ANCHOR POPUP ══ -->
   <div id="anchor-popup" style="cursor:pointer;touch-action:manipulation;" onclick="popupBd(event)" ontouchstart="">
@@ -6762,7 +6825,7 @@ const scIcon={
 };
 function scRender(dir){
   const feed=document.getElementById('sc-feed'); feed.innerHTML='';
-  const share=document.createElement('button'); share.className='sc-share'; share.innerHTML='<i>📝</i><span><b>分享今天的漫步</b><small>把今天的路線和美食貼給好友看</small></span>';
+  const share=document.createElement('button'); share.className='sc-share'; share.innerHTML='<i></i><span><b>分享今天的漫步</b><small>把今天的路線和美食貼給好友看</small></span>';
   share.onclick=()=>scSheet('post'); feed.appendChild(share);
   if(document.getElementById('sc-fr-n')) document.getElementById('sc-fr-n').textContent=SC.friends.length;
   SC_POSTS[SC.view].forEach((p,i)=>{
@@ -6868,7 +6931,7 @@ function scSheet(kind,p){
       <button class="sc-go cp-btn cp-btn--solid cp-btn--lg" style="margin-top:12px">發佈</button>`;
     card.querySelector('.sc-go').onclick=()=>{ SC_USERS.me={name:'我',av:myAvatar(),on:true};
       SC_POSTS[SC.view].unshift({u:'me',t:'剛剛',d:'2026.05.12',km:'4.2',n:4,f:['pine','roll'],like:0,cmt:0,star:0,share:0,route:'理工大學・海安咖啡・西港城'});
-      scClose(); scRender(); scToast('發佈完成！已分享到社區 🎉'); };
+      scClose(); scRender(); scToast('已分享為動態 🎉'); };
   }
   document.getElementById('sc-sheet').classList.add('show');
   const n=document.querySelector('.bottom-nav'); if(n) n.style.visibility='hidden';   // 面板蓋住底部導航，不然會被擋住
@@ -6964,7 +7027,7 @@ function closeDiaryCard(){
 /* ═══════════════════════════════════════════════
    SISTEMA NAVIGAZIONE DIARY — un solo livello attivo
 ═══════════════════════════════════════════════ */
-const _DIARY_IDS=['view-diary1','view-diary2','view-diary2-2',
+const _DIARY_IDS=['view-wall','view-diary1','view-diary2','view-diary2-2',
                   'view-diary4','view-diary4-1','view-food1','view-story1','view-diary5','view-diary1sub','view-diary-other','view-story-polyu','view-food-polyu'];
 
 /* 回憶牆的四個頁面（主頁、地點、美食、Lucky 圖鑑）上半部的地圖一樣，
@@ -7492,18 +7555,55 @@ function openStoryPolyu(idx){
 }
 
 /* apertura pagine */
+
+
+/* ══ 冰室・收集牆 ══ */
+const WL_AREAS=[
+  {k:'sw',name:'上環\n中環',x:77,y:218,w:94,c:'#F4E2BE',
+   loc:[['西港城','story/backgroundwesternmarket.jpeg'],['海安咖啡','story/PhotoScreen.jpg'],['中環街市',''],['舊牛奶公司倉庫',''],['都爹利街石階','']],
+   food:[['牛肉治','food/Food-Corned-Beef-Sandwich.png'],['奶油多','food/Food-Butter-Toast.png'],['腸粉','food/Food-Rice-Noodle-Rolls.png'],['樽裝鮮奶','food/Food-Bottled-Milk.png'],['紅豆冰','food/Food-Red-Bean-Ice.png']],
+   cat:[['工作中','wardrobe/Lucky1.png'],['下午茶','wardrobe/Lucky2.png']]},
+  {k:'mk',name:'旺角\n尖沙咀',x:215,y:232,w:96,c:'#F2D5C2',loc:[['尖沙咀海濱',''],['旺角街市','']],food:[['雞蛋仔','food/Food-Egg-Waffle.png'],['咖喱魚蛋','food/Food-Curry-Fish-Balls.png']],cat:[['散步','wardrobe/Lucky3.png']]},
+  {k:'kc',name:'九龍城寨\n啟德',x:333,y:296,w:95,c:'#F4EBCF',loc:[['九龍城寨公園',''],['啟德','']],food:[['菠蘿包','food/Food-Pineapple-Bun.png']],cat:[]},
+  {k:'wc',name:'灣仔',x:100,y:330,w:94,c:'#FBF6E9',loc:[['和昌大押','']],food:[['油雞大髀','food/Food-Soy-Sauce-Chicken-Leg.png']],cat:[['構圖大師','onboarding/hm3-cat.png']]},
+  {k:'ot',name:'其他',x:229,y:362,w:93,c:'#E6E1D6',loc:[['香港理工大學','diary/dex/polyu-1937.jpg',1],['紅磡站','']],food:[['菠蘿油','food/Food-Pineapple-Bun.png',1]],cat:[['學霸 Lucky','wardrobe/Lucky.png',1]]}
+];
+let _wlCur=null;
+function wlFit(){ const v=document.getElementById('view-wall'), ph=document.getElementById('wl-ph'); if(!v||!v.clientWidth) return;
+  ph.style.transform=`scale(${Math.min(v.clientWidth/402,v.clientHeight/874)})`; }
+addEventListener('resize',wlFit);
+function wlBuild(){
+  const ph=document.getElementById('wl-ph'); ph.querySelectorAll('.note').forEach(n=>n.remove());
+  ph.classList.remove('picked'); _wlCur=null;
+  WL_AREAS.forEach(a=>{
+    const got=[...a.loc,...a.food,...a.cat].filter(x=>x[2]).length, tot=a.loc.length+a.food.length+a.cat.length;
+    const n=document.createElement('div'); n.className='note'; n.style.cssText=`left:${a.x}px;top:${a.y}px;--w:${a.w}px;--c:${a.c}`;
+    n.innerHTML=`<img src="assets/ui/wall-notes/${a.k}.png" alt="${a.name.replace('\n','')}"><small class="${got?'':'zero'}">${got}/${tot}</small>`;
+    n.onclick=e=>{ e.stopPropagation(); wlPick(a,n); };
+    ph.appendChild(n);
+  });
+  ph.onclick=()=>{ if(_wlCur){ _wlCur=null; ph.classList.remove('picked'); ph.querySelectorAll('.note').forEach(x=>x.classList.remove('on')); } };
+}
+function wlPick(a,n){
+  const ph=document.getElementById('wl-ph'), tray=document.getElementById('wl-tray');
+  ph.querySelectorAll('.note').forEach(x=>x.classList.remove('on'));
+  if(_wlCur===a){ _wlCur=null; ph.classList.remove('picked'); return; }
+  _wlCur=a; n.classList.add('on'); ph.classList.add('picked');
+  const mk=(arr,kind)=>arr.map(([nm,img,ok],j)=>`<div class="it ${kind}${ok?'':' lock'}" style="animation-delay:${j*.07}s"><div class="pic" style="background-image:url('assets/${img||'diary/dex/card-locked.png'}')"></div><span>${ok?nm:'？？？'}</span></div>`).join('');
+  tray.innerHTML=[['地點',a.loc,'loc'],['美食',a.food,'food'],['Lucky',a.cat,'cat']].filter(g=>g[1].length).map(([t,arr,k])=>`<div class="grp"><span class="gl">${t}</span>${mk(arr,k)}</div>`).join('');
+  tray.scrollLeft=0;
+  const g=[a.loc,a.food,a.cat].map(x=>x.filter(y=>y[2]).length);
+  document.getElementById('wl-lab').textContent=`${a.name.replace('\n','・')}｜地點 ${g[0]}/${a.loc.length}・美食 ${g[1]}/${a.food.length}・Lucky ${g[2]}/${a.cat.length}`;
+}
 function openDiary1()   {
   hideLuckyBubble();
+  try{ closeShopCat(); }catch(e){}   // 從冰室進回憶牆：冰室的 Lucky 對話先收起
   // 日記分頁的抽屜畫面（schermata-recap0）疊在最上層，從日記點冰室時回憶牆會被它蓋住：先收起來，關回憶牆時再放回來
   const r0=document.getElementById('schermata-recap0');
   if(r0&&getComputedStyle(r0).display!=='none'){ r0._hiddenByWall=r0.style.display||'flex'; r0.style.display='none'; }
-  _navTo('view-diary1');
-  setNavState('social',true);   // 下方導航亮「冰室」，不是原本的日記／地圖
-  // 回憶牆：進來時 Lucky 先打個招呼
-  const tip=document.getElementById('d1-tip');
-  tip.textContent='人類！最近又收穫不少喔～';
-  tip.classList.remove('on'); void tip.offsetWidth; tip.classList.add('on');
-  clearTimeout(dxLocked._t); dxLocked._t=setTimeout(()=>tip.classList.remove('on'),2600);
+  // 回憶牆換成冰室收集牆（草稿版）
+  wlBuild(); _navTo('view-wall'); requestAnimationFrame(wlFit);
+  setNavState('social',true);   // 下方導航亮「冰室」
 }
 function openDiary2()   { _navTo('view-diary2');   }
 function openDiary2_2() { fillCardDates(); _navTo('view-diary2-2'); }
@@ -7581,7 +7681,8 @@ function closeShopModal(name){
 const NAV_SRC={map:'assets/tabbar/navbar-map.png?v=11',diary:'assets/tabbar/navbar-diary.png?v=11',social:'assets/tabbar/navbar-social.png?v=11'};
 const NAV_MAP_SRC=NAV_SRC.map;
 function setNavState(k,raw){
-  if(k==='social'&&!raw) k='map';   // 朋友頁改從地圖右側按鈕進入；下方第三格現在是「冰室」（只有開著回憶牆時才亮冰室）
+  if(k==='shop') k='social';   // 冰室頁亮第三格
+  else if(k==='social'&&!raw) k='map';   // 朋友頁改從地圖右側按鈕進入；下方第三格現在是「冰室」（只有開著回憶牆時才亮冰室）
   document.querySelectorAll('.bottom-nav .nav-layer').forEach(l=>l.classList.toggle('on',l.dataset.k===k));
 }
 /* 下方導航只在主畫面（地圖、日記抽屜、冰室回憶牆＋三個圖鑑分頁、好友）出現；任何內頁打開就藏起來 */
@@ -7614,6 +7715,12 @@ document.querySelectorAll('.nav-tap').forEach(b=>b.addEventListener('pointerdown
 let _mapShopState='map';
 /* 大按鈕：在地圖/冰室時互相切換；在日記、朋友（或日記流程）時，回到點進去之前的地圖探索或冰室 */
 /* Demo 第 1 輪：左下角固定是「地圖探索」，不再在地圖／冰室之間切換（冰室改做成回憶牆的內飾） */
+/* 下方「冰室」：進冰室頁（回憶牆在冰室裡），Lucky 打招呼 */
+function openIceCafe(){
+  chiudiDiaryFlow(); _navClose();
+  switchTab('shop');
+  setTimeout(()=>{ try{ showShopCat(); }catch(e){} },350);
+}
 function toggleMapShop(){
   // 已經在地圖上再點一次羅盤：鏡頭回到自己的位置
   if(_curTab==='map'&&map){ chiudiDiaryFlow(); closeShopCat(); map.flyTo([S.player.lat,S.player.lng],16,{duration:.7}); return; }
@@ -7881,7 +7988,8 @@ function openNoteWindow(idx){
   const mine=idx!=null&&S.myNotes&&S.myNotes[idx];
   const bgp=mine?mine.photo:(idx!=null?PLACES[idx].img:'');
   if(bgp) document.getElementById('nw-bg').style.backgroundImage=`url('${bgp}')`;
-  document.getElementById('nw-place').textContent=(idx!=null&&PLACE_ZH[PLACES[idx].id])||'';
+  const _pz=(idx!=null&&PLACE_ZH[PLACES[idx].id])||'', _pl=document.getElementById('nw-place');
+  _pl.textContent=_pz; _pl.style.display=(!_pz||_pz==='香港理工大學')?'none':'';   // 頭圖本來就寫著理工大學，不用再蓋一塊色塊
   const list=document.getElementById('nw-list'); list.innerHTML='';
   let day=null;
   const sec=d=>{ if(d===day) return; day=d; const h=document.createElement('div'); h.className='nw-sec'; h.textContent=nwDayLabel(d); list.appendChild(h); };
@@ -9987,6 +10095,12 @@ function showWelcomeCat(hint){
   const wh=document.getElementById('wc-hint'); wh.textContent=typeof hint==='string'?hint:'點一下開始探索 🐾'; wh.style.display=wh.textContent?'':'none';   // 傳空字串＝不要下面的小字
   el.classList.remove('out'); bubble.classList.remove('done'); txt.textContent='';
   txt.classList.toggle('one-line',msg.length<=13);
+  bubble.classList.toggle('long',msg.length>26);
+  // 兩段動畫輪流用：探頭（從牆後探出來）／走出來打招呼；每次都從第一格播一次
+  const pk=document.getElementById('wc-peek-img');
+  if(pk){ S._wcVar=(S._wcVar||0)+1; const wave=S._wcVar%2===0;
+    pk.parentNode.classList.toggle('wave',wave);
+    pk.src=''; pk.src='assets/onboarding/'+(wave?'lucky-wave-anim.png?v=3':'lucky-peek-anim.png?v=4'); }
   el.classList.add('show');
   let i=0;
   clearInterval(_wcTimer);
@@ -10565,6 +10679,12 @@ function closeShareSheet(){
   if(!o.classList.contains('on')) return;
   o.classList.remove('on');
   setTimeout(()=>{ if(!o.classList.contains('on')) o.style.display='none'; },380);
+}
+/* 在分享面板選了平台：面板收起，按鈕改成「已分享為動態」 */
+function markSharedDiary(){
+  closeShareSheet();
+  const b=document.getElementById('r6-share'); if(b){ b.textContent='已分享為動態'; b.classList.add('done'); }
+  showMini('🐾','已分享為動態');
 }
 function chiudiOverlayRecap7(){
   const o=document.getElementById('overlay-recap7'); o.classList.remove('on'); o.style.display='none';

@@ -11,7 +11,7 @@ src_im = Image.open(src).convert('RGBA')
 a0 = np.asarray(src_im.getchannel('A')).astype(float) / 255   # source may already be transparent
 im = Image.new('RGBA', src_im.size, (255, 255, 255, 255)); im.alpha_composite(src_im); im = im.convert('RGB')
 a = np.asarray(im).astype(int)
-light = (a.mean(2) >= 195) & ((a.max(2) - a.min(2)) < 70)
+light = (a.mean(2) >= 195) & ((a.max(2) - a.min(2)) < 70) & ((a[..., 0] - a[..., 2]) < 30)   # warm pink fills (e.g. a wall) are not border
 dark = Image.fromarray(((a.mean(2) < 170) * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(5))
 passable = light & (np.asarray(dark) == 0)
 reach = np.zeros_like(passable)
