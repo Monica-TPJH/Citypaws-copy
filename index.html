@@ -18,7 +18,7 @@
   @font-face{font-family:CPKaiFull;src:url('assets/fonts/df-yankai-simp-trad-w7.ttf') format('truetype');font-weight:100 700;font-display:swap;unicode-range:U+2E80-2FDF,U+3000-303F,U+3100-312F,U+31A0-31BF,U+3400-4DBF,U+4E00-9FFF,U+F900-FAFF,U+FE30-FE4F,U+FF00-FFEF,U+20000-2FA1F;}
   /* 新字體：華康楷體 W5（內文、輔助字，繁簡都有）、華康綜藝 W7（簡體模式的標題，只有簡體字）——都切成 App 用到的字 */
   @font-face{font-family:CPKaiBody;src:url('assets/fonts/cp-kaibody-w5-subset.woff2') format('woff2');font-weight:100 900;font-display:swap;}
-  @font-face{font-family:CPYanKai5;src:url('assets/fonts/cp-yankai-w5-board.woff2') format('woff2');font-weight:100 900;font-display:swap;}
+  @font-face{font-family:CPYanKai5;src:url('assets/fonts/cp-yankai-w5-board.woff2?v=2') format('woff2');font-weight:100 900;font-display:swap;}
   @font-face{font-family:CPKaiBody;src:url('assets/fonts/cp-kaibody-w5-extra.woff2') format('woff2');font-weight:100 900;font-display:swap;unicode-range:U+5690,U+76DE,U+862D,U+8AB2,U+975C;}
   @font-face{font-family:CPZongKai;src:url('assets/fonts/cp-zongkai-w7-subset.woff2') format('woff2');font-weight:100 900;font-display:swap;}
   @font-face{font-family:CPKaiFull;src:url('assets/fonts/df-yankai-simp-trad-w9.ttf') format('truetype');font-weight:800 900;font-display:swap;unicode-range:U+2E80-2FDF,U+3000-303F,U+3100-312F,U+31A0-31BF,U+3400-4DBF,U+4E00-9FFF,U+F900-FAFF,U+FE30-FE4F,U+FF00-FFEF,U+20000-2FA1F;}
@@ -1311,6 +1311,17 @@
     background:url('assets/onboarding/lucky-bubble-tail-side.png?v=1') center/100% 100% no-repeat;}   /* 文字在框身（不算尾巴）裡左右上下置中 */
   #welcome-cat .wc-bubble.long{font-size:13px;line-height:1.38;}   /* 字很多時縮小一點，整張圖不用拉太長 */
   #welcome-cat .wc-bubble::before{display:none;}
+  /* 11/11：對話框整張用設計稿（尾巴和框是一體的，不再分開拼）——尾巴放在左上角那一格，角落等比例縮放不會變形 */
+  #welcome-cat .wc-bubble{border:0 !important;border-image:none !important;position:relative;isolation:isolate;margin-left:-4px;align-self:center !important;
+    padding:17px 16px 15px 44px !important;min-height:84px;}
+  #welcome-cat .wc-bubble::after{display:none !important;}
+  /* 地圖上 Lucky 的話：字放大，看得清楚 */
+  #welcome-cat .wc-bubble{max-width:300px;font-size:16.5px !important;line-height:1.4 !important;}
+  #welcome-cat .wc-bubble.long{font-size:15.5px !important;line-height:1.4 !important;}
+  #welcome-cat .wc-bubble #wc-hint{font-size:13.5px !important;margin-top:7px;}
+  #welcome-cat .wc-bubble::before{display:block !important;content:'';position:absolute;left:0;top:0;right:0;bottom:0;width:auto;height:auto;background:none;transform:none;z-index:-1;pointer-events:none;
+    border-style:solid;border-color:transparent;border-width:61px 19px 19px 28.5px;
+    border-image:url('assets/onboarding/lucky-bubble-map-v3.png?v=1') 160 50 50 75 fill / 61px 19px 19px 28.5px stretch;}
   /* Lucky 從畫面左邊（當成牆）探出身子：身體不動、不歪，只有手在揮 */
   #welcome-cat .wc-peek{position:relative;width:75px;margin-left:10px;flex-shrink:0;align-self:flex-end;}   /* 米白描邊已經畫在動圖裡；探頭那段左邊有一小段牆 */
   #welcome-cat .wc-peek img{display:block;width:100%;height:auto;}
@@ -1354,7 +1365,10 @@
   @keyframes fcShine{0%{left:-50%}70%,100%{left:130%}}
 
   /* 解鎖後的表情集合：從圖釘冒出來，之後輕輕浮動 */
-  .poi-sticker{transform-origin:50% 100%;animation:stickerIn .9s cubic-bezier(.3,1.5,.5,1) both,stickerFloat 3s .9s ease-in-out infinite;}
+  .poi-sticker{transform-origin:50% 100%;animation:stickerIn .9s cubic-bezier(.3,1.5,.5,1) both,stickerFloat 3s .9s ease-in-out infinite;}   /* 彈出一次，之後輕輕浮動 */
+  /* 縮小地圖時對話框淡出（不移除、不重建，所以不會一直重新彈出來閃） */
+  .poi-sticker-hit{transition:opacity .3s;}
+  #map.stk-off .poi-sticker-hit{opacity:0;pointer-events:none;}
   @keyframes stickerIn{0%{opacity:0;transform:translateY(30px) scale(.2)}60%{opacity:1}100%{transform:none}}
   @keyframes stickerFloat{0%,100%{transform:none}50%{transform:translateY(-4px) rotate(-1deg)}}
   .leaflet-marker-icon:focus,.leaflet-marker-icon:focus-visible{outline:none;}
@@ -1702,12 +1716,12 @@
   /* 「正在前往○○……」改成程式寫（跟著導航的目的地換），字級和顏色照原圖那一行（原圖字高 32/429、顏色 #86786E） */
   #nav-companion-popup .cp-bubble{container-type:inline-size;}
   /* 一路上 Lucky 說的話：改成程式寫，跟著目的地換（字級顏色照原圖：字高約 36/429、#3D2B1F） */
-  #nav-companion-popup .cp-say{position:absolute;left:32.6%;top:21%;width:58%;pointer-events:none;
-    font:900 3.45cqw/1.5 CPKai,CPKaiFull,'Kaiti TC',serif;color:#3D2B1F;letter-spacing:.05em;}
+  #nav-companion-popup .cp-say{position:absolute;left:32.5%;top:27%;width:58%;pointer-events:none;white-space:nowrap;   /* 一行說完，字放大 */
+    font:900 4.6cqw/1.3 CPKai,CPKaiFull,'Kaiti TC',serif;color:#3D2B1F;letter-spacing:.05em;}
   #nav-companion-popup.show .cp-say{animation:cpSayIn .45s .85s ease-out both;}
   @keyframes cpSayIn{from{opacity:0}to{opacity:1}}
-  #nav-companion-popup .cp-dest{position:absolute;left:32.6%;top:57%;height:9%;display:flex;align-items:center;white-space:nowrap;
-    font:900 3.2cqw/1 CPKai,CPKaiFull,'Kaiti TC',serif;color:#7A6B60;letter-spacing:.05em;pointer-events:none;}
+  #nav-companion-popup .cp-dest{position:absolute;left:32.8%;top:52%;height:11%;display:flex;align-items:center;white-space:nowrap;
+    font:900 3.5cqw/1 CPKai,CPKaiFull,'Kaiti TC',serif;color:#7A6B60;letter-spacing:.065em;pointer-events:none;}
   #nav-companion-popup.show .cp-cat{animation:cpCatIn .55s cubic-bezier(.3,1.6,.5,1) both,cpCatIdle 2.4s .9s ease-in-out infinite;}
   #nav-companion-popup.show .cp-bubble{animation:cpBubbleIn .4s .4s cubic-bezier(.3,1.5,.5,1) both;}
   /* 先出小貓和對話框，對話框到位後字整段一起淡入（不再一個字一個字） */
@@ -1721,6 +1735,16 @@
   @keyframes cpBubbleIn{from{transform:scale(.2,.4);opacity:0}to{transform:none;opacity:1}}
   @keyframes cpTextIn{from{opacity:1}to{opacity:0}}
   @keyframes cpOut{to{transform:translateY(30%);opacity:0}}
+  /* 11/11：字的出現改順一點——對話框輕輕放大淡入（不再從很小彈出來），字一個一個柔和地淡入、往上飄一點；遮字的色塊不用了 */
+  #nav-companion-popup .cp-type{display:none !important;}
+  #nav-companion-popup.show .cp-bubble{animation:cpBubbleSoft .5s .35s cubic-bezier(.22,1,.36,1) both;}
+  @keyframes cpBubbleSoft{from{transform:translateY(6%) scale(.92);opacity:0}to{transform:none;opacity:1}}
+  #nav-companion-popup.show .cp-say{animation:none;}
+  #nav-companion-popup .cp-say .ch,#nav-companion-popup .cp-dest .ch{display:inline-block;opacity:0;}
+  #nav-companion-popup.show .cp-say .ch,#nav-companion-popup.show .cp-dest .ch{animation:cpCh .42s cubic-bezier(.22,1,.36,1) both;}
+  #nav-companion-popup.show.typed .ch{animation:none;opacity:1;}
+  @keyframes cpCh{from{opacity:0;transform:translateY(.35em)}to{opacity:1;transform:none}}
+  #nav-companion-popup.show .cp-cat{animation:cpCatIn .55s cubic-bezier(.3,1.6,.5,1) both;}   /* 小貓出來一次就好，不一直晃 */
   @media (prefers-reduced-motion: reduce){
     #nav-companion-popup.show .cp-cat,#nav-companion-popup.show .cp-bubble{animation:none;}
     #nav-companion-popup.show .cp-type{animation:none;opacity:0;}
@@ -1771,13 +1795,13 @@
   @keyframes puGlow{0%{opacity:0;transform:scale(.5)}35%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.25)}}
   @keyframes puFloat{0%{opacity:0;transform:translate(0,0) scale(.5)}25%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-42px) scale(1)}}
   @keyframes arrGoIn{from{opacity:0}to{opacity:1}}
-  #arrival-overlay.show .arr-text{animation:arrIn .9s cubic-bezier(.3,1.45,.5,1) both,arrBob 1.8s .9s ease-in-out infinite;}
+  #arrival-overlay.show .arr-text{animation:arrIn .9s cubic-bezier(.3,1.45,.5,1) both;}   /* 彈出來一次就好，不再一直上下跳 */
   #arrival-overlay.out .arr-text{animation:arrOut .5s ease-in forwards;}
   #arrival-overlay img{display:block;width:100%;height:auto;position:relative;z-index:1;}
   #arrival-overlay::before{content:'';position:absolute;left:50%;top:50%;width:150%;aspect-ratio:2.2;translate:-50% -50%;border-radius:50%;
     background:radial-gradient(ellipse,rgba(255,236,170,.75) 0%,rgba(255,236,170,.25) 45%,transparent 70%);opacity:0;}
   #arrival-overlay::before{display:none !important;}
-  #arrival-overlay.show img{animation:arrIn .9s cubic-bezier(.3,1.45,.5,1) both,arrBob 1.8s .9s ease-in-out infinite;}
+  #arrival-overlay.show img{animation:arrIn .9s cubic-bezier(.3,1.45,.5,1) both;}
   #arrival-overlay.out img{animation:arrOut .5s ease-in forwards;}
   #arrival-overlay.out::before{animation:arrOutGlow .5s ease-in forwards;}
   @keyframes arrIn{0%{opacity:0;transform:translateY(40px) scale(.55) rotate(-4deg)}60%{opacity:1}100%{transform:none}}
@@ -2140,10 +2164,10 @@
   #nw-card-wrap{width:100% !important;}
   #nw-card-wrap .nw-bub2{padding:0 4.6cqw 0 3.6cqw;font-size:3.05cqw;letter-spacing:.02em;}
   #nw-card-wrap .nw-lucky.nw2.go .nw-bub2{animation:nwBubIn .4s .7s cubic-bezier(.3,1.5,.5,1) both,nwBubFloat 3s 1.4s ease-in-out infinite;}
-  #nw-card-wrap .nw-lucky.nw2.go .nw-cat2{animation:nwCat2 .9s cubic-bezier(.3,1.5,.5,1) both,nwCatBob 3s 1.2s ease-in-out infinite;}
+  #nw-card-wrap .nw-lucky.nw2.go .nw-cat2{animation:nwCat2 .9s cubic-bezier(.3,1.5,.5,1) both;}   /* 小貓只跳出來一次 */
   @keyframes nwBubFloat{0%,100%{translate:0 0}50%{translate:0 -.7cqw}}
   @keyframes nwCatBob{0%,100%{rotate:0deg}25%{rotate:-3deg}75%{rotate:3deg}}
-  #nw-list .nw-card p,#nw-list .nw-slot small{font-family:CPYanKai5,CPKaiBody,CPKai,'Kaiti TC',serif !important;-webkit-text-stroke:0 !important;}
+  #nw-list .nw-card p,#nw-list .nw-slot small{font-family:CPYanKai5,CPKaiFull,CPKaiBody,CPKai,'Kaiti TC',serif !important;-webkit-text-stroke:0 !important;}
   #nw-list .nw-slot i::after{width:15cqw;height:15cqw;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='30' cy='34' r='24' fill='%23DFE8DA'/%3E%3Cpath d='M17 27a5 5 0 0 1 5-5h4l3-4h8l3 4h4a5 5 0 0 1 5 5v14a5 5 0 0 1-5 5H22a5 5 0 0 1-5-5z' fill='%23FFFDF6' stroke='%235F7A5C' stroke-width='2.8' stroke-linejoin='round'/%3E%3Ccircle cx='33' cy='34' r='6.5' fill='none' stroke='%235F7A5C' stroke-width='2.8'/%3E%3Ccircle cx='23' cy='27.5' r='1.6' fill='%235F7A5C'/%3E%3Ccircle cx='49' cy='17' r='9' fill='%235F7A5C' stroke='%23FFFDF6' stroke-width='2.5'/%3E%3Cpath d='M49 12.5v9M44.5 17h9' stroke='%23FFFDF6' stroke-width='2.8' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat;border-radius:0;animation:nwCam 2.4s ease-in-out infinite;}
   @keyframes nwCam{0%,100%{transform:scale(1) rotate(0)}40%{transform:scale(1.08) rotate(-4deg)}60%{transform:scale(1.08) rotate(3deg)}}
   #nw-list .nw-slot span{display:flex;flex-direction:column;align-items:flex-start;}
@@ -2154,6 +2178,28 @@
   @keyframes nwGoBounce{0%,70%,100%{transform:none}80%{transform:translateY(-.8cqw)}90%{transform:translateY(.2cqw)}}
   @keyframes nwGoShine{0%,40%{left:-60%}75%,100%{left:130%}}
   @keyframes nwSlotGlow{0%,100%{box-shadow:0 0 0 0 rgba(95,122,92,.0)}50%{box-shadow:0 0 0 1.8cqw rgba(95,122,92,.22)}}
+  /* 11/11 第三輪：對話框字放大、換細一點的正顏楷 W5、分兩行；整張對話框圖用 border-image，尾巴放在右上角那格不會被拉變形 */
+  #nw-card-wrap .nw-bub2{left:auto;right:26.4cqw;top:29.6cqw;width:auto;height:auto;background:none;padding:2.7cqw 8.6cqw 2.7cqw 4.2cqw;
+    white-space:pre-line;font:400 4cqw/1.42 CPYanKai5,CPKaiBody,CPKai,'Kaiti TC',serif;color:#3D2B1F;letter-spacing:.03em;-webkit-text-stroke:.25px #3D2B1F;isolation:isolate;min-height:16.2cqw;box-sizing:border-box;}
+  #nw-card-wrap .nw-bub2::before{content:'';position:absolute;inset:0;z-index:-1;border-style:solid;border-color:transparent;
+    border-width:7.4cqw 8.1cqw 3.2cqw 3.6cqw;border-image:url('assets/social/board/nw-bubble.png?v=2') 82 90 35 40 fill / 7.4cqw 8.1cqw 3.2cqw 3.6cqw stretch;}
+  #nw-card-wrap #nw-say{display:block;min-width:18.6em;min-height:1.42em;}
+  /* 一行說完：小貓往右挪一點、對話框拉寬 */
+  #nw-card-wrap .nw-bub2{right:19cqw;top:32.4cqw;min-height:10.8cqw;white-space:nowrap;font-size:3.55cqw;letter-spacing:.02em;padding:2.6cqw 7.6cqw 2.6cqw 3.8cqw;}
+  #nw-card-wrap .nw-lucky .nw-cat2{left:79cqw;top:30.4cqw;width:16.5cqw;margin:0;}   /* 舊規則 .nw-lucky img 會把寬度撐到 19.5cqw 又加左邊距，這裡蓋掉；右邊留 4.5cqw 不出框 */
+  /* 頭像只留一圈框 */
+  #nw-list .nw-who img{box-shadow:none !important;border:2px solid #8FA08C !important;}
+  #nw-card-wrap .nw-bub2{right:20.5cqw !important;font-size:3.4cqw !important;}
+  #nw-card-wrap .nw-lucky.nw2.go .nw-bub2{animation:nwBubIn .4s .7s cubic-bezier(.3,1.5,.5,1) both !important;}   /* 不再一直浮動 */
+  /* 留言內文放大（照組件比例在手機上只有 11px，太小） */
+  #nw-list .nw-card p{font-size:3.4cqw !important;line-height:5.1cqw !important;letter-spacing:.04em !important;}
+  #nw-list .nw-card p{-webkit-line-clamp:3 !important;display:-webkit-box !important;-webkit-box-orient:vertical !important;overflow:hidden !important;}   /* 留言最多三行 */
+  #nw-list .nw-card p.emo{gap:0;display:flex !important;}
+  #nw-list .nw-card p.emo span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  #nw-list .nw-card p .nw-emo{width:12.5cqw !important;margin:0 1.6cqw 0 -1.2cqw !important;}
+  #nw-list .nw-who b{font-size:3.7cqw !important;}
+  #nw-list .nw-slot b{font-size:3.6cqw !important;}
+  #nw-list .nw-slot small{font-size:2.85cqw !important;white-space:nowrap !important;letter-spacing:.02em !important;}
   @keyframes nwPlus{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
   /* ══ 冰室・收集牆（照 drafts/wall-draft.html）：牆上掛地圖＋便利貼，點便利貼→桌上落下這一區的收集品；不顯示標題、不放小貓、便利貼不晃 ══ */
   #view-wall{position:absolute;inset:0;z-index:820;display:none;align-items:center;justify-content:center;background:#2E2A26;overflow:hidden;}
@@ -2188,8 +2234,21 @@
   #wl-ph .panel .tab[data-k=cat]{left:263px;width:111px}
   #wl-ph .panel .tab.on{top:0}
   #wl-ph .panel .tab[data-k=food].on{top:.5px}
+  /* 選中的分頁：亮起來、往上抬、稍微大一點；沒選中的往下沉（照 11/12 設計稿） */
+  #wl-ph .panel .tab{top:3px;transform-origin:50% 100%;transition:top .2s,transform .2s;}
+  #wl-ph .panel .tab.on,#wl-ph .panel .tab[data-k=food].on{top:-3px;transform:scale(1.06);z-index:2;filter:drop-shadow(0 -2px 3px rgba(61,43,31,.2));}
+  /* 11/12：整塊軟木板＋上方三個分頁直接用設計稿（選中的分頁亮起、抬高）；分頁圖片只留作點擊區 */
+  #wl-ph .panel{background:url('assets/ui/wall-panel/panel-loc.png?v=1') center top/100% auto no-repeat;}
+  #wl-ph .panel[data-k=food]{background-image:url('assets/ui/wall-panel/panel-food.png?v=1');}
+  #wl-ph .panel[data-k=cat]{background-image:url('assets/ui/wall-panel/panel-cat.png?v=1');}
+  #wl-ph .panel .tab,#wl-ph .panel .tab.on,#wl-ph .panel .tab[data-k=food].on{opacity:0;top:16px !important;z-index:3;transform:none !important;filter:none !important;}
+  #wl-ph .panel .cork{background:none !important;}
   #wl-ph .cork{position:absolute;left:0;top:35px;width:100%;bottom:0;z-index:1;background:url(assets/ui/wall-panel/cork-tall.png) center top/100% auto no-repeat;}
   #wl-ph .cork .hd{position:absolute;left:0;right:0;top:24px;text-align:center;font:800 13px CPKai,CPKaiFull,serif;color:#FFF8EA;text-shadow:0 1px 2px rgba(61,43,31,.45);letter-spacing:.04em}
+  /* Lucky 圖鑑：貼紙三個一排、微微歪著貼 */
+  #wl-ph .grid .lk{display:flex;align-items:flex-end;justify-content:center;height:150px;rotate:var(--r,0deg);animation:wlItIn .45s cubic-bezier(.3,1.5,.5,1) both;}
+  #wl-ph .grid .lk img{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 3px 3px rgba(61,43,31,.3));}
+  #wl-ph .grid .lk.lock img{filter:drop-shadow(0 2px 2px rgba(61,43,31,.2));}
   #wl-ph .grid{position:absolute;left:22px;right:22px;top:54px;bottom:78px;overflow:hidden;display:grid;grid-template-columns:repeat(3,1fr);gap:16px 14px;align-content:start;padding:4px 2px 0}
   /* 美食圖鑑：一頁 2×2 張食物卡；收集到的釘圖釘，沒收集到的用灰色問號卡 */
   #wl-ph .grid.food{left:0;right:0;top:56px;padding-top:16px;grid-template-columns:repeat(2,147px);justify-content:center;gap:26px 25px}
@@ -2226,6 +2285,9 @@
   /* 鎖起來的地區：便利貼灰掉，數字換成鎖 */
   #wl-ph .note.locked img{filter:grayscale(.7) brightness(.95)}
   #wl-ph .note.locked small{font-size:0;width:calc(var(--w) * .17);height:calc(var(--w) * .17);border-radius:50%;background:#8E8478 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='5' y='10.5' width='14' height='10' rx='2.2' fill='%23FFFBF2'/%3E%3Cpath d='M8.2 10.5V8a3.8 3.8 0 0 1 7.6 0v2.5' fill='none' stroke='%23FFFBF2' stroke-width='2.2'/%3E%3C/svg%3E") center/66% no-repeat;}
+  /* 鎖統一用 assets/ui/lock.png */
+  #wl-ph .note.locked small{border-radius:0 !important;background:url('assets/ui/lock.png?v=1') center/contain no-repeat !important;width:calc(var(--w) * .2) !important;height:calc(var(--w) * .23) !important;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25));}
+  #wl-lab{display:none !important;}   /* 軟木板上方「上環・中環｜地點 3/5」小字不要 */
   #wl-ph.picked .note:not(.on){opacity:.55;filter:saturate(.6)}
   #wl-ph .note.on{transform:scale(1.12);z-index:5}
   #wl-ph .note{transition:transform .25s cubic-bezier(.3,1.5,.5,1),opacity .25s,filter .25s,margin-top .45s cubic-bezier(.3,1.2,.5,1)}
@@ -2381,7 +2443,7 @@
   .poi-sticker-hit{position:relative;cursor:pointer;}
   .poi-sticker-hit::before{content:'';position:absolute;inset:-22px;border-radius:50%;}
   .poi-sticker-hit:active .poi-sticker{transform:scale(.97);}
-  .poi-sticker-hit.hey .poi-sticker{transform-origin:50% 90%;animation:stickerHey .9s ease-in-out 3;}
+  .poi-sticker-hit.hey .poi-sticker{transform-origin:50% 90%;animation:stickerHey .9s ease-in-out 1,stickerFloat 3s .9s ease-in-out infinite;}
   @keyframes stickerHey{0%,100%{transform:none}25%{transform:translateY(-8px) rotate(-2deg) scale(1.04)}50%{transform:translateY(0) scale(.98)}70%{transform:translateY(-3px) rotate(1deg)}}
   /* ──────────────────────────────────────────────────────── */
 
@@ -2640,6 +2702,10 @@
 
   /* 留言卡：只留「完成卡片」；表情格沒選時是灰色剪影＋加號 */
   #note-card-img{clip-path:inset(0 0 19.6% 0);}
+  /* 卡片標頭的地名改成程式寫（原圖 1206×2673，字在 x≈250、y≈612–660，框歪約 -2°） */
+  #note-card-wrap{container-type:inline-size;}
+  #note-card-wrap .nc-place,.spn .spn-place{position:absolute;z-index:3;left:20.7%;top:22.85%;transform-origin:0 50%;rotate:-2deg;white-space:nowrap;pointer-events:none;
+    font:900 3.2cqw/1 CPKai,CPKaiFull,'Kaiti TC',serif;color:#3D2B1F;letter-spacing:.06em;}
   #note-done-btn{position:absolute;left:12.69%;top:81.67%;width:77.36%;height:var(--h);z-index:4;}
   /* 卡片內排版：上面整行是留言，下面左邊是小一點的表情格＋「加一個表情」，不再擠在一起、下面空一大塊
      （卡片內框 1206×2673 原圖 x 16%–86%、y 29.6%–51%，下面虛線以下是日期列） */
@@ -2816,6 +2882,19 @@
   .sp-backside .none b{font:900 5cqw CPKai,serif;letter-spacing:.08em;}
   .sp-backside .none small{font:700 3.4cqw/1.5 CPKai,serif;color:#8A7B6B;}
   #view-story-polyu .sp-hint{position:relative;z-index:1;margin-top:46px !important;}
+  /* 11/11：翻面改成平面的左右翻（不用 3D），電腦上整體縮放時字也不會糊；背面卡身跟正面卡身對齊（同樣的左右邊和上緣） */
+  #view-story-polyu .sp-flip{perspective:none;transform-style:flat;transition:none;}
+  #view-story-polyu .sp-flip,#view-story-polyu .sp-flip.flipped{transform:none;}   /* 不能用 !important，不然翻面動畫會被蓋掉 */
+  /* 卡圖左邊多了一截標籤，整張往左挪一點，讓卡身在畫面正中間（卡身在圖上 x 68–739 / 741） */
+  #view-story-polyu .sp-flip{translate:-2% 0;}
+  /* 卡片整體小一點、往下一點：背面的拍立得不要頂到返回鍵；正反兩面同一個大小和位置 */
+  #view-story-polyu .sp-flip{width:min(318px,calc(100vw - 72px),calc((var(--app-h,100vh) - 260px) * 741 / 1092)) !important;margin-top:56px;}
+  #view-story-polyu .sp-face{backface-visibility:visible;-webkit-backface-visibility:visible;}
+  #view-story-polyu .sp-backside{transform:none;display:none;}
+  #view-story-polyu .sp-flip.flipped .sp-backside{display:flex;}
+  #view-story-polyu .sp-flip.flipped .sp-front{display:none;}
+  #view-story-polyu .spn-clip{left:-1.97%;top:-21.2%;translate:none;width:108.8%;}
+
   #sp-card-wrap{position:relative;width:min(100%, calc(var(--app-h,100vh) * 402 / 891));flex-shrink:0;z-index:1;container-type:inline-size;}
   #sp-ui-img{width:100%;height:auto;display:block;pointer-events:none;position:relative;z-index:2;}
   #sp-photo{position:absolute;left:var(--note-photo-left);top:var(--note-photo-top);width:var(--note-photo-size);height:var(--note-photo-size);
@@ -3195,11 +3274,30 @@
   .dd{container-type:inline-size;}
   .dd>.dd-date{left:14.07% !important;top:18.73% !important;width:auto !important;height:2.57% !important;justify-content:flex-start !important;background:none !important;
     font:900 5.95cqw/1 'Songti TC','Noto Serif TC',serif !important;color:#4A3A30 !important;-webkit-text-stroke:.6px #4A3A30 !important;letter-spacing:.03em;}
+  /* 程式畫的虛線箭頭：線條慢慢畫出來，最後補上箭頭 */
+  .dd512>.dd-arr{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;}
+  .dd512 .dd-arr-draw{stroke-dasharray:1;stroke-dashoffset:1;}
+  .dd512.play .dd-arr-draw{animation:ddArrDraw .55s ease-out both;}
+  .dd512.shown .dd-arr-draw{stroke-dashoffset:0;}
+  .dd512 .dd-arr-head{opacity:0;}
+  .dd512.play .dd-arr-head{animation:ddArrHead .2s ease-out both;}
+  .dd512.shown .dd-arr-head{opacity:1;}
+  @keyframes ddArrDraw{to{stroke-dashoffset:0}}
+  @keyframes ddArrHead{to{opacity:1}}
+  /* 結算框（1206×2622）裡的日記頁：照原本日記頁的位置 */
+  .dd>.dd-in{position:absolute;left:3.648%;top:17.01%;width:92.79%;aspect-ratio:1113/1671;}
+  #td-edited .td-plain.dd512{position:absolute;aspect-ratio:1113/1671;height:auto;}
+  .sc-card .sc-bigw>.sc-big.dd512{position:relative;width:100%;aspect-ratio:1113/1671;height:auto;max-height:none;}
   #dj-view .djv-clip.djv-static>.dd512{position:absolute;left:0;top:0;width:100%;aspect-ratio:1113/1671;}
   #dj-view .djv-plain .djv-tabdate{left:13.3%;top:3.2%;width:auto;height:3.2%;justify-content:flex-start;background:transparent;
     font:900 clamp(15px,4.9vw,20px)/1 'Songti TC','Noto Serif TC',serif;color:#5A4436;-webkit-text-stroke:.5px #5A4436;}
   #dj-view .djv-act{display:flex;gap:12px;padding:6px 16px 26px;}
   #dj-view .djv-act{width:100%;justify-content:center;box-sizing:border-box;}
+  /* 日記整頁放在整個畫面的正中間（不是夾在標題和按鈕中間）：上下留一樣多的空間 */
+  #dj-view .djv-page{position:absolute;inset:0;flex:none;padding:98px 0 !important;box-sizing:border-box;z-index:0;pointer-events:none;}
+  #dj-view .djv-page>*{pointer-events:auto;}
+  #dj-view .djv-ttl{position:relative;z-index:1;}
+  #dj-view .djv-act{margin-top:auto;position:relative;z-index:1;}
   #dj-view .djv-act .cp-btn{flex:0 1 var(--w);min-width:0;justify-content:center;position:relative;}
   .djv-lock{position:absolute;top:-8px;right:-6px;font:900 10px/1 'Nunito',sans-serif;font-style:normal;color:#fff;background:#8A7B6B;border-radius:999px;padding:3px 6px;}
   /* 結束今天的確認 */
@@ -4070,7 +4168,7 @@
   <!-- 第一次進入地圖的貓咪歡迎語 -->
   <div id="welcome-cat" role="status" onclick="wcTap()">
     <div class="wc-peek"><img id="wc-peek-img" src="assets/onboarding/lucky-peek-anim.png?v=4" alt="Lucky"></div>
-    <div class="wc-bubble"><span id="wc-text"></span><small id="wc-hint">點一下開始探索 🐾</small></div>
+    <div class="wc-bubble"><span id="wc-text"></span><small id="wc-hint">點一下出發 🐾</small></div>
   </div>
 
   <!-- 進冰室時 Lucky 打招呼（樣式同地圖的歡迎小貓） -->
@@ -4367,7 +4465,7 @@
     </div>
     <div class="tab-screen" id="tab-diary" style="background:#F5ECD7 url('assets/ui/Background.png') center/cover no-repeat;padding:0;overflow:hidden;align-items:center;justify-content:center;">
       <div class="dd" id="td-day" style="width:min(100%, calc(var(--app-h,100vh) * 411 / 874));pointer-events:none;"></div>
-      <div id="td-edited" style="width:min(100%, calc(var(--app-h,100vh) * 411 / 874));"><img src="assets/recap/r8-page-v3.webp" alt="日記"><img class="td-plain" src="assets/recap/diary-v3-nodate.png?v=2" alt="日記"><span class="td-date"></span></div>
+      <div id="td-edited" style="width:min(100%, calc(var(--app-h,100vh) * 411 / 874));"><img src="assets/recap/r8-page-v3.webp" alt="日記"><div class="td-plain dd dd512"></div><span class="td-date"></span></div>
       <!-- 日記頁也不要導航欄：左上角返回 → 回到日記抽屜 -->
       <button class="sc-back td-back" onclick="tdBack()" aria-label="返回"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg></button>
     </div>
@@ -4644,7 +4742,7 @@
       <div id="sp-bg"></div>
       <!-- 回憶牆裡的故事卡：正面＝當時收集到的那張故事卡；點一下翻面＝自己當時留下的話 -->
       <button class="sc-back sp-back2" onclick="wlReturn()||openDiaryOther()" aria-label="返回"><svg viewBox="0 0 24 24"><path d="M19 12H6M11 6l-6 6 6 6"/></svg></button>
-      <div class="sp-flip" id="sp-flip" onclick="this.classList.toggle('flipped')">
+      <div class="sp-flip" id="sp-flip" onclick="spFlip(this)">
         <div class="sp-face sp-front" id="sp-front"></div>
         <div class="sp-face sp-backside" id="sp-backside"></div>
       </div>
@@ -4963,7 +5061,7 @@
     <div id="note-bg"></div>
     <div id="note-content-wrap">
       <div id="note-card-wrap">
-        <img id="note-card-img" src="assets/story/frame%20888.png?v=6" alt="">
+        <img id="note-card-img" src="assets/story/frame-888-noplace.png?v=1" alt=""><span class="nc-place" id="nc-place"></span>
         <span class="card-date" aria-label="日期"></span><span class="cp-collector cp-collector--light"></span>
         <img id="note-photo" src="" alt="">
         <textarea id="note-ta-input" maxlength="200" placeholder="有什麼想留在這個地方的話？" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();openEmojiSelect();}"></textarea>
@@ -6169,7 +6267,7 @@ if(socialRoot) ReactDOM.createRoot(socialRoot).render(<SocialApp/>);
 // ═══════════════════════════════════════════════════════════
 
 // Posizione iniziale del giocatore
-const START = { lat: 22.30365, lng: 114.17665 };  // 理工大學西南方約 330 米：要走一小段才到第一個打卡點
+const START = { lat: 22.30291, lng: 114.17545 };  // 理工大學西南方約 480 米：要走一段才到第一個打卡點
 
 const PLACES = [
   {
@@ -6307,8 +6405,8 @@ const PLACES = [
   },
   {
     id:'duddell_street', name:'Duddell Street',
-    lat: 22.27983007180413,
-    lng: 114.1567698530112,
+    lat: 22.303593,   // 示範路線：理工大學東南約 650 米（假地圖上）
+    lng: 114.185414,
     rarity:4, affinity:88,
     img:'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=400&h=600&fit=crop',
     illo:'🕯️',
@@ -6432,11 +6530,9 @@ function heyStickers(idx,noFly){
 function updateStickerVisibility(){
   if(!map) return;
   const zoom=map.getZoom();
-  stickerMarks.forEach(m=>{
-    if(!m) return;
-    if(zoom>=POI_STICKER_ZOOM){ if(!map.hasLayer(m)) m.addTo(map); }
-    else { if(map.hasLayer(m)) map.removeLayer(m); }
-  });
+  // 不再隨縮放加入／移除（每次加回來都會重播彈出動畫，看起來一直閃）：只切換顯示
+  map.getContainer().classList.toggle('stk-off',zoom<POI_STICKER_ZOOM);
+  stickerMarks.forEach(m=>{ if(m&&!map.hasLayer(m)&&!S.walkingMode) m.addTo(map); });
 }
 
 /* Lucky cat face SVG for pin (small) */
@@ -6468,7 +6564,8 @@ function metersToPixels(lat,meters){
 const FAKE_MAP_BOUNDS=[[22.2894,114.1519],[22.3346,114.1944]];
 // 插畫地圖上手描的步行路線（座標是 1750×2000 顯示尺寸上的像素），沿著圖上畫的馬路走
 const FAKE_MAP_ROUTES={
-  polyu:[[958,1390],[958,1401],[1000,1403],[1018,1418],[1040,1380],[1060,1335],[1075,1305],[1100,1300],[1127,1298]]
+  polyu:[[958,1390],[958,1401],[1000,1403],[1018,1418],[1040,1380],[1060,1335],[1075,1305],[1100,1300],[1127,1298]],
+  duddell_street:[[1129,1296],[1170,1285],[1205,1278],[1250,1300],[1290,1322],[1305,1331],[1345,1352],[1380,1372]]   // 從理工大學沿白色馬路往東南走
 };
 function fakeMapLatLng([x,y]){
   const [[s,w],[n,e]]=FAKE_MAP_BOUNDS;
@@ -6751,8 +6848,8 @@ function checkProximity(){
        && !document.getElementById('arrival-overlay').classList.contains('show') && S.currentPopup==null){
       a._nearSaid=true; S.quietAfterCheckin=false;
       try{ setGuideFx(idx); S._proxGuide=true; }catch(e){}
-      S._wcAction=null; S.welcomeMsg='聞到了！老地方就在附近，再走近一點就能解鎖～';
-      showWelcomeCat('走到跳動的錨點上 🐾');
+      S._wcAction=null; S.welcomeMsg='聞到了！再走近一點～';
+      showWelcomeCat('走到錨點上 🐾');
     }
     // ── 30m: arrivo ──
     if((a.status==='spawned'||a.status==='walking')&&d<=30){
@@ -7162,8 +7259,9 @@ function scSheet(kind,p){
     };
     card.querySelector('#sc-find-go').onclick=find; inp.onkeydown=e=>{ if(e.key==='Enter') find(); };
   } else if(kind==='post'){
-    card.innerHTML=`<h3>分享今天的日記${x}</h3><p class="sub">發佈到社區</p><div class="sc-bigw"><img class="sc-big" src="assets/recap/diary-v3-nodate.png?v=2" alt="今天的日記"><span class="sc-bigd">${S.dj.date}</span></div>
+    card.innerHTML=`<h3>分享今天的日記${x}</h3><p class="sub">發佈到社區</p><div class="sc-bigw"><div class="sc-big dd dd512"></div></div>
       <button class="sc-go cp-btn cp-btn--solid cp-btn--lg" style="margin-top:12px">發佈</button>`;
+    playDD512(card.querySelector('.sc-big.dd512'),0,S.dj.date,true);   // 分享的日記也只放今天去過的地點
     card.querySelector('.sc-go').onclick=()=>{ SC_USERS.me={name:'我',av:myAvatar(),on:true};
       SC_POSTS[SC.view].unshift({u:'me',t:'剛剛',d:S.dj.date,km:'4.2',n:4,f:['pine','roll'],like:0,cmt:0,star:0,share:0,route:'理工大學・海安咖啡・西港城'});
       scClose(); scRender(); scToast('已分享為動態 🎉'); };
@@ -7352,7 +7450,7 @@ function playRecap2Fx(){
   const wrap=document.getElementById('r2-wrap'), fx=document.getElementById('r2-fx');
   fx.innerHTML=''; wrap.classList.add('fx');
   const pn=document.createElement('div'); pn.className='r2-newpanel';
-  pn.innerHTML='<img src="assets/recap/r2-panel.png?v=1" alt="今日漫步完成"><button class="r2-newok" aria-label="確認"></button>';
+  pn.innerHTML='<img src="assets/recap/r2-panel.png?v=4" alt="今日漫步完成"><button class="r2-newok" aria-label="確認"></button>';
   fx.appendChild(pn);
 
   pn.querySelector('.r2-newok').onclick=e=>{ e.stopPropagation(); r2Go(); };
@@ -7754,6 +7852,14 @@ function openFoodPolyu(){
   _navTo('view-food-polyu');
 }
 /* 理工大學的故事卡：照片和日期用收集那天存下來的；還沒存過就用地點原圖、今天 */
+function spFlip(el){
+  if(el._busy) return; el._busy=true;
+  // 像真的翻一張卡：繞直軸轉到側面 → 換面 → 從另一側轉回來（停下來後沒有 3D，字不會糊）
+  el.animate([{transform:'perspective(1100px) rotateY(0deg)'},{transform:'perspective(1100px) rotateY(90deg) scale(.97)'}],{duration:260,easing:'cubic-bezier(.45,0,.9,.6)'}).onfinish=()=>{
+    el.classList.toggle('flipped');
+    el.animate([{transform:'perspective(1100px) rotateY(-90deg) scale(.97)'},{transform:'perspective(1100px) rotateY(0deg)'}],{duration:300,easing:'cubic-bezier(.1,.4,.55,1)'}).onfinish=()=>{ el._busy=false; };
+  };
+}
 function openStoryPolyu(idx){
   const i=(typeof idx==='number'&&idx>=0)?idx:PLACES.findIndex(p=>p.id==='polyu'), n=(S.myNotes&&S.myNotes[i])||null;
   const photo=(n&&n.photo)||NO_PHOTO;
@@ -7775,10 +7881,10 @@ function openStoryPolyu(idx){
   const hasMsg=n&&(n.text||n.emoji);
   const d=n&&n.time?new Date(n.time):null, ds=d?`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`:'';
   // 背面＝打卡時填好的那張留言卡（同一張卡圖、相片、留言、表情）；沒有留言就提示
-  const isWM=PLACES[i].id==='western_market', cimg=isWM?'assets/story/westernmarketnote.png?v=6':'assets/story/frame%20888.png?v=6';
+  const isWM=PLACES[i].id==='western_market', cimg=isWM?'assets/story/westernmarketnote.png?v=6':'assets/story/frame-888-short.png?v=1';
   bk.classList.toggle('empty',!hasMsg);
   bk.innerHTML=hasMsg
-    ?`<div class="spn-clip"><div class="spn"><img class="spn-card" src="${cimg}" alt=""><img class="spn-photo" alt=""><p class="spn-text"></p>${n.emoji?`<img class="spn-emo" src="${emojiSrc(n.emoji)}" alt="">`:''}<span class="spn-date">${ds}</span></div></div>`
+    ?`<div class="spn-clip"><div class="spn"><img class="spn-card" src="${cimg}" alt="">${isWM?'':`<span class="spn-place">${ncPlaceLabel(PLACES[i].id)}</span>`}<img class="spn-photo" alt=""><p class="spn-text"></p>${n.emoji?`<img class="spn-emo" src="${emojiSrc(n.emoji)}" alt="">`:''}<span class="spn-date">${ds}</span></div></div>`
     :`<div class="none"><img src="assets/food/peek/memo.png" alt=""><b>您還沒有留言</b><small>下次來這裡打卡時<br>記得留句話給本喵～</small></div>`;
   if(hasMsg){
     if(n.text) bk.querySelector('.spn-text').textContent=n.text;
@@ -7797,20 +7903,20 @@ function openStoryPolyu(idx){
 /* ══ 冰室・收集牆 ══ */
 const WL_AREAS=[
   {k:'sw',name:'上環\n中環',x:77,y:218,w:94,c:'#F4E2BE',
-   loc:[['西港城','story/backgroundwesternmarket.jpeg',1],['海安咖啡','story/PhotoScreen.jpg',1],['中環街市','',1],['舊牛奶公司倉庫',''],['都爹利街石階','',1]],
-   food:[['奶油多','food/Food-Butter-Toast.png',1],['牛肉治','food/Food-Corned-Beef-Sandwich.png',1],['樽裝鮮奶','food/Food-Bottled-Milk.png'],['腸粉','food/Food-Rice-Noodle-Rolls.png',1],['港式奶茶','food/Food-Hong-Kong-Milk-Tea.png'],['紅豆冰','food/Food-Red-Bean-Ice.png',1]],
-   cat:[['工作中','wardrobe/Lucky1.png'],['下午茶','wardrobe/Lucky2.png']]},
+   loc:[['都爹利街石階','',1],['西港城','story/backgroundwesternmarket.jpeg',1],['海安咖啡','story/PhotoScreen.jpg',1],['中環街市',''],['舊牛奶公司倉庫','']],
+   food:[['紅豆冰','food/Food-Red-Bean-Ice.png',1],['奶油多','food/Food-Butter-Toast.png',1],['牛肉治','food/Food-Corned-Beef-Sandwich.png',1],['樽裝鮮奶','food/Food-Bottled-Milk.png'],['腸粉','food/Food-Rice-Noodle-Rolls.png',1],['港式奶茶','food/Food-Hong-Kong-Milk-Tea.png']],
+   cat:[['咖啡正派送中','coffee',1],['廚神駕到','chef',1],['？？？','locked'],['重大發現','discovery',1],['？？？','locked2'],['細品','taste',1]]},
   {k:'mk',name:'旺角\n尖沙咀',x:215,y:232,w:96,c:'#F2D5C2',loc:[['尖沙咀海濱',''],['旺角街市','']],food:[['雞蛋仔','food/Food-Egg-Waffle.png'],['咖喱魚蛋','food/Food-Curry-Fish-Balls.png']],cat:[['散步','wardrobe/Lucky3.png']]},
   {k:'kc',name:'九龍城寨\n啟德',x:333,y:296,w:95,c:'#F4EBCF',loc:[['九龍城寨公園',''],['啟德','']],food:[['菠蘿包','food/Food-Pineapple-Bun.png']],cat:[]},
   {k:'wc',name:'灣仔',x:100,y:330,w:94,c:'#FBF6E9',loc:[['和昌大押','']],food:[['油雞大髀','food/Food-Soy-Sauce-Chicken-Leg.png']],cat:[['構圖大師','onboarding/hm3-cat.png']]},
-  {k:'ot',name:'其他',x:229,y:362,w:93,c:'#E6E1D6',loc:[['香港理工大學','diary/dex/polyu-1937.jpg',1],['紅磡站','']],food:[['菠蘿油','food/Food-Pineapple-Bun.png',1]],cat:[['學霸 Lucky','wardrobe/Lucky.png',1]]}
+  {k:'ot',name:'其他',x:229,y:362,w:93,c:'#E6E1D6',loc:[['香港理工大學','diary/dex/polyu-1937.jpg',1],['紅磡站','']],food:[['菠蘿油','food/Food-Pineapple-Bun.png',1]],cat:[['廚神駕到','chef',1],['？？？','locked']]}
 ];
 let _wlCur=null;
 function wlFit(){ const v=document.getElementById('view-wall'), ph=document.getElementById('wl-ph'); if(!v||!v.clientWidth) return;
   ph.style.transform=`scale(${Math.min(v.clientWidth/402,v.clientHeight/874)})`; }
 addEventListener('resize',wlFit);
 /* 冰室地圖板的便利貼（用戶給的素材，原圖數字抹掉改程式寫）：寬度等比放大，數字位置照原圖；試玩只開放上環中環、其他 */
-const WL_NOTE={sw:{w:116,x:45.8,y:77,show:'4/6'},mk:{w:128,x:49.7,y:67.7},wc:{w:112,x:49.3,y:64.7},ot:{w:124,x:46.8,y:62.4,show:'1/12'},kc:{w:118,x:47.8,y:69.8}};
+const WL_NOTE={sw:{w:96,x:45.8,y:77,show:'4/6'},mk:{w:106,x:49.7,y:67.7},wc:{w:93,x:49.3,y:64.7},ot:{w:116,x:46.8,y:62.4,show:'1/2'},kc:{w:98,x:47.8,y:69.8}};   // 便利貼縮小一點（原本太大）
 function wlBuild(){
   const ph=document.getElementById('wl-ph'); ph.querySelectorAll('.note').forEach(n=>n.remove());
   ph.classList.remove('picked'); _wlCur=null;
@@ -7818,7 +7924,7 @@ function wlBuild(){
     const got=(a.k==='sw'||a.k==='ot')?1:0, tot=a.loc.length+a.food.length+a.cat.length;   // 試玩：只有上環中環、其他打開
     const n=document.createElement('div'); n.className='note'+(got?'':' locked'); n.style.cssText=`left:${a.x}px;top:${a.y}px;--w:${a.w}px;--c:${a.c}`;
     const nb=WL_NOTE[a.k];
-    n.innerHTML=`<img src="assets/ui/wall-notes/v2/${a.k}.png?v=1" alt="${a.name.replace('\n','')}"><small style="top:${nb.y}%;left:${nb.x}%">${nb.show||got+'/'+tot}</small>`;
+    n.innerHTML=`<img src="assets/ui/wall-notes/v2/${a.k}.png?v=4" alt="${a.name.replace('\n','')}"><small style="top:${nb.y}%;left:${nb.x}%">${nb.show||got+'/'+tot}</small>`;
     n.style.setProperty('--w',nb.w+'px');
     n.onclick=e=>{ e.stopPropagation(); if(!got) return wlLockedTip(); wlPick(a,n); };   // 一個都還沒探索到的地區鎖起來   // 點便利貼：上面的地圖淡掉、軟木板圖鑑拉上來（兩張一排）；卡片點進去是原本回憶牆的故事卡／食物卡
     ph.appendChild(n);
@@ -7857,11 +7963,11 @@ function wlType(txt,delay){
 /* 已經畫好的食物卡正面（沒有的就用橘色空白框＋食物圖＋名字） */
 const WL_FOOD_DEX={'腸粉':['rice-noodle-rolls',1],'奶油多':['butter-toast',1],'牛肉治':['corned-beef',1],'紅豆冰':['red-bean-ice',1],'菠蘿油':['pineapple-bun',1]};
 /* 冰室圖鑑卡點開：沿用原本回憶牆的故事卡／食物卡頁面，返回時回到軟木板 */
-const WL_OPEN={loc:{'西港城':()=>openStory1(),'海安咖啡':()=>openDiary2_2(),'香港理工大學':()=>openStoryPolyu()},
+const WL_OPEN={loc:{'西港城':()=>openStory1(),'海安咖啡':()=>openDiary2_2(),'香港理工大學':()=>openStoryPolyu(),'都爹利街石階':()=>openStoryPolyu(PLACES.findIndex(p=>p.id==='duddell_street'))},
                food:{'奶油多':()=>openDiary4_1(),'牛肉治':()=>openFood1(),'菠蘿油':()=>openFoodPolyu()}};
 function wlOpen(k,nm){ const f=WL_OPEN[k]&&WL_OPEN[k][nm]; if(!f) return false; S._fromWall=true; f(); return true; }
 function wlReturn(){ if(!S._fromWall) return false; S._fromWall=false; _navTo('view-wall'); requestAnimationFrame(wlFit); setNavState('social',true); return true; }
-const WL_LOC_DEX={'西港城':'loc-western-market','海安咖啡':'loc-halfway-coffee','中環街市':'loc-central-market','都爹利街石階':'loc-duddell'};
+const WL_LOC_DEX={'西港城':'loc-western-market','海安咖啡':'loc-halfway-coffee','中環街市':'loc-central-market','都爹利街石階':'loc-duddell','香港理工大學':'loc-polyu'};
 /* 點收集到的食物卡 → 放大看背面的故事 */
 const WL_FOOD_BACK={'奶油多':'back/halfway_coffee','牛肉治':'back/western_market','樽裝鮮奶':'back/fringe_club','腸粉':'back/central_market','紅豆冰':'back/duddell_street','油雞大髀':'back/the_pawn','菠蘿油':'pineapple-back'};
 const WL_FOOD_FRONT={'腸粉':'central_market','紅豆冰':'duddell_street','樽裝鮮奶':'fringe_club','奶油多':'halfway_coffee','菠蘿油':'polyu','油雞大髀':'the_pawn'};
@@ -7881,14 +7987,15 @@ function wlPick(a,n){
 /* 軟木板上的三個分頁：地點／美食／Lucky 圖鑑 */
 function wlTab(k,pg){
   const a=_wlCur; if(!a) return; _wlTab=k; pg=pg||0;
-  document.querySelectorAll('#wl-panel .tab').forEach(t=>{ const on=t.dataset.k===k; t.classList.toggle('on',on); t.src=`assets/ui/wall-panel/tab-${t.dataset.k}-${on?'on':'off'}.png`; });
+  document.getElementById('wl-panel').dataset.k=k;   // 整塊板（含分頁）換成選中那一頁的設計稿
+  document.querySelectorAll('#wl-panel .tab').forEach(t=>{ const on=t.dataset.k===k; t.classList.toggle('on',on); t.src=`assets/ui/wall-panel/tab-${t.dataset.k}-${on?'on':'off'}.png?v=2`; });
   const arr=a[k], tray=document.getElementById('wl-tray'), PER=k==='cat'?9:4, pages=Math.max(1,Math.ceil(arr.length/PER));
   tray.classList.toggle('food',k!=='cat');
   pg=Math.min(Math.max(pg,0),pages-1);
   if(k==='loc'&&arr.length){
     tray.innerHTML=arr.slice(pg*PER,pg*PER+PER).map(([nm,img,ok],j)=>{
       const st=`style="animation-delay:${j*.06}s"`;
-      if(!ok) return `<div class="fc" ${st}><img class="bg" src="assets/diary/dex/cards/${a.k==='sw'?'loc-locked-cool':'loc-locked-pineapple'}.png" alt="？？？"></div>`;
+      if(!ok) return `<div class="fc" ${st}><img class="bg" src="assets/diary/dex/cards/${a.k==='sw'?'loc-locked-cool':'loc-locked-pineapple'}.png?v=2" alt="？？？"></div>`;
       const dc=WL_LOC_DEX[nm];
       const oc=WL_OPEN.loc[nm]?` onclick="wlOpen('loc','${nm}')"`:'';
       if(dc) return `<div class="fc" ${st}${oc}><img class="bg pinned" src="assets/diary/dex/cards/${dc}.png" alt="${nm}"></div>`;
@@ -7905,6 +8012,9 @@ function wlTab(k,pg){
       return fr?`<div class="fc" ${st}><span class="pin"></span><img class="bg" src="assets/food/cards/front/${fr}.png?v=1" alt="${nm}"></div>`
                :`<div class="fc" ${st}><span class="pin"></span><img class="bg" src="assets/diary/dex/food-card-blank.png" alt=""><b>${nm}</b><i style="background-image:url('assets/${img}')"></i></div>`;
     }).join('');
+  } else if(k==='cat'&&arr.length&&!arr[0][1].includes('/')){
+    // Lucky 圖鑑：直接貼 Lucky 貼紙（名字畫在貼紙上），三個一排；沒解鎖的是灰色剪影＋問號
+    tray.innerHTML=arr.slice(pg*PER,pg*PER+PER).map(([nm,img,ok],j)=>`<div class="lk${ok?'':' lock'}" style="--r:${[-3,2,-2,2.5,-1.5,3][j%6]}deg;animation-delay:${j*.06}s"><img src="assets/diary/dex/lucky/${img}.png?v=1" alt="${ok?nm:'未解鎖'}"></div>`).join('');
   } else
   tray.innerHTML=arr.length?arr.slice(pg*PER,pg*PER+PER).map(([nm,img,ok],j)=>`<div class="it ${k}${ok?'':' lock'}" style="--r:${[-2,1.5,-1,2,-1.5,1][j%6]}deg;animation-delay:${j*.05}s"><div class="pic" style="background-image:url('assets/${img||'diary/dex/card-locked.png'}')"></div><span>${ok?nm:'？？？'}</span></div>`).join('')
     :'<div style="grid-column:1/-1;text-align:center;margin-top:40px;font:800 13px CPKai,CPKaiFull,serif;color:#FFF8EA;text-shadow:0 1px 2px rgba(61,43,31,.45)">這一區還沒有可以收集的喔</div>';
@@ -8166,7 +8276,7 @@ function checkVisibleAnchors(){
   if(_ao&&_ao.classList.contains('show')) return;
   if(!map||!S.mapReady||!S.userMoved||S.walkingMode||S.currentPopup!=null||(typeof _curTab!=='undefined'&&_curTab!=='map')) return;
   const sz=map.getSize();
-  const onScreen=ll=>{ const pt=map.latLngToContainerPoint(ll); return pt.x>12&&pt.x<sz.x-12&&pt.y>40&&pt.y<sz.y-40; };
+  const onScreen=ll=>{ const pt=map.latLngToContainerPoint(ll); return pt.x>36&&pt.x<sz.x-36&&pt.y>150&&pt.y<sz.y-170;   /* 錨點要完整在畫面裡（不被邊緣、上方圖示、下方導航列擋住）才算看得到 */ };
   let pick=null, best=Infinity;
   S.anchors.forEach((a,i)=>{
     if(a.status==='hidden'||a.status==='done'||!anchorMarks[i]||!map.hasLayer(anchorMarks[i])) return;
@@ -8180,13 +8290,13 @@ function checkVisibleAnchors(){
   announceDiscovery(pick);
 }
 const DISCOVER_LINES=[
-  '咦？這裡好眼熟……本喵好像來過！快去看看！',
-  '鬍鬚在抖了……是本喵的老地方，說不定能想起什麼味道！',
-  '停！就是那裡～當年本喵常在這一帶打轉！',
-  '這裡的味道好熟悉……一定藏著本喵的往事！',
-  '又一個老地方！陪本喵去聽聽當年的故事吧～',
-  '嘿嘿，被你找到了！說不定冰室的新菜就藏在那裡～',
-  '人類，你的鼻子快跟本喵一樣靈了！又找到一處老地方～'
+  '咦？這裡好眼熟！快去看看！',
+  '鬍鬚在抖了，是老地方！',
+  '停！本喵以前常來這裡！',
+  '好熟悉的味道，去看看！',
+  '又一個老地方！走吧～',
+  '嘿嘿，被你找到了！',
+  '鼻子真靈！又找到一處！'
 ];
 /* 發現錨點：錨點放大跳動＋貓爪；第一次發現這個點時 Lucky 再說一句 */
 const _announced=new Set();
@@ -8199,7 +8309,7 @@ function announceDiscovery(idx){
   // 每發現一個新點說不同的話，用完才重新輪
   if(!S._discLines||!S._discLines.length) S._discLines=DISCOVER_LINES.slice();
   S.welcomeMsg=S._discLines.shift();
-  showWelcomeCat('點一下跳動的錨點，本喵給你帶路 🐾');
+  showWelcomeCat('點錨點出發 🐾');
 }
 /* 畫面邊緣的方向提示 */
 function updateEdgeHint(){
@@ -8215,7 +8325,7 @@ function updateEdgeHint(){
   const hide=()=>el.classList.remove('show');
   if(!S.mapReady||S.walkingMode||S.currentPopup!=null||(typeof _curTab!=='undefined'&&_curTab!=='map')) return hide();
   const sz=map.getSize();
-  const on=ll=>{ const pt=map.latLngToContainerPoint(ll); return pt.x>12&&pt.x<sz.x-12&&pt.y>40&&pt.y<sz.y-40; };
+  const on=ll=>{ const pt=map.latLngToContainerPoint(ll); return pt.x>36&&pt.x<sz.x-36&&pt.y>150&&pt.y<sz.y-170;   /* 錨點要完整在畫面裡（不被邊緣、上方圖示、下方導航列擋住）才算看得到 */ };
   let pick=null,best=Infinity,anyOn=false;
   S.anchors.forEach((a,i)=>{
     if(a.status==='hidden'||a.status==='done'||!anchorMarks[i]) return;
@@ -8242,8 +8352,8 @@ setInterval(()=>{ try{ updateEdgeHint(); }catch(e){} },400);
 
 /* 打卡完：不自動帶過去，只提醒繼續找 */
 function nudgeExplore(){
-  S.welcomeMsg='還有好多老地方和味道沒找回來呢～繼續四處走走吧！';
-  showWelcomeCat('四處走走看看 🐾');
+  S.welcomeMsg='還有好多老地方，繼續走吧！';
+  showWelcomeCat('四處走走 🐾');
 }
 
 let mtTmr;
@@ -8298,15 +8408,15 @@ const NW_P='assets/social/board/';
 /* 每個地點自己的留言（照設計稿：照片＋頭像＋名字＋留言，可帶一個表情 e） */
 const NW_BOARD={
   polyu:[
-    {d:'今天',n:'大灰熊',p:'m1',t:'推薦！吃了港理工旁邊富華冰室的菠蘿包，真不錯，便宜又美味！好多本地人下午茶都來買，大家逛到可以去嚐嚐！'},
+    {d:'今天',n:'大灰熊',p:'m1',t:'推薦！理工旁邊富華冰室的菠蘿包，便宜又好吃，好多本地人下午茶都來買！'},
     {d:'11.02',n:'鱈魚',p:'m2',e:'thumbs-up',t:'哇塞——理工大的樓也太太太太好拍了吧！'},
     {d:'11.02',n:'陸源源',p:'p2',t:'想起過去和組員一起熬夜通宵趕作業的日子，天亮了就在樓下買杯奶茶續命。好懷念啊～'},
-    {d:'09.18',n:'力力',p:'p1',e:'teary',t:'期末週爬這段紅磚樓梯爬到腿軟，Lucky 居然比我還早到，抱著書在等我…'},
+    {d:'09.18',n:'力力',p:'p1',e:'teary',t:'期末週爬紅磚樓梯爬到腿軟，Lucky 居然比我還早到！'},
     {d:'09.18',n:'Sky',p:'p4',e:'hungry',t:'下課跟同學去附近吃水餃，皮薄餡多，一碗下肚整個人都活過來了！'},
     {d:'09.05',n:'阿橙',p:'p5',t:'下雨天從理工大走去紅磡，車一直堵，乾脆慢慢走，順便把 Lucky 也拍進去了。'}
   ],
   duddell_street:[
-    {d:'今天',n:'小滿',p:'d1',e:'love',t:'等了好久終於等到煤氣燈亮起來！Lucky 站在燈下，跟我們兩個一起拍了張合照～'},
+    {d:'今天',n:'小滿',p:'d1',e:'love',t:'終於等到煤氣燈亮起來！Lucky 站在燈下跟我們合照～'},
     {d:'11.06',n:'阿德',p:'d2',e:'surprised',t:'全港最後四盞煤氣街燈原來就在這裡，晚上六點自己會亮，好神奇！'},
     {d:'10.21',n:'Momo',p:'d3',t:'石階的欄杆是一百多年前的，摸上去涼涼的。旁邊就是蘭桂坊，一轉身就安靜下來了。'},
     {d:'10.03',n:'鹹蛋黃',p:'d1',e:'yay',t:'在附近的冰室吃了紅豆冰再上來，甜甜的，配著街燈剛剛好！'}
@@ -8402,11 +8512,11 @@ function closeNoteWindow(){
   // 打卡後看完留言才出現下一個錨點，並照樣用跳動＋手指引導
   if(S.pendingSpawn!=null){
     const next=S.pendingSpawn; S.pendingSpawn=null; S.pendingGuide=false;
-    setTimeout(()=>{ spawnAnchor(next,true); S.quietAfterCheckin=false; nudgeExplore(); },500);
+    setTimeout(()=>{ spawnAnchor(next,true); S.quietAfterCheckin=false; nudgeExplore(); updateEdgeHint(); },500);   // 不移動鏡頭：下一站在畫面外時，邊緣的貓爪箭頭帶路
   } else if(S.pendingGuide){
     // 其他打卡點已經在地圖上了：直接引導到最近的下一個
     S.pendingGuide=false;
-    setTimeout(()=>{ S.quietAfterCheckin=false; nudgeExplore(); },500);
+    setTimeout(()=>{ S.quietAfterCheckin=false; nudgeExplore(); recenter&&recenter(); setTimeout(updateEdgeHint,700); },500);
   }
 }
 
@@ -8702,8 +8812,7 @@ async function enterWalking(idx){
 }
 
 /* 前往各地點路上 Lucky 說的話（沒寫的用預設） */
-const NAV_SAY={_:'探索的路上怎麼能沒有本喵，前方有颱階記得小心～',
-  duddell_street:'天快黑啦，跟本喵去石階等街燈亮，燈下可有好戲看～'};
+const NAV_SAY={_:'本喵陪你去，小心颱階～', duddell_street:'天快黑啦，去等街燈亮～'};
 let _companionMilestone=null;
 let _companionTimer=null;
 
@@ -8715,8 +8824,13 @@ function _showCompanionPopup(){
   // 每一趟導航只出現一次，不要一路上一直跳
   if(S._companionShownFor===S.targetIdx) return;
   S._companionShownFor=S.targetIdx;
-  { const pid=S.targetIdx!=null?PLACES[S.targetIdx].id:''; document.getElementById('cp-say').textContent=NAV_SAY[pid]||NAV_SAY._; }
-  if(S.targetIdx!=null){ const pid=PLACES[S.targetIdx].id; document.getElementById('cp-dest').textContent='正在前往'+(PLACE_ZH[pid]||PLACES[S.targetIdx].name.replace('\n',' '))+'......'; }
+  // 字拆成一個個 span，依序柔和淡入（第二行接在第一行後面）
+  const chs=(t,d0,step)=>[...t].map((c,i)=>`<span class="ch" style="animation-delay:${(d0+i*step).toFixed(3)}s">${c===' '?'&nbsp;':c}</span>`).join('');
+  const pid=S.targetIdx!=null?PLACES[S.targetIdx].id:'';
+  const say=NAV_SAY[pid]||NAV_SAY._;
+  document.getElementById('cp-say').innerHTML=chs(say,.75,.055);
+  const dest=S.targetIdx!=null?'正在前往'+(PLACE_ZH[pid]||PLACES[S.targetIdx].name.replace('\n',' '))+'......':'';
+  document.getElementById('cp-dest').innerHTML=chs(dest,.75+[...say].length*.055+.15,.035);
   const el=document.getElementById('nav-companion-popup');
   clearTimeout(_companionTimer);
   el.classList.remove('show','typed','hide');
@@ -8739,7 +8853,7 @@ function _companionTap(e){
     cat.classList.remove('jump'); void cat.offsetWidth; cat.classList.add('jump');
     return;
   }
-  const typing=[...el.querySelectorAll('.cp-type')].some(t=>t.getAnimations().some(a=>a.playState==='running'));
+  const typing=[...el.querySelectorAll('.ch')].some(t=>t.getAnimations().some(a=>a.playState==='running'));
   if(typing){ el.classList.add('typed'); clearTimeout(_companionTimer); _companionTimer=setTimeout(_hideCompanionPopup,3000); }
   else _hideCompanionPopup();
 }
@@ -9209,13 +9323,18 @@ function openNote(){
   setTimeout(()=>document.getElementById('note-ta').focus(),300);
 }
 
+/* 卡片標頭：「區　地名」（區名用故事卡的 area） */
+function ncPlaceLabel(id){ const T=(typeof TALES!=='undefined'&&TALES[id])||null, area=id==='polyu'?'紅磡':(T&&T.area)||''; return (area?area+'　':'')+(PLACE_ZH[id]||''); }
 function submitNote(){
   document.getElementById('view-polaroid').classList.remove('show');
   const photo=S.photos[0]||NO_PHOTO;
   document.getElementById('note-bg').style.backgroundImage=`url('${photo}')`;
   setCardPhoto('note-photo',photo);
   document.getElementById('note-ta-input').value='';
-  document.getElementById('note-card-img').src=(S.targetIdx!=null&&PLACES[S.targetIdx].id==='western_market')?'assets/story/westernmarketnote.png?v=6':'assets/story/frame%20888.png?v=6';
+  const _wm=S.targetIdx!=null&&PLACES[S.targetIdx].id==='western_market';
+  document.getElementById('note-card-img').src=_wm?'assets/story/westernmarketnote.png?v=6':'assets/story/frame-888-noplace.png?v=1';
+  { const pl=document.getElementById('nc-place'), id=S.targetIdx!=null?PLACES[S.targetIdx].id:'';   // 卡片標頭寫這次打卡的地點
+    pl.textContent=_wm?'':ncPlaceLabel(id); }
   tintCard('note-card-img'); setTimeout(fillCardDates,0);
   document.getElementById('view-note').classList.add('show');   // 不自動聚焦：否則提示文字前面一直有一條黑色游標
 }
@@ -9397,7 +9516,7 @@ async function framedPhotoBlob(url){
 }
 /* 卡片底色跟拍照時選的相框顏色：只換卡身的棕色（保留紙張紋理的明暗），
    避開左上角錨點標籤和卡片下方的按鈕 */
-const TINTABLE_CARDS=['frame%20888.png?v=6','frame%20890.png?v=6'];
+const TINTABLE_CARDS=['frame%20888.png?v=6','frame-888-noplace.png?v=1','frame%20890.png?v=6'];
 const GREEN_FRAMES=['#8FA08C','#44613F'];
 const _tintCache=new Map();
 async function recolorCard(src,fc){
@@ -9585,7 +9704,7 @@ function closeFoodcard(){
     S.pendingSpawn=hasNext?next:null; S.pendingGuide=true;
     if(S._taleFinish){
       // 引導玩家去看錨點上方冒出來的對話框（點對話框就是留言板）
-      setTimeout(()=>{ S.welcomeMsg='點點錨點上方的對話框，看看大家說了什麼！'; S._wcAction=()=>heyStickers(idx); showWelcomeCat(''); heyStickers(idx,true); },900);
+      setTimeout(()=>{ S.welcomeMsg='點對話框，看大家說了什麼！'; S._wcAction=()=>heyStickers(idx); showWelcomeCat(''); },900);   // 不自動晃三下（看起來一直彈來彈去），點 Lucky 的話才晃一下
     } else setTimeout(()=>openNoteWindow(idx),500);
   } else if(hasNext) setTimeout(()=>spawnAnchor(next),1500);
 }
@@ -9614,7 +9733,7 @@ const TALES={
   fringe_club:{area:'中環',year:'1892',photo:null,q:'“牛奶公司的倉庫，有最凍的樽仔奶！”',
     p:'這座紅白間條的大樓，以前是牛奶公司的冷藏倉庫。本喵最喜歡夏天跑進來乘涼，工人總會偷偷倒一點樽仔奶給我。',
     food:{n:'樽裝鮮奶',img:'Food-Bottled-Milk',stamp:'街坊',q:'“還樽先至會有下一樽啦～”',d:'紙盒奶普及前，喝完鮮奶是必須要交還玻璃樽的。',back:1},say:'是樽裝鮮奶！'},
-  duddell_street:{area:'中環',year:'1889',photo:'assets/story/duddell-lamp.jpg?v=2',q:'',
+  duddell_street:{area:'中環',year:'1889',photo:'assets/story/duddell-lamp.jpg?v=2',q:'“喝紅豆冰就能擁有甜甜的愛情嗎？”',
     p:'以前天一黑，總有個老伯拿著長竿，一盞一盞慢慢把街燈點亮。燈下的小情侶牽著手聊個沒完，連紅豆冰都放到融化了。哎，甜甜的戀愛，幾時輪到本喵我呀？',
     food:{n:'紅豆冰',say:'是充滿甜蜜愛情味道的紅荳冰！',img:'Food-Red-Bean-Ice',stamp:'招牌',q:'“成杯大半都畀碎冰霸晒？”',d:'喺冰塊好珍貴嘅年代，堆到成座小山咁嘅碎冰，不但顯得老闆大方豪爽。',back:1},say:'是紅豆冰！'},
   the_pawn:{area:'灣仔',year:'1888',photo:null,q:'“當舖樓下，飄住燒鵝香。”',
@@ -9641,8 +9760,8 @@ function guideToAnchor(idx){
   const p=PLACES[idx], ll=[p.lat,p.lng];
   setGuideFx(idx); S._proxGuide=false;
   map.fitBounds(L.latLngBounds([[S.player.lat,S.player.lng],ll]),{paddingTopLeft:[60,140],paddingBottomRight:[60,260],maxZoom:16,animate:true,duration:.9});
-  S.welcomeMsg='發現一處老地方！快來，本喵好像想起了什麼……';
-  setTimeout(()=>showWelcomeCat('點一下跳動的錨點去看看 🐾'),900);
+  S.welcomeMsg='發現老地方！快去看看～';
+  setTimeout(()=>showWelcomeCat('點錨點看看 🐾'),900);
 }
 /* 跳動放大的錨點＋光圈＋貓爪（不移動鏡頭）：引導時、或玩家走近任何還沒探索的錨點時用 */
 function setGuideFx(idx){
@@ -9818,7 +9937,15 @@ function taleShowStory(){
   // Memo 要走到的位置（量卡片最終位置，動畫開始前量）
   const cr=card.getBoundingClientRect(), own=card.classList.contains('own');
   const tgt=own?{x:.38,y:.394,w:.12}:{x:.857,y:.451,w:.13};
-  const tx=cr.left+cr.width*tgt.x, ty=cr.top+cr.height*tgt.y, sc=cr.width*tgt.w/er.width;
+  let tx=cr.left+cr.width*tgt.x, ty=cr.top+cr.height*tgt.y, sc=cr.width*tgt.w/er.width;
+  // 照片裡本來就有 Memo 的地點：開場的 Memo 直接縮小落到照片裡的 Memo 身上（照片是 object-fit:cover，要換算裁切）
+  const CAT_IN_PHOTO={duddell_street:{x:.616,y:.79,w:.15}}, cip=CAT_IN_PHOTO[PLACES[S.currentPopup]&&PLACES[S.currentPopup].id];
+  const ph=document.getElementById('tl-photo');
+  if(cip&&!own&&ph&&ph.naturalWidth){
+    const pr0=ph.getBoundingClientRect();   // 跟上面量卡片一樣，在卡片動畫開始前量
+    const k=Math.max(pr0.width/ph.naturalWidth,pr0.height/ph.naturalHeight), dw=ph.naturalWidth*k, dh=ph.naturalHeight*k;
+    tx=pr0.left+(pr0.width-dw)/2+dw*cip.x; ty=pr0.top+(pr0.height-dh)/2+dh*cip.y; sc=dw*cip.w/er.width;
+  }
   card.classList.add('in','soft');
   eat.animate([
     {transform:'none',opacity:1},
@@ -10090,7 +10217,7 @@ const SPOT_CARD={
   duddell_street:{name:'都爹利街石階',area:'中環 中西區',quote:'“噓—我的免費夜場開始啦～”'},
   the_pawn:{name:'和昌大押',area:'灣仔 灣仔區',quote:'“二叔公？在我面前他也只能算老二。”'}
 };
-const SCATTER_SPOTS=['western_market','halfway_coffee','fringe_club','central_market','duddell_street','the_pawn'];
+const SCATTER_SPOTS=['western_market','halfway_coffee','fringe_club','central_market','the_pawn'];   // 都爹利街是示範路線第二站，用固定位置（理工大學東南約 650 米），不隨機撒點
 /* 插畫地圖的海水範圍（由 fakemap.jpg 算出的粗格子，1=海）：撒點時避開海面 */
 const WATER_GW=164, WATER_GH=188, WATER_B64='AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAPAAAAAAAAAAAAAAAAAAAAAAAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAADjAAAAAAAAAAAAAAAAAAAAAAAAAAx4AAAAAAAAAAAAAAAAAAAAAAAAAI/AAAAAAAAAAAAAAAAAAAAAAAAADPwAAAAAAAAAAAAAAAAAAAAAAAAA/+AAAAAAAAAAAAAAAAAAAAAAAAAP/wAAAAAAAAAAAAAAAAAAAAAAAAD/8AAAAAAAAAAAAAAAAAAAAAAAAA//gAAAAAAAAAAAAAAAAAAAAAAAAP/wAAAAAAAAAAAAAAAAAAAAAAAAD/8AAAAAAAAAAAAAAAAAAAAAAAAA//AAAAAAAAAAAAAAAAAAAAAAAAAP/wAAAAAAAAAAAAAAAAAAAAAAAAD/8AAAAAAAAAAAAAAAAAAAAAAAAB//AAAAAAAAAAAAAAAAAAAAAAAAAf/wAAAAAAAAAAAAAAAAAAAAAAAAP/8AIAAAAAAAAAAAAAAAAAAAAAAD//AAAAAAAAAAAAAAAAAAAAAAAAAP/wAAAAAAAAAAAAAAAAAAAAAAAAD/8AAAAAAAAAAAAAAAAAAAAAAAAH//AAAAAAAAAAAAAAAAAAAAAAAAC//wAAAAAAAAAAAAAAAAAAAAAAAB//8AAAAAAAAAAAAAAAAAAAAAAAAP//AAAAAAAAAAAAAAAAAAAAAAAAH/////gAAAAAAAAAAAAAAAAAAAAD/////4AAAAAAAAAAAAAAAAAAAAA//////AAAAAAAAAAAAAAAAAAAAAf/////wAQAAAAAAAAAAAAAAAAAAH/////8AAAAAAAAAAAAAAAAAAAAD//////gAAAAAAAAAAAAAAAAAAAA//////4AAAAAAAAAAAAAAAAAAAAf/////+AAAAAAAAAAAAAAAAAAAAH//////gAAAAAAAAAAAAAAAAAAAD//////4AAAAAAAAAAAAAAAAAAAA//////+AAAAAAAAAAAAAAAAAAAA///////gAAAAAAAAAAAAAAAAAAAP//////4AAAAAAAAAAAAAAAAAAAD//////+AAAAAAAAAAAAAAAAAAAA///////gAAAAAAAAAAAAAAAAAAAP//////4AAAAAAAAAAAAAAAAAAAD//////+AAAAAAAAAAAAAAAAAAAA///////gAAAAAAAAAAAAAAAAAAAP//////4AAAAAAAAAAAAAAAAAAAD//////+AAAAAAAAAAAAAAAAAAAA///////gAAAAAAAAAAAAAAAAAAAP//////4AAAAAAAAAAAAAAAAAAAD//////+AAAAAAAAAAAAAAAAAAAA///////gAAAAAAAAAAAAAAAAAAAP//////4AAAAAAAAAAAAAAAAAAAD//////+AAAAAAAAAAAAAAAAAAAA///////gAAAAAAAAAAAAAAAAAAAH//////4AAAAAAAAAAAAAAAAAAAB//////+AAAAAAAAAAAAAAAAAAAA///////gAAAAAAAAAAAAAAAAAAAP//////4AAAAAAAAAAAAAAAAAAAA//////+AAAAAAAAAAAAAAAAAAAAH//////gAAAAAAAAAAAAAAAAAAAA//////4AAAAAAAAAAAAAAAAAAAAH/////+AAAAAAAAAAAAAAAAAAAAA//////gAAAAAAAAAAAAAAAAAAAAH/////4AAAAAAAAAAAAAAAAAAAAB/////+AAAAAAAAAAAAAAAAAAAAAf/////gAAAAAAAAAAAAAAAAAAAAH/////4AAAAAAAAAAAAAAAAAAAAB/////+AAAAAAAAAAAAAAAAAAAAAf/////AAAAAAAAAAAAAAAAAAAAAP/////wAAAAAAAAAAAAAAAAAAAAD/////4AAAAAAAAAAAAAAAAAAAAA/////8AAAAAAAAAAAAAAAAAAAAAH/////AAAAAAAAAAAAAAAAAAAAAH/////gAAAAAAAAAAAAAAAAAAAAB/////wAAAAAAAAAAAAAAAAAAAAAf////4AAAAAAAAAAAAAAAAAAAAAH////+AAAAAAAAAAAACAAAAAAAAD/////AAAAAAAAAAAAAgAAAAAAAA/////gAAAAAAAAAAAAAAAAAAAAAP////4AAAAAAAAAAAAAAAAAAAAAD////8AAAAAAAAAAAAAAAAAAAAAA////+AAAAAAAAAAAAAAAAAAAAAAP////AAAAAAAAAAAAAAAAAAAAAAD///AAAAAAAAAAAAAAAAAAAAAAAA///wAAAAAAAAAAAAAAAAAAAAAAAP//4AAAAAAAAAAAAAAAAAAAAAAAB//+AAAAAAAAAAAAAAAAAAAAAAAB///AAAAAAAAAAAAAAAAAAAAAAAB///wAAAAAAAAAAAAAAAAAAAAAAA///8AAAAAAAAAAAAAAAAAAAAAAD////AAAAAAAAAAAAAAAAAAAAAAB////wAAAAAAAAAIAAAAAAAAAAAAf///8AAAAAAAAAAQAAAAAAAAAAB/////AAAAAAP/AAAAAAAAAAAAAA/////wAAAAH//gAAAAAAAAAAAABv////8AAAH///8AAAAAAAAAAAAB9/////AAAf////AEAAAAAAAAAAD//////wAAf////wAAAAAAAAAAED//////8AAP////4AAAAAAAAABhD///////AAH////+AAAAAAAAAE8D///////wAD////w4AAAAAAAAfvD///////5gA////n+AAAAAAAAn7////////8////////wAAAAAAAZ+////////+f///////wAAAAAAAPfv////////n//////+DAAAAAAAH37////////z///////fwAAAAAAD98////////5////////4AAAAAAD/ef///////8////////4AAAAAAB/zv///////+f///////34AAAAAA/8/////////P////////+AAAAAAf/v////////j/////////gAAAAAP/7////////5/////////4AAAAAH/+////////8//////////AAAAAD//v////////f/////////gAAAAB//5//////////////////4AAAAA//+f/////////////////wAAAAAP//n/////////////////AAAAAAH//9////////////////4AGAAAAB///f///////////////+AfgAAAAf//3////////////////j/4AAAAP//9//////////////////+AAAAH///P//////////////////AAIAD///z//////////////////sAAEG///+///////////////////QADBf///v//////////////////uAf/////7///////////////////v//////+///////////////////////////n///////z//////////////////5///////x//////////////////+f//////4///////////////////3//////47//////////////////9//////8I///////////////////f/////+AP//////////////////z/////+AD//////////////////8//////AA///////////////////P/////gAP//////////////////7/////wAD//////////////////+/////4AA///////////////////v////8AAH//////////////////5////+AAA=';
 let _waterBits=null;
@@ -10426,9 +10553,9 @@ function _exitOnboarding(){
       document.activeElement.blur();
     switchTab('map');
     if(map)map.invalidateSize();
-    // 試玩路線：只放出第一個還沒打卡的點（之前的點照常顯示為已解鎖）
+    // 試玩路線：理工大學和都爹利街一開始就都在地圖上（鎖著）；畫面外的點由邊緣的貓爪箭頭指路
     for(const id of DEMO_ROUTE){ const idx=PLACES.findIndex(p=>p.id===id); if(idx<0) continue; const a=S.anchors[idx];
-      try{ if(a.status==='hidden') spawnAnchor(idx,true); }catch(e){} if(a.status!=='done') break; }
+      try{ if(a.status==='hidden') spawnAnchor(idx,true); }catch(e){} }
     try{ checkProximity(); }catch(e){}
     S.anchors.forEach(a=>{ a.inRange=false; });
     const mapEl=document.getElementById('map');
@@ -10455,7 +10582,7 @@ function showWelcomeCat(hint){
   if(typeof _curTab!=='undefined'&&_curTab!=='map') return;
   const el=document.getElementById('welcome-cat'), txt=document.getElementById('wc-text'), bubble=el.querySelector('.wc-bubble');
   const msg=S.welcomeMsg||'走吧人類！重遊老地方去～';
-  const wh=document.getElementById('wc-hint'); wh.textContent=typeof hint==='string'?hint:'點一下開始探索 🐾'; wh.style.display=wh.textContent?'':'none';   // 傳空字串＝不要下面的小字
+  const wh=document.getElementById('wc-hint'); wh.textContent=typeof hint==='string'?hint:'點一下出發 🐾'; wh.style.display=wh.textContent?'':'none';   // 傳空字串＝不要下面的小字
   el.classList.remove('out'); bubble.classList.remove('done'); txt.textContent='';
   txt.classList.toggle('one-line',msg.length<=13);
   bubble.classList.toggle('long',msg.length>26);
@@ -10512,8 +10639,8 @@ function closeWelcomeCat(action){
     // 第一次：打完招呼，接著叫玩家四處走走、去找本喵以前在香港的江湖傳說（不直接帶去錨點）
     if(!S.guideShown){
       S.guideShown=true;
-      S.welcomeMsg='四處走走看看，附近說不定藏着本喵的回憶！';
-      setTimeout(()=>showWelcomeCat('四處走走看看 🐾'),250);
+      S.welcomeMsg='四處走走，找找本喵的回憶！';
+      setTimeout(()=>showWelcomeCat('四處走走 🐾'),250);
       return;
     }
     S.mapReady=true;
@@ -10809,17 +10936,14 @@ function buildDiaryDay(el){
   });
 }
 function playDiaryDay(el,delay){
-  buildDiaryDay(el);
-  // 檔案標籤上的日期換成今天（圖上寫死 2026.5.12）
-  if(!el.querySelector('.dd-date')) el.insertAdjacentHTML('beforeend','<span class="dd-date"></span>');
-  const t=S.dj&&S.dj.date?S.dj.date:djToday(); el.querySelector('.dd-date').textContent=t;
-  el.classList.remove('play','shown'); void el.offsetWidth;
-  el.querySelectorAll('.dd-pt').forEach((im,i)=>im.style.animationDelay=(delay||0)+i*420+'ms');
-  el.classList.add('play');
+  // 結算的日記也用同一套：只出現今天去過的地點（裡面放一個 1113×1671 的日記頁，位置對齊原本的 1206×2622 框）
+  el._built=true;
+  el.innerHTML='<div class="dd dd512 dd-in"></div>';
+  playDD512(el.firstChild,delay,S.dj&&S.dj.date?S.dj.date:djToday());
 }
-document.querySelectorAll('.dd').forEach(buildDiaryDay);
+document.querySelectorAll('.dd:not(.dd512)').forEach(el=>{ if(el.id!=='td-day') buildDiaryDay(el); });
 // 結算用的大圖先在背景載入＋解碼，結算時不會卡一下
-setTimeout(()=>{ ['assets/diary/base.webp','assets/recap/r8-page-v3.webp','assets/recap/r2-panel.png?v=1','assets/recap/dj-thumb-0512.jpg','assets/recap/dj-folder.png',
+setTimeout(()=>{ ['assets/diary/base.webp','assets/recap/r8-page-v3.webp','assets/recap/r2-panel.png?v=4','assets/recap/dj-thumb-0512.jpg','assets/recap/dj-folder.png',
   'assets/diary/p-polyu.webp','assets/diary/p-haian.webp','assets/diary/p-western.webp','assets/diary/p-mine.webp'].forEach(u=>{ const i=new Image(); i.src=u; i.decode&&i.decode().catch(()=>{}); }); },2500);
 if(S&&S.diaryEdited){ const tdv=document.getElementById('tab-diary'); if(tdv) tdv.classList.add('edited'); }
 
@@ -10881,7 +11005,7 @@ function djRender(focusToday,pop){
   const st=djState(), t=S.dj, n=t.checkins.length, f=document.createElement('div');
   f.className='djf today'+((st==='ended'||st==='stale')&&!t.seen?' new':'');
   const names=t.checkins.map(i=>`<div><i>✓</i>${djPlaceName(i)}</div>`).join('');
-  let tab=`今天 ${md(t.date)}`, body='', go='';
+  let tab=`${md(t.date)}`, body='', go='';
   if(st==='empty'){
     body=`<span class="st idle">還沒出發</span><div class="empty"><img src="assets/wardrobe/Lucky.png" alt=""><b>今天還沒有出發喔～</b><p>走到錨點打卡，<br>Lucky 就會幫你記進今天的日記</p></div>`;
     go=`<button class="cp-btn cp-btn--solid cp-btn--lg" onclick="djGoMap()">去地圖探索</button>`;
@@ -10968,7 +11092,8 @@ function djEndDay(){
   // 今天的路線畫完後，「今日漫步完成」面板自動滑上來（不用再點一下）
   clearTimeout(window._r2OpenT);
   // 路線 7 段、每段 0.42 秒，約 3.3 秒畫完 → 淡入裝飾頁 → 再滑出「今日漫步完成」
-  const _tdd=_tdv.querySelector('#td-edited .td-date'); if(_tdd) _tdd.textContent=S.dj.date;
+  const _tdd=_tdv.querySelector('#td-edited .td-date'); if(_tdd) _tdd.textContent='';
+  { const tp=_tdv.querySelector('#td-edited .td-plain'); if(tp) playDD512(tp,0,S.dj.date,true); }   // 編輯後的日記也只放今天去過的地點
   clearTimeout(window._tdDecoT); window._tdDecoT=setTimeout(()=>_tdv.classList.add('decorated'),3700);
   window._r2OpenT=setTimeout(()=>{ const td=document.getElementById('tab-diary'); if(td&&td.classList.contains('show')&&document.getElementById('view-recap2').style.display!=='flex'){ td.onclick=null; openRecap2(); } },4700);
 }
@@ -10990,16 +11115,58 @@ function djLand(){
 const DJ_STATIC={'2026.5.12':true};
 /* 5.12 日記（11/11 新版整頁，1113×1671）：底圖擦掉打卡點，照片和箭頭一個一個出現，最後跟原圖完全一樣 */
 const DD512=[["polyu",648,885,320,501,"p"],["a3",502,1308,200,67,"a","inset(0 0 0 100%)"],["haian",215,999,299,472,"p"],["a2",178,722,121,416,"a","inset(100% 0 0 0)"],["western",312,624,224,343,"p"],["a1",388,478,143,130,"a","inset(0 100% 0 0)"],["central",574,241,249,442,"p"]];
-function playDD512(el,delay,date){
+/* 日記上每個地點的拍立得（1113×1671 座標）；都爹利街放在中環那一格（真實位置也在中環） */
+const DD_SLOT={
+  polyu:{p:'polyu',box:[648,885,320,501],out:[632,1025],in:[985,1010]},
+  halfway_coffee:{p:'haian',box:[215,999,299,472],out:[228,985],in:[470,1365]},
+  western_market:{p:'western',box:[312,624,224,343],out:[420,612],in:[300,835]},
+  central_market:{p:'central',box:[574,241,249,442],out:[835,470],in:[640,705]},
+  duddell_street:{p:'duddell',box:[574,241,249,437],out:[835,470],in:[640,705]}
+};
+/* 原圖手繪箭頭剛好連著的兩站就用原圖的箭頭，其他組合用程式畫的虛線箭頭 */
+const DD_ARROW_ART={'polyu>halfway_coffee':'a3','halfway_coffee>western_market':'a2','western_market>central_market':'a1'};
+function djDayPlaces(){
+  const t=S.dj||{checkins:[]}, n=t.endedCount||t.checkins.length;
+  const ids=t.checkins.slice(0,n).map(i=>PLACES[i]&&PLACES[i].id).filter(id=>DD_SLOT[id]);
+  // 中環街市和都爹利街佔同一格，只留先到的那個
+  return ids.filter((id,k)=>!(DD_SLOT[id].p!==id&&ids.slice(0,k).some(o=>DD_SLOT[o].box===DD_SLOT[id].box)) && ids.indexOf(id)===k);
+}
+function ddArrowSVG(a,b,delay){
+  const [x1,y1]=a, [x2,y2]=b, dx=x2-x1, dy=y2-y1, L=Math.hypot(dx,dy)||1;
+  // 往左手邊彎一點，像手畫的弧線
+  const cx=(x1+x2)/2+dy/L*L*.4, cy=(y1+y2)/2-dx/L*L*.4;   // 弧線往左邊彎得明顯一點
+  const tx=x2-cx, ty=y2-cy, tl=Math.hypot(tx,ty)||1, ux=tx/tl, uy=ty/tl, hs=26;
+  const h1=[x2-ux*hs-uy*hs*.75, y2-uy*hs+ux*hs*.75], h2=[x2-ux*hs+uy*hs*.75, y2-uy*hs-ux*hs*.75];
+  const id='m'+Math.random().toString(36).slice(2,8), d=`M${x1} ${y1} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${x2} ${y2}`;
+  return `<svg class="dd-arr" viewBox="0 0 1113 1671" style="animation-delay:${delay}ms"><defs><mask id="${id}" maskUnits="userSpaceOnUse"><path d="${d}" fill="none" stroke="#fff" stroke-width="16" pathLength="1" class="dd-arr-draw" style="animation-delay:${delay}ms"/></mask></defs>`+
+    `<g mask="url(#${id})"><path d="${d}" fill="none" stroke="#4E6549" stroke-width="6" stroke-linecap="round" stroke-dasharray="20 15"/></g>`+
+    `<path class="dd-arr-head" style="animation-delay:${delay+520}ms" d="M${h1[0].toFixed(1)} ${h1[1].toFixed(1)} L${x2} ${y2} L${h2[0].toFixed(1)} ${h2[1].toFixed(1)}" fill="none" stroke="#4E6549" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+function playDD512(el,delay,date,still){
   const pct=(v,t)=>v/t*100+'%';
-  el.innerHTML=date?`<img class="dd-base" src="assets/diary/d512/base-nodate.webp?v=3" alt=""><span class="dd512-date">${date}</span>`:'<img class="dd-base" src="assets/diary/d512/base.webp?v=3" alt="2026.5.12 日記">';
-  DD512.forEach(([n,x,y,w,h,k,from],i)=>{
-    const im=document.createElement('img'); im.className='dd-pt '+k; im.src='assets/diary/d512/'+n+'.webp?v=3'; im.alt='';
-    Object.assign(im.style,{left:pct(x,1113),top:pct(y,1671),width:pct(w,1113),height:pct(h,1671),animationDelay:(delay||0)+i*420+'ms'});
+  el.innerHTML=date?`<img class="dd-base" src="assets/diary/d512/base-clean-nodate.webp?v=1" alt=""><span class="dd512-date">${date}</span>`:'<img class="dd-base" src="assets/diary/d512/base-clean.webp?v=1" alt="2026.5.12 日記">';
+  // 5.12（沒給日期）＝完整四站；今天＝只放今天真的打過卡的地點，順序照打卡順序
+  const items=[];
+  if(!date){ DD512.forEach(r=>items.push(r)); }
+  else{
+    const ids=djDayPlaces();
+    ids.forEach((id,k)=>{
+      if(k){ const prev=ids[k-1], art=DD_ARROW_ART[prev+'>'+id];
+        if(art){ const r=DD512.find(x=>x[0]===art); items.push(r); }
+        else items.push({svg:[DD_SLOT[prev].out,DD_SLOT[id].in]}); }
+      const sl=DD_SLOT[id], b=sl.box; items.push([sl.p,b[0],b[1],b[2],b[3],'p']);
+    });
+  }
+  items.forEach((r,i)=>{
+    const dl=(delay||0)+i*420;
+    if(r.svg){ el.insertAdjacentHTML('beforeend',ddArrowSVG(r.svg[0],r.svg[1],dl)); return; }
+    const [n,x,y,w,h,k,from]=r;
+    const im=document.createElement('img'); im.className='dd-pt '+k; im.src='assets/diary/d512/'+n+'.webp?v=4'; im.alt='';
+    Object.assign(im.style,{left:pct(x,1113),top:pct(y,1671),width:pct(w,1113),height:pct(h,1671),animationDelay:dl+'ms'});
     if(from) im.style.setProperty('--from',from);
     el.appendChild(im);
   });
-  el.classList.remove('play'); void el.offsetWidth; el.classList.add('play');
+  el.classList.remove('play','shown'); void el.offsetWidth; el.classList.add(still?'shown':'play');
 }
 function djOpen(k){
   const v=document.getElementById('dj-view'), pg=document.getElementById('djv-page');
