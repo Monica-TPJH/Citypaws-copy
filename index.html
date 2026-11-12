@@ -571,6 +571,9 @@
   .sc-more{margin-top:6px;align-self:center;}
   .sc-map{flex:1;position:relative;border-radius:10px;overflow:hidden;cursor:pointer;container-type:inline-size;aspect-ratio:742/982;align-self:flex-start;}
   .sc-map>img{position:absolute;left:0;top:0;width:100%;height:auto;}
+  .sc-map.mine{aspect-ratio:1113/1671;background:#FBF9EF;}
+  .sc-map.mine .sc-dd{position:absolute;left:0;top:0;width:100%;aspect-ratio:1113/1671;}
+  .sc-map.mine .sc-stat{display:none;}   /* 日記上已經有日期 */
   /* 蓋住地圖圖上原本畫的統計框（742×982 圖：x 1.6–39.8%、y 5–27.6%，換成寬度百分比） */
   .sc-stat{position:absolute;left:1.6%;top:6.6cqw;width:38.4%;height:29.8cqw;box-sizing:border-box;padding:4px 7px;border-radius:8px;background:#FFFDF4;border:2px solid #4E3B30;
     font:700 11px Nunito,CPKai,CPKaiFull,sans-serif;color:#4E3B30;line-height:1.75;display:flex;flex-direction:column;justify-content:center;}
@@ -1524,7 +1527,7 @@
   #r2-fx div{position:absolute;background-repeat:no-repeat;}
   #r2-wrap.fx #r2-base{clip-path:inset(0 0 26.9% 0);}
   #r2-fx .r2-panel{animation:r2PanelUp .65s cubic-bezier(.2,.9,.3,1) both;}
-  #r2-fx .r2-newpanel{position:absolute;left:0;right:0;bottom:0;z-index:2;pointer-events:auto;animation:r2PanelIn .8s cubic-bezier(.2,.9,.3,1) both;}
+  #r2-fx .r2-newpanel{position:absolute;left:0;right:0;bottom:0;z-index:2;pointer-events:auto;animation:r2PanelIn .6s cubic-bezier(.2,.9,.3,1) both;}
   @keyframes r2PanelIn{from{transform:translateY(100%);opacity:.3}60%{opacity:1}to{transform:none;opacity:1}}
   #r2-fx .r2-newpanel img{animation:none;}
   #r2-fx .r2-newpanel img{display:block;width:100%;height:auto;}
@@ -2240,14 +2243,25 @@
   /* 11/12：整塊軟木板＋上方三個分頁直接用設計稿（選中的分頁亮起、抬高）；分頁圖片只留作點擊區 */
   #wl-ph .panel{background:url('assets/ui/wall-panel/panel-loc.png?v=1') center top/100% auto no-repeat;}
   #wl-ph .panel[data-k=food]{background-image:url('assets/ui/wall-panel/panel-food.png?v=1');}
-  #wl-ph .panel[data-k=cat]{background-image:url('assets/ui/wall-panel/panel-cat.png?v=1');}
+  #wl-ph .panel[data-k=cat]{background-image:url('assets/ui/wall-panel/panel-cat.png?v=2');}
   #wl-ph .panel .tab,#wl-ph .panel .tab.on,#wl-ph .panel .tab[data-k=food].on{opacity:0;top:16px !important;z-index:3;transform:none !important;filter:none !important;}
   #wl-ph .panel .cork{background:none !important;}
+  /* 分頁切換：三張板子疊在一起交叉淡入，卡片跟著輕輕淡入 */
+  #wl-ph .panel,#wl-ph .panel[data-k]{background-image:none !important;}
+  #wl-ph .panel .pbg{position:absolute;inset:0;z-index:0;background:center top/100% auto no-repeat;opacity:0;transition:opacity .28s ease;pointer-events:none;}
+  #wl-ph .panel .pbg.on{opacity:1;}
+  #wl-ph .panel .pbg[data-k=loc]{background-image:url('assets/ui/wall-panel/panel-loc.png?v=1');}
+  #wl-ph .panel .pbg[data-k=food]{background-image:url('assets/ui/wall-panel/panel-food.png?v=1');}
+  #wl-ph .panel .pbg[data-k=cat]{background-image:url('assets/ui/wall-panel/panel-cat.png?v=2');}
+  #wl-ph .grid.swap{animation:wlTraySwap .32s ease both;}
+  @keyframes wlTraySwap{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
   #wl-ph .cork{position:absolute;left:0;top:35px;width:100%;bottom:0;z-index:1;background:url(assets/ui/wall-panel/cork-tall.png) center top/100% auto no-repeat;}
   #wl-ph .cork .hd{position:absolute;left:0;right:0;top:24px;text-align:center;font:800 13px CPKai,CPKaiFull,serif;color:#FFF8EA;text-shadow:0 1px 2px rgba(61,43,31,.45);letter-spacing:.04em}
   /* Lucky 圖鑑：貼紙三個一排、微微歪著貼 */
-  #wl-ph .grid .lk{display:flex;align-items:flex-end;justify-content:center;height:150px;rotate:var(--r,0deg);animation:wlItIn .45s cubic-bezier(.3,1.5,.5,1) both;}
-  #wl-ph .grid .lk img{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 3px 3px rgba(61,43,31,.3));}
+  #wl-ph .grid:has(.lk){grid-template-columns:repeat(2,1fr) !important;gap:26px 22px !important;padding:10px 18px 0 !important;}   /* Lucky 貼紙一排兩個 */
+  #wl-ph .grid .lk{display:flex;align-items:flex-end;justify-content:center;height:190px;rotate:var(--r,0deg);animation:wlItIn .45s cubic-bezier(.3,1.5,.5,1) both;}
+  #wl-ph .grid .lk img{height:168px;width:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 3px 3px rgba(61,43,31,.3));}
+  #wl-ph .grid .lk.lk-scholar img{height:184px;max-width:none;}   /* 旁聽學神原圖四周空白多，放大一點跟旁邊一樣大 */
   #wl-ph .grid .lk.lock img{filter:drop-shadow(0 2px 2px rgba(61,43,31,.2));}
   #wl-ph .grid{position:absolute;left:22px;right:22px;top:54px;bottom:78px;overflow:hidden;display:grid;grid-template-columns:repeat(3,1fr);gap:16px 14px;align-content:start;padding:4px 2px 0}
   /* 美食圖鑑：一頁 2×2 張食物卡；收集到的釘圖釘，沒收集到的用灰色問號卡 */
@@ -5209,7 +5223,7 @@
       <div class="tl-flip" id="tl-flip" onclick="taleFlip()">
         <div class="tl-face front"><img id="tl-front-img" src="assets/food/cards/pineapple-front.png?v=1" alt=""><img class="tl-fimg" id="tl-fimg" alt=""><i class="tl-fstamp" id="tl-fstamp"></i><b class="tl-ft">菠蘿油</b></div>
         <div class="tl-face back">
-          <img src="assets/food/cards/pineapple-back.png?v=2" alt="">
+          <img src="assets/food/cards/pineapple-back.png?v=3" alt="">
           <div class="tl-stamp"><i>傳世</i></div>
           <b class="tl-bt">菠蘿油</b>
           <q class="tl-bq"><span class="fp-lk"></span>“菠蘿喺邊度？根本就冇。”</q>
@@ -7135,7 +7149,7 @@ const SC_USERS={
   fai:{name:'阿輝',av:'assets/emoji/wink.png',on:true},
   momo:{name:'Momo',av:'assets/emoji/happy.png',on:true}
 };
-const SC_FOOD={pine:['food-pineapple-bun'],roll:['food-rice-roll'],beef:['food-beef-sandwich'],toast:['food-butter-toast']};
+const SC_FOOD={ice:['food-red-bean-ice'],pine:['food-pineapple-bun'],roll:['food-rice-roll'],beef:['food-beef-sandwich'],toast:['food-butter-toast']};
 const SC_POSTS={
   friends:[
     {u:'gentleman',t:'16小時前',d:'2026.06.05',km:'5.6',n:10,f:['pine','roll'],like:10,cmt:8,star:2,share:2,route:'上環・西港城・理工大學'},
@@ -7165,7 +7179,7 @@ function scRender(dir){
     const foods=p.f.map(k=>`<img src="${SC_P+SC_FOOD[k][0]}.png" alt="">`).join('');
     el.innerHTML=`<div class="sc-body">
         <div class="sc-foods"><h4>獲得以下食物圖鑑</h4>${foods}<button class="sc-more cp-btn cp-btn--soft cp-btn--xs">查看全部</button></div>
-        <div class="sc-map"><img src="${SC_P}map-route.png" alt="${p.route}"><div class="sc-stat"><div><i><svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg></i>${p.d}</div><div><i><svg viewBox="0 0 24 24"><ellipse cx="12" cy="16" rx="4.6" ry="3.8"/><circle cx="6" cy="10.5" r="1.8"/><circle cx="9.6" cy="6.5" r="1.8"/><circle cx="14.4" cy="6.5" r="1.8"/><circle cx="18" cy="10.5" r="1.8"/></svg></i>${p.km}km</div><div><i><svg viewBox="0 0 24 24"><path d="M12 21s-6.5-6.1-6.5-11A6.5 6.5 0 0 1 18.5 10c0 4.9-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg></i>${p.n} 個貓點</div></div></div>
+        <div class="sc-map${p.mine?' mine':''}">${p.mine?'<div class="dd dd512 sc-dd"></div>':`<img src="${SC_P}map-route.png" alt="${p.route}">`}<div class="sc-stat"><div><i><svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg></i>${p.d}</div><div><i><svg viewBox="0 0 24 24"><ellipse cx="12" cy="16" rx="4.6" ry="3.8"/><circle cx="6" cy="10.5" r="1.8"/><circle cx="9.6" cy="6.5" r="1.8"/><circle cx="14.4" cy="6.5" r="1.8"/><circle cx="18" cy="10.5" r="1.8"/></svg></i>${p.km}km</div><div><i><svg viewBox="0 0 24 24"><path d="M12 21s-6.5-6.1-6.5-11A6.5 6.5 0 0 1 18.5 10c0 4.9-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg></i>${p.n} 個貓點</div></div></div>
       </div>
       <div class="sc-foot">
         <span class="sc-av"><img src="${u.av}" alt=""></span>
@@ -7186,6 +7200,7 @@ function scRender(dir){
     act('.sc-av',()=>scSheet('diary',p)); act('.sc-who',()=>scSheet('diary',p)); act('.sc-map',()=>scSheet('diary',p));
     act('.sc-more',()=>scSheet('foods',p));
     feed.appendChild(el);
+    if(p.mine) playDD512(el.querySelector('.sc-dd'),0,p.d,true);
   });
   if(dir){ feed.style.setProperty('--dx',dir>0?'40px':'-40px'); feed.classList.remove('swap'); void feed.offsetWidth; feed.classList.add('swap'); feed.scrollTop=0; }
 }
@@ -7239,8 +7254,9 @@ function scSheet(kind,p){
     const inp=card.querySelector('input'); card.querySelector('.sc-cmt button').onclick=()=>{ const v=inp.value.trim(); if(!v) return; list.push(['me',v]); p.cmt++; inp.value=''; draw(); card.querySelector('h3').firstChild.textContent=`留言 (${p.cmt})`; scRender(); };
   } else if(kind==='diary'){
     const u=SC_USERS[p.u];
-    card.innerHTML=`<h3>${scAv(p.u)}${u.name} 的日記${x}</h3><p class="sub">${p.d}・${p.route}・${p.km} km</p><img class="sc-big" src="${SC_P}map-route.png" alt="">
+    card.innerHTML=`<h3>${scAv(p.u)}${u.name} 的日記${x}</h3><p class="sub">${p.d}・${p.route}・${p.km} km</p>${p.mine?'<div class="sc-bigw"><div class="sc-big dd dd512"></div></div>':`<img class="sc-big" src="${SC_P}map-route.png" alt="">`}
 `;
+    if(p.mine) playDD512(card.querySelector('.sc-big.dd512'),0,p.d,true);
   } else if(kind==='foods'){
     card.innerHTML=`<h3>獲得的食物圖鑑${x}</h3><div class="sc-list">${p.f.map(k=>`<img src="${SC_P+SC_FOOD[k][0]}.png" alt="" style="width:100%">`).join('')}</div>`;
   } else if(kind==='add'){
@@ -7263,7 +7279,8 @@ function scSheet(kind,p){
       <button class="sc-go cp-btn cp-btn--solid cp-btn--lg" style="margin-top:12px">發佈</button>`;
     playDD512(card.querySelector('.sc-big.dd512'),0,S.dj.date,true);   // 分享的日記也只放今天去過的地點
     card.querySelector('.sc-go').onclick=()=>{ SC_USERS.me={name:'我',av:myAvatar(),on:true};
-      SC_POSTS[SC.view].unshift({u:'me',t:'剛剛',d:S.dj.date,km:'4.2',n:4,f:['pine','roll'],like:0,cmt:0,star:0,share:0,route:'理工大學・海安咖啡・西港城'});
+      { const ids=djDayPlaces(), FK={polyu:'pine',duddell_street:'ice',western_market:'beef',halfway_coffee:'toast',central_market:'roll'};
+        SC_POSTS[SC.view].unshift({u:'me',t:'剛剛',d:S.dj.date,km:(ids.length*.6+.4).toFixed(1),n:ids.length,f:ids.map(id=>FK[id]).filter(Boolean),like:0,cmt:0,star:0,share:0,route:ids.map(id=>PLACE_ZH[id]).join('・'),mine:true}); }   // 分享的就是今天這一份日記
       scClose(); scRender(); scToast('已分享為動態 🎉'); };
   }
   document.getElementById('sc-sheet').classList.add('show');
@@ -7905,11 +7922,11 @@ const WL_AREAS=[
   {k:'sw',name:'上環\n中環',x:77,y:218,w:94,c:'#F4E2BE',
    loc:[['都爹利街石階','',1],['西港城','story/backgroundwesternmarket.jpeg',1],['海安咖啡','story/PhotoScreen.jpg',1],['中環街市',''],['舊牛奶公司倉庫','']],
    food:[['紅豆冰','food/Food-Red-Bean-Ice.png',1],['奶油多','food/Food-Butter-Toast.png',1],['牛肉治','food/Food-Corned-Beef-Sandwich.png',1],['樽裝鮮奶','food/Food-Bottled-Milk.png'],['腸粉','food/Food-Rice-Noodle-Rolls.png',1],['港式奶茶','food/Food-Hong-Kong-Milk-Tea.png']],
-   cat:[['咖啡正派送中','coffee',1],['廚神駕到','chef',1],['？？？','locked'],['重大發現','discovery',1],['？？？','locked2'],['細品','taste',1]]},
+   cat:[['咖啡正派送中','coffee',1],['廚神駕到','chef',1],['重大發現','discovery',1],['？？？','locked'],['？？？','locked2'],['細品','taste',1]]},
   {k:'mk',name:'旺角\n尖沙咀',x:215,y:232,w:96,c:'#F2D5C2',loc:[['尖沙咀海濱',''],['旺角街市','']],food:[['雞蛋仔','food/Food-Egg-Waffle.png'],['咖喱魚蛋','food/Food-Curry-Fish-Balls.png']],cat:[['散步','wardrobe/Lucky3.png']]},
   {k:'kc',name:'九龍城寨\n啟德',x:333,y:296,w:95,c:'#F4EBCF',loc:[['九龍城寨公園',''],['啟德','']],food:[['菠蘿包','food/Food-Pineapple-Bun.png']],cat:[]},
   {k:'wc',name:'灣仔',x:100,y:330,w:94,c:'#FBF6E9',loc:[['和昌大押','']],food:[['油雞大髀','food/Food-Soy-Sauce-Chicken-Leg.png']],cat:[['構圖大師','onboarding/hm3-cat.png']]},
-  {k:'ot',name:'其他',x:229,y:362,w:93,c:'#E6E1D6',loc:[['香港理工大學','diary/dex/polyu-1937.jpg',1],['紅磡站','']],food:[['菠蘿油','food/Food-Pineapple-Bun.png',1]],cat:[['廚神駕到','chef',1],['？？？','locked']]}
+  {k:'ot',name:'其他',x:229,y:362,w:93,c:'#E6E1D6',loc:[['香港理工大學','diary/dex/polyu-1937.jpg',1],['紅磡站','']],food:[['菠蘿油','food/Food-Pineapple-Bun.png',1],['港式奶茶','food/Food-Hong-Kong-Milk-Tea.png']],cat:[['旁聽學神','scholar',1],['？？？','locked']]}
 ];
 let _wlCur=null;
 function wlFit(){ const v=document.getElementById('view-wall'), ph=document.getElementById('wl-ph'); if(!v||!v.clientWidth) return;
@@ -7964,7 +7981,7 @@ function wlType(txt,delay){
 const WL_FOOD_DEX={'腸粉':['rice-noodle-rolls',1],'奶油多':['butter-toast',1],'牛肉治':['corned-beef',1],'紅豆冰':['red-bean-ice',1],'菠蘿油':['pineapple-bun',1]};
 /* 冰室圖鑑卡點開：沿用原本回憶牆的故事卡／食物卡頁面，返回時回到軟木板 */
 const WL_OPEN={loc:{'西港城':()=>openStory1(),'海安咖啡':()=>openDiary2_2(),'香港理工大學':()=>openStoryPolyu(),'都爹利街石階':()=>openStoryPolyu(PLACES.findIndex(p=>p.id==='duddell_street'))},
-               food:{'奶油多':()=>openDiary4_1(),'牛肉治':()=>openFood1(),'菠蘿油':()=>openFoodPolyu()}};
+               food:{}};   // 美食卡一律打開設計好的背面故事卡（WL_FOOD_BACK）
 function wlOpen(k,nm){ const f=WL_OPEN[k]&&WL_OPEN[k][nm]; if(!f) return false; S._fromWall=true; f(); return true; }
 function wlReturn(){ if(!S._fromWall) return false; S._fromWall=false; _navTo('view-wall'); requestAnimationFrame(wlFit); setNavState('social',true); return true; }
 const WL_LOC_DEX={'西港城':'loc-western-market','海安咖啡':'loc-halfway-coffee','中環街市':'loc-central-market','都爹利街石階':'loc-duddell','香港理工大學':'loc-polyu'};
@@ -7987,9 +8004,13 @@ function wlPick(a,n){
 /* 軟木板上的三個分頁：地點／美食／Lucky 圖鑑 */
 function wlTab(k,pg){
   const a=_wlCur; if(!a) return; _wlTab=k; pg=pg||0;
-  document.getElementById('wl-panel').dataset.k=k;   // 整塊板（含分頁）換成選中那一頁的設計稿
+  { const pn=document.getElementById('wl-panel');
+    if(!pn.querySelector('.pbg')) pn.insertAdjacentHTML('afterbegin',['loc','food','cat'].map(x=>`<i class="pbg" data-k="${x}"></i>`).join(''));
+    pn.querySelectorAll('.pbg').forEach(e=>e.classList.toggle('on',e.dataset.k===k));
+    if(pn.dataset.k&&pn.dataset.k!==k){ const tr=document.getElementById('wl-tray'); tr.classList.remove('swap'); void tr.offsetWidth; tr.classList.add('swap'); }
+    pn.dataset.k=k; }   // 整塊板（含分頁）換成選中那一頁的設計稿
   document.querySelectorAll('#wl-panel .tab').forEach(t=>{ const on=t.dataset.k===k; t.classList.toggle('on',on); t.src=`assets/ui/wall-panel/tab-${t.dataset.k}-${on?'on':'off'}.png?v=2`; });
-  const arr=a[k], tray=document.getElementById('wl-tray'), PER=k==='cat'?9:4, pages=Math.max(1,Math.ceil(arr.length/PER));
+  const arr=a[k], tray=document.getElementById('wl-tray'), PER=4, pages=Math.max(1,Math.ceil(arr.length/PER));
   tray.classList.toggle('food',k!=='cat');
   pg=Math.min(Math.max(pg,0),pages-1);
   if(k==='loc'&&arr.length){
@@ -8014,7 +8035,7 @@ function wlTab(k,pg){
     }).join('');
   } else if(k==='cat'&&arr.length&&!arr[0][1].includes('/')){
     // Lucky 圖鑑：直接貼 Lucky 貼紙（名字畫在貼紙上），三個一排；沒解鎖的是灰色剪影＋問號
-    tray.innerHTML=arr.slice(pg*PER,pg*PER+PER).map(([nm,img,ok],j)=>`<div class="lk${ok?'':' lock'}" style="--r:${[-3,2,-2,2.5,-1.5,3][j%6]}deg;animation-delay:${j*.06}s"><img src="assets/diary/dex/lucky/${img}.png?v=1" alt="${ok?nm:'未解鎖'}"></div>`).join('');
+    tray.innerHTML=arr.slice(pg*PER,pg*PER+PER).map(([nm,img,ok],j)=>`<div class="lk lk-${img}${ok?'':' lock'}" style="--r:${[-3,2,-2,2.5,-1.5,3][j%6]}deg;animation-delay:${j*.06}s"><img src="assets/diary/dex/lucky/${img}.png?v=3" alt="${ok?nm:'未解鎖'}"></div>`).join('');
   } else
   tray.innerHTML=arr.length?arr.slice(pg*PER,pg*PER+PER).map(([nm,img,ok],j)=>`<div class="it ${k}${ok?'':' lock'}" style="--r:${[-2,1.5,-1,2,-1.5,1][j%6]}deg;animation-delay:${j*.05}s"><div class="pic" style="background-image:url('assets/${img||'diary/dex/card-locked.png'}')"></div><span>${ok?nm:'？？？'}</span></div>`).join('')
     :'<div style="grid-column:1/-1;text-align:center;margin-top:40px;font:800 13px CPKai,CPKaiFull,serif;color:#FFF8EA;text-shadow:0 1px 2px rgba(61,43,31,.45)">這一區還沒有可以收集的喔</div>';
@@ -8024,7 +8045,7 @@ function wlTab(k,pg){
 }
 /* 圖鑑打開時，返回鍵先收起軟木板 */
 function wlDetail(src){
-  const d=document.getElementById('wl-detail'); d.querySelector('img').src='assets/food/cards/'+src+'.png?v=1'; d.classList.add('show');
+  const d=document.getElementById('wl-detail'); d.querySelector('img').src='assets/food/cards/'+src+'.png?v=3'; d.classList.add('show');
 }
 function wlBack(){
   const dt=document.getElementById('wl-detail'); if(dt&&dt.classList.contains('show')){ dt.classList.remove('show'); return; }
@@ -8323,7 +8344,7 @@ function updateEdgeHint(){
     map.getContainer().parentNode.appendChild(el);
   }
   const hide=()=>el.classList.remove('show');
-  if(!S.mapReady||S.walkingMode||S.currentPopup!=null||(typeof _curTab!=='undefined'&&_curTab!=='map')) return hide();
+  if(!S.mapReady||S.walkingMode||S.currentPopup!=null||S.pendingGuide||(typeof _curTab!=='undefined'&&_curTab!=='map')) return hide();   // 看完故事、還沒點開留言板之前不指路
   const sz=map.getSize();
   const on=ll=>{ const pt=map.latLngToContainerPoint(ll); return pt.x>36&&pt.x<sz.x-36&&pt.y>150&&pt.y<sz.y-170;   /* 錨點要完整在畫面裡（不被邊緣、上方圖示、下方導航列擋住）才算看得到 */ };
   let pick=null,best=Infinity,anyOn=false;
@@ -8516,7 +8537,7 @@ function closeNoteWindow(){
   } else if(S.pendingGuide){
     // 其他打卡點已經在地圖上了：直接引導到最近的下一個
     S.pendingGuide=false;
-    setTimeout(()=>{ S.quietAfterCheckin=false; nudgeExplore(); recenter&&recenter(); setTimeout(updateEdgeHint,700); },500);
+    setTimeout(()=>{ S.quietAfterCheckin=false; nudgeExplore(); updateEdgeHint(); },500);   // 不再重新對準鏡頭（會縮放一下，看起來畫面抖）
   }
 }
 
@@ -9674,6 +9695,7 @@ function collectFoodcard(){
 function closeFoodcard(){
   document.getElementById('view-foodcard').classList.remove('show');
   const idx=S.targetIdx;
+  if(idx==null) return;   // 已經收過了（重複點）
   if(idx!=null&&PLACES[idx].id==='western_market'&&!S._taleFinish){
     const ov=document.getElementById('wm-end-overlay');
     ov.style.display='block';
@@ -9690,7 +9712,7 @@ function closeFoodcard(){
   clearRoute();
   S.walkingMode=false;
   _restoreNavBar();
-  S.targetIdx=null;
+  S.targetIdx=null; S.currentPopup=null;   // 打卡結束：不再算「正在看某個錨點」，邊緣的貓爪箭頭才會出來帶路
   saveState();
   recenter();
   if(map)map.invalidateSize();
@@ -9838,7 +9860,7 @@ function taleFill(idx){
   if(!_taleBack.bt){ ['bt','bq','bp'].forEach(k=>_taleBack[k]=b('.tl-'+k).innerHTML); _taleBack.stamp=b('.tl-stamp i').textContent; _taleBack.loc=b('.tl-bf span').textContent; }
   card.classList.add('gen'); card.classList.toggle('own',!T); f.classList.toggle('gen',!!T);
   document.getElementById('tl-card-img').src='assets/story/tale/card-blank.png?v=1';
-  f.classList.remove('designed','front-designed'); f.querySelector('.tl-face.back>img').src='assets/food/cards/pineapple-back.png?v=2';
+  f.classList.remove('designed','front-designed'); f.querySelector('.tl-face.back>img').src='assets/food/cards/pineapple-back.png?v=3';
   if(!T){
     S._taleTxt={q:'“等一塊香香菠蘿油當作旁聽獎勵！”',h2:'紅磡　香港理工大學',p:'那時候，這裡還叫香港工業專門學院，好多優秀的工程師都來自這裡。本喵每天陪人類溫書，偷偷等着被投餵菠蘿油。悄悄吃一口就趕緊坐好，今天也有認真旁聽！'};
     document.getElementById('tl-front-img').src='assets/food/cards/front/polyu.png?v=1'; f.classList.add('front-designed');
@@ -9852,7 +9874,7 @@ function taleFill(idx){
   S._taleTxt={q:T.q,h2:T.area+'　'+name,p:T.p};
   document.getElementById('tl-photo').src=photo;
   document.getElementById('tl-bg').style.backgroundImage=`url('${photo}')`;
-  document.getElementById('tl-front-img').src='assets/food/cards/pineapple-back.png?v=2';
+  document.getElementById('tl-front-img').src='assets/food/cards/pineapple-back.png?v=3';
   document.getElementById('tl-fimg').src='assets/food/'+T.food.img+'.png';
   document.getElementById('tl-fstamp').textContent=T.food.stamp;
   b('.tl-ft').textContent=T.food.n; b('.tl-bt').textContent=T.food.n;
@@ -9866,7 +9888,7 @@ function taleFill(idx){
   const hasFront=FRONT_READY.includes(id);
   f.classList.toggle('front-designed',hasFront);
   if(hasFront) document.getElementById('tl-front-img').src='assets/food/cards/front/'+id+'.png?v=1';
-  f.querySelector('.tl-face.back>img').src=T.food.back?'assets/food/cards/back/'+id+'.png?v=1':'assets/food/cards/pineapple-back.png?v=2';
+  f.querySelector('.tl-face.back>img').src=T.food.back?'assets/food/cards/back/'+id+'.png?v=1':'assets/food/cards/pineapple-back.png?v=3';
   S._taleSay=[T.food.say||('想起來了！是'+T.food.n+'！'),T.food.n];
 }
 /* 中文標點收窄成半格（跟設計稿一樣，句號可以留在行尾不被擠到下一行） */
@@ -10575,7 +10597,7 @@ let _wcTimer=null;
 function hideLuckyBubble(){
   const el=document.getElementById('welcome-cat');
   if(el.classList.contains('show')) S.mapReady=true;   // 歡迎語被打斷也算看過，回到地圖時補上引導（見 switchTab）
-  clearInterval(_wcTimer); clearTimeout(_wcTimer);
+  clearInterval(_wcTimer); clearTimeout(_wcTimer); clearTimeout(S._wcStartT); clearInterval(S._wcTypeI);
   el.classList.remove('show','out');
 }
 function showWelcomeCat(hint){
@@ -10593,11 +10615,12 @@ function showWelcomeCat(hint){
     pk.src=''; pk.src='assets/onboarding/'+(wave?'lucky-wave-anim.png?v=3':'lucky-peek-anim.png?v=4'); }
   el.classList.add('show');
   let i=0;
-  clearInterval(_wcTimer);
-  setTimeout(()=>{
-    _wcTimer=setInterval(()=>{
+  // 打字、自動收起各用自己的計時器；連續說兩句時先把上一句的全部停掉（不然舊的打字一直重設收起時間，氣泡就不會消失）
+  clearInterval(_wcTimer); clearTimeout(_wcTimer); clearTimeout(S._wcStartT); clearInterval(S._wcTypeI);
+  S._wcStartT=setTimeout(()=>{
+    S._wcTypeI=setInterval(()=>{
       txt.textContent=msg.slice(0,++i);
-      if(i>=msg.length){ clearInterval(_wcTimer); bubble.classList.add('done'); if(!S._wcAction) _wcTimer=setTimeout(closeWelcomeCat,3500); }
+      if(i>=msg.length){ clearInterval(S._wcTypeI); bubble.classList.add('done'); clearTimeout(_wcTimer); _wcTimer=setTimeout(()=>closeWelcomeCat(),S._wcAction?2800:1800); }   // 說完停一會自己收起（不用等玩家點）
     },80);
   },500);
 }
@@ -10631,7 +10654,7 @@ function closeWelcomeCat(action){
   if(typeof action!=='function') action=null;
   S._wcAction=null;
   if(!el.classList.contains('show')||el.classList.contains('out')) return;
-  clearInterval(_wcTimer); clearTimeout(_wcTimer);
+  clearInterval(_wcTimer); clearTimeout(_wcTimer); clearTimeout(S._wcStartT); clearInterval(S._wcTypeI);
   el.classList.add('out');
   setTimeout(()=>{
     el.classList.remove('show','out');
@@ -11094,8 +11117,8 @@ function djEndDay(){
   // 路線 7 段、每段 0.42 秒，約 3.3 秒畫完 → 淡入裝飾頁 → 再滑出「今日漫步完成」
   const _tdd=_tdv.querySelector('#td-edited .td-date'); if(_tdd) _tdd.textContent='';
   { const tp=_tdv.querySelector('#td-edited .td-plain'); if(tp) playDD512(tp,0,S.dj.date,true); }   // 編輯後的日記也只放今天去過的地點
-  clearTimeout(window._tdDecoT); window._tdDecoT=setTimeout(()=>_tdv.classList.add('decorated'),3700);
-  window._r2OpenT=setTimeout(()=>{ const td=document.getElementById('tab-diary'); if(td&&td.classList.contains('show')&&document.getElementById('view-recap2').style.display!=='flex'){ td.onclick=null; openRecap2(); } },4700);
+  clearTimeout(window._tdDecoT); window._tdDecoT=setTimeout(()=>_tdv.classList.add('decorated'),2900);
+  window._r2OpenT=setTimeout(()=>{ const td=document.getElementById('tab-diary'); if(td&&td.classList.contains('show')&&document.getElementById('view-recap2').style.display!=='flex'){ td.onclick=null; openRecap2(); } },3800);
 }
 function djLand(){
   const r0=document.getElementById('schermata-recap0');
@@ -11117,16 +11140,16 @@ const DJ_STATIC={'2026.5.12':true};
 const DD512=[["polyu",648,885,320,501,"p"],["a3",502,1308,200,67,"a","inset(0 0 0 100%)"],["haian",215,999,299,472,"p"],["a2",178,722,121,416,"a","inset(100% 0 0 0)"],["western",312,624,224,343,"p"],["a1",388,478,143,130,"a","inset(0 100% 0 0)"],["central",574,241,249,442,"p"]];
 /* 日記上每個地點的拍立得（1113×1671 座標）；都爹利街放在中環那一格（真實位置也在中環） */
 const DD_SLOT={
-  polyu:{p:'polyu',box:[648,885,320,501],out:[632,1025],in:[985,1010]},
+  polyu:{p:'polyu',box:[648,885,320,501],out:[690,868],in:[985,1010]},
   halfway_coffee:{p:'haian',box:[215,999,299,472],out:[228,985],in:[470,1365]},
   western_market:{p:'western',box:[312,624,224,343],out:[420,612],in:[300,835]},
   central_market:{p:'central',box:[574,241,249,442],out:[835,470],in:[640,705]},
-  duddell_street:{p:'duddell',box:[574,241,249,437],out:[835,470],in:[640,705]}
+  duddell_street:{p:'duddell',box:[224,500,249,437],out:[470,560],in:[500,738]}   // 放在地圖左邊空的那一塊
 };
 /* 原圖手繪箭頭剛好連著的兩站就用原圖的箭頭，其他組合用程式畫的虛線箭頭 */
 const DD_ARROW_ART={'polyu>halfway_coffee':'a3','halfway_coffee>western_market':'a2','western_market>central_market':'a1'};
 function djDayPlaces(){
-  const t=S.dj||{checkins:[]}, n=t.endedCount||t.checkins.length;
+  const t=S.dj||{checkins:[]}, n=S._djGenerating?t.checkins.length:(t.endedCount||t.checkins.length);   // 正在（重新）整理日記：用全部打卡，不是上次結束時的數量
   const ids=t.checkins.slice(0,n).map(i=>PLACES[i]&&PLACES[i].id).filter(id=>DD_SLOT[id]);
   // 中環街市和都爹利街佔同一格，只留先到的那個
   return ids.filter((id,k)=>!(DD_SLOT[id].p!==id&&ids.slice(0,k).some(o=>DD_SLOT[o].box===DD_SLOT[id].box)) && ids.indexOf(id)===k);
@@ -11134,13 +11157,16 @@ function djDayPlaces(){
 function ddArrowSVG(a,b,delay){
   const [x1,y1]=a, [x2,y2]=b, dx=x2-x1, dy=y2-y1, L=Math.hypot(dx,dy)||1;
   // 往左手邊彎一點，像手畫的弧線
-  const cx=(x1+x2)/2+dy/L*L*.4, cy=(y1+y2)/2-dx/L*L*.4;   // 弧線往左邊彎得明顯一點
+  // 弧線往上拱（照 11/12 標的紅線方向）
+  let k=.32; if(-dx*k>0) k=-k;
+  const cx=(x1+x2)/2+dy*k, cy=(y1+y2)/2-dx*k;
   const tx=x2-cx, ty=y2-cy, tl=Math.hypot(tx,ty)||1, ux=tx/tl, uy=ty/tl, hs=26;
   const h1=[x2-ux*hs-uy*hs*.75, y2-uy*hs+ux*hs*.75], h2=[x2-ux*hs+uy*hs*.75, y2-uy*hs-ux*hs*.75];
   const id='m'+Math.random().toString(36).slice(2,8), d=`M${x1} ${y1} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${x2} ${y2}`;
   return `<svg class="dd-arr" viewBox="0 0 1113 1671" style="animation-delay:${delay}ms"><defs><mask id="${id}" maskUnits="userSpaceOnUse"><path d="${d}" fill="none" stroke="#fff" stroke-width="16" pathLength="1" class="dd-arr-draw" style="animation-delay:${delay}ms"/></mask></defs>`+
-    `<g mask="url(#${id})"><path d="${d}" fill="none" stroke="#4E6549" stroke-width="6" stroke-linecap="round" stroke-dasharray="20 15"/></g>`+
-    `<path class="dd-arr-head" style="animation-delay:${delay+520}ms" d="M${h1[0].toFixed(1)} ${h1[1].toFixed(1)} L${x2} ${y2} L${h2[0].toFixed(1)} ${h2[1].toFixed(1)}" fill="none" stroke="#4E6549" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    `<circle class="dd-arr-head" style="animation-delay:${delay}ms" cx="${x1}" cy="${y1}" r="7" fill="#4E6549"/>`+
+    `<g mask="url(#${id})"><path d="${d}" fill="none" stroke="#FFFDF4" stroke-width="12" stroke-linecap="round" stroke-dasharray="1 0" opacity=".85"/><path d="${d}" fill="none" stroke="#4E6549" stroke-width="6.5" stroke-linecap="round" stroke-dasharray="18 13"/></g>`+
+    `<path class="dd-arr-head" style="animation-delay:${delay+520}ms" d="M${h1[0].toFixed(1)} ${h1[1].toFixed(1)} L${x2} ${y2} L${h2[0].toFixed(1)} ${h2[1].toFixed(1)} Q${(x2-ux*hs*.55).toFixed(1)} ${(y2-uy*hs*.55).toFixed(1)} ${h1[0].toFixed(1)} ${h1[1].toFixed(1)}Z" fill="#4E6549" stroke="#4E6549" stroke-width="4" stroke-linejoin="round"/></svg>`;
 }
 function playDD512(el,delay,date,still){
   const pct=(v,t)=>v/t*100+'%';
@@ -11154,7 +11180,9 @@ function playDD512(el,delay,date,still){
       if(k){ const prev=ids[k-1], art=DD_ARROW_ART[prev+'>'+id];
         if(art){ const r=DD512.find(x=>x[0]===art); items.push(r); }
         else items.push({svg:[DD_SLOT[prev].out,DD_SLOT[id].in]}); }
-      const sl=DD_SLOT[id], b=sl.box; items.push([sl.p,b[0],b[1],b[2],b[3],'p']);
+      const sl=DD_SLOT[id]; let b=sl.box;
+      if(ids.length===1) b=[Math.round((1113-b[2])/2),Math.round((1671-b[3])/2)+40,b[2],b[3]];   // 只去了一個地方：放在日記正中間
+      items.push([sl.p,b[0],b[1],b[2],b[3],'p']);
     });
   }
   items.forEach((r,i)=>{
