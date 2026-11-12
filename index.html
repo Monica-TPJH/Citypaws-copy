@@ -1216,7 +1216,7 @@
   /* 一般錨點卡片的距離數字：用百分比定位，螢幕寬度不同也會停在「距離約 ___ M」的空格裡 */
   /* 距離數字放在圖上「距離約」(x 24.1–31.4%) 和「M」(x 38.8%) 中間的空位置中，垂直對齊那一行字的中線 70.2%；
      字型、大小跟旁邊印好的字一樣（同 #polyu-dist） */
-  #popup-img-wrapper #checkin-dist{left:31.6%;width:7%;top:70.2%;right:auto !important;bottom:auto !important;transform:translateY(-50%);
+  #popup-img-wrapper #checkin-dist{left:31.6%;width:11%;top:70.2%;background:#FDFDF6;padding:0 .4% 0 1%;text-align:left !important;right:auto !important;bottom:auto !important;transform:translateY(-50%);
     text-align:center;white-space:nowrap;line-height:1;letter-spacing:.02em;
     font:700 calc(var(--pw,360px)*.03) 'Songti TC','Noto Serif TC',serif !important;}
   /* 引導頁頁碼 */
@@ -2719,7 +2719,7 @@
   /* 卡片標頭的地名改成程式寫（原圖 1206×2673，字在 x≈250、y≈612–660，框歪約 -2°） */
   #note-card-wrap{container-type:inline-size;}
   #note-card-wrap .nc-place,.spn .spn-place{position:absolute;z-index:3;left:20.7%;top:22.85%;transform-origin:0 50%;rotate:-2deg;white-space:nowrap;pointer-events:none;
-    font:900 3.2cqw/1 CPKai,CPKaiFull,'Kaiti TC',serif;color:#3D2B1F;letter-spacing:.06em;}
+    font:900 2.9cqw/1 CPKai,CPKaiFull,'Kaiti TC',serif;color:#3D2B1F;letter-spacing:.03em;max-width:28%;}
   #note-done-btn{position:absolute;left:12.69%;top:81.67%;width:77.36%;height:var(--h);z-index:4;}
   /* 卡片內排版：上面整行是留言，下面左邊是小一點的表情格＋「加一個表情」，不再擠在一起、下面空一大塊
      （卡片內框 1206×2673 原圖 x 16%–86%、y 29.6%–51%，下面虛線以下是日期列） */
@@ -2900,7 +2900,7 @@
   #view-story-polyu .sp-flip{perspective:none;transform-style:flat;transition:none;}
   #view-story-polyu .sp-flip,#view-story-polyu .sp-flip.flipped{transform:none;}   /* 不能用 !important，不然翻面動畫會被蓋掉 */
   /* 卡圖左邊多了一截標籤，整張往左挪一點，讓卡身在畫面正中間（卡身在圖上 x 68–739 / 741） */
-  #view-story-polyu .sp-flip{translate:-2% 0;}
+  #view-story-polyu .sp-flip{translate:-.6% 0;}
   /* 卡片整體小一點、往下一點：背面的拍立得不要頂到返回鍵；正反兩面同一個大小和位置 */
   #view-story-polyu .sp-flip{width:min(318px,calc(100vw - 72px),calc((var(--app-h,100vh) - 260px) * 741 / 1092)) !important;margin-top:56px;}
   #view-story-polyu .sp-face{backface-visibility:visible;-webkit-backface-visibility:visible;}
@@ -3230,6 +3230,8 @@
   .djf .live{width:8px;height:8px;border-radius:50%;background:#6FA866;box-shadow:0 0 0 0 rgba(111,168,102,.6);animation:djLive 1.6s infinite;}
   @keyframes djLive{70%{box-shadow:0 0 0 7px rgba(111,168,102,0)}100%{box-shadow:0 0 0 0 rgba(111,168,102,0)}}
   .djf .in{position:absolute;top:calc(6.2% + 12px);left:16px;right:16px;bottom:78px;display:flex;flex-direction:column;}
+  #schermata-recap0 .djf .pic.dj-mini{position:relative;overflow:hidden;}
+  #schermata-recap0 .djf .pic.dj-mini .dd512{position:absolute;left:-9%;top:-17%;width:118%;aspect-ratio:1113/1671;}
   #schermata-recap0 .djf .pic{width:100%;height:auto;flex:1;min-height:0;border-radius:8px;object-fit:cover;object-position:50% 30%;border:1.5px solid #E5E2D2;background:#FBFAEA;box-shadow:0 2px 6px rgba(61,43,31,.1);}
   .djf h3{font-size:16px;font-weight:900;margin-top:10px;}
   .djf small.m{display:block;font-size:12px;color:#8A7B6B;margin-top:3px;line-height:1.5;}
@@ -3780,7 +3782,7 @@
   .tl-card.gen>span.tl-h2{font-size:2.95cqw;top:7.9%;left:20.8%;letter-spacing:.07em;}
   .tl-card.gen>span.tl-h2.long{font-size:2.5cqw;letter-spacing:.04em;top:7.75%;}
   /* 卡片左邊多一個標頭凸出去，圖片置中時卡身看起來偏右：整張往左挪一點，讓卡身置中 */
-  .tl-card{translate:-3.4% 0;}
+  .tl-card{translate:0 0;}   /* 標頭不要貼到螢幕左邊：少往左挪一點 */
   .tl-card.gen>p.tl-p{display:block !important;left:19.6%;top:50.75%;width:70.6%;font-size:4.14cqw;line-height:1.435;letter-spacing:.125em;color:#5E4D42;text-align:left;font-family:CPKai,CPKaiFull,'Kaiti TC',serif !important;font-weight:700 !important;-webkit-text-stroke:.45px #F7F3E8;paint-order:fill stroke;}   /* 故事內文：跟其他字一樣用顏楷，筆畫用紙色收細一點（不會太粗也不會太細） */   /* 故事內文：華康楷體 W5（顏楷太粗），顏色加深一點：字級、行距、字距、顏色 */
   .tl-card>img.tl-badge{display:none;position:absolute;left:79.1%;top:41.4%;width:13.2%;}
   .tl-card.gen:not(.own)>img.tl-badge{display:block;}
@@ -4056,8 +4058,8 @@
   <!-- popup 200m e arrivo – fuori da #view-map per evitare DPR degradato da Leaflet -->
   <div id="nav-companion-popup">
     <div class="cp-stage" onclick="_companionTap(event)">
-      <div class="cp-bubble"><img src="assets/map/companion-bubble.png?v=3" alt="探索的路上怎麼能沒有本喵，前方有颱階記得小心～">
-        <span class="cp-say" id="cp-say">探索的路上怎麼能沒有本喵，前方有颱階記得小心～</span><span class="cp-dest" id="cp-dest"></span><i class="cp-type l3"></i></div>
+      <div class="cp-bubble"><img src="assets/map/companion-bubble.png?v=3" alt="探索的路上怎麼能沒有本喵，前方有臺階記得小心～">
+        <span class="cp-say" id="cp-say">探索的路上怎麼能沒有本喵，前方有臺階記得小心～</span><span class="cp-dest" id="cp-dest"></span><i class="cp-type l3"></i></div>
       <img class="cp-cat" src="assets/map/companion-cat.png" alt="">
     </div>
   </div>
@@ -4221,12 +4223,12 @@
     <div id="icon-cluster">
       <div class="shop-side-btns" id="shop-side-btns">
         <!-- 原本的回憶牆按鈕改成「朋友」；回憶牆移到下方導航的「冰室」 -->
-        <button class="shop-side-btn" id="mem-side-btn" onclick="switchTab('social')" aria-label="朋友"><img src="assets/ui/FriendsIcon.png?v=1" style="width:100%;height:100%;object-fit:contain;display:block;"></button>
+        <button class="shop-side-btn" id="mem-side-btn" onclick="switchTab('social')" aria-label="朋友"><img src="assets/ui/FriendsIcon.png?v=4" style="width:100%;height:100%;object-fit:contain;display:block;"></button>
         <button class="shop-side-btn" id="inv-side-btn" onclick="openShopModal('inventario')"><img src="assets/ui/InventaryIcon.png" style="width:100%;height:100%;object-fit:contain;display:block;"></button>
         <button class="shop-side-btn" id="f219-side-btn" onclick="openLaterList()" aria-label="稍後探索"><span id="later-badge"></span><img src="assets/ui/frame-star.png" style="width:100%;height:100%;object-fit:contain;display:block;"></button>
       </div>
     </div>
-    <button class="compass-btn" onclick="recenter()">
+    <button class="compass-btn" onclick="compassTap(this);recenter()">
       <img src="assets/map/Navigation.png" alt="compass">
     </button>
     <!-- schermate placeholder tab -->
@@ -6679,6 +6681,7 @@ function spawnMarker(idx){
 
 function markDone(idx){
   if(typeof djRecord==='function') djRecord(idx);
+  try{ syncProfile(); }catch(e){}   // 打卡加經驗，個人中心的等級條跟著更新
   if(anchorMarks[idx]) anchorMarks[idx].setIcon(makePinIcon(true));
   addStickerMark(idx);
   updateLaterBadge();   // 打卡完成的點會從「稍後探索」清單消失，右上角的數字也要跟著更新
@@ -6824,6 +6827,13 @@ function startLiveLocation(){
 function toggleLiveLocation(){
   if(locationWatchId===null) startLiveLocation();
   else stopLiveLocation();
+}
+/* 點指南針：指針晃一晃、象徵性地轉一點點方向（±15° 以內），不改變地圖 */
+function compassTap(btn){
+  const img=btn&&btn.querySelector('img'); if(!img) return;
+  const from=img._deg||0; let to=Math.round((Math.random()*2-1)*15); if(Math.abs(to-from)<6) to=from>0?-8:8;
+  img._deg=to;
+  img.animate([{transform:`rotate(${from}deg)`},{transform:`rotate(${to+14}deg)`,offset:.35},{transform:`rotate(${to-7}deg)`,offset:.65},{transform:`rotate(${to+3}deg)`,offset:.85},{transform:`rotate(${to}deg)`}],{duration:900,easing:'ease-out',fill:'forwards'});
 }
 function recenter(){
   startLiveLocation();
@@ -8567,7 +8577,7 @@ function renderPopup(idx){
   document.getElementById('p-aff').textContent=p.affinity+'%';
   document.getElementById('p-dist').textContent=(dist/1000).toFixed(2)+' km';
   document.getElementById('p-eta').textContent=etaMins(dist)+' mins';
-  document.getElementById('checkin-dist').textContent=Math.round(dist);
+  document.getElementById('checkin-dist').textContent=dist>=1000?(dist/1000).toFixed(1)+' 公里':Math.round(dist)+' 米';   // 跟導航條一樣用中文單位
 
   const mainImg=document.getElementById('popup-main-img');
   let imgSrc,showCam,showOverlay,showDist;
@@ -8589,7 +8599,7 @@ function renderPopup(idx){
   document.getElementById('popup-overlay-btns').style.display=showOverlay?'':'none';
   const polyuFar=isArrival&&!near;
   document.getElementById('popup-polyu-far').style.display=polyuFar?'':'none';
-  document.getElementById('polyu-dist').textContent=dist>=1000?(dist/1000).toFixed(1)+' km':Math.round(dist)+' M';
+  document.getElementById('polyu-dist').textContent=dist>=1000?(dist/1000).toFixed(1)+' 公里':Math.round(dist)+' 米';
   document.getElementById('pf-save2').classList.toggle('saved',!!a.saved);
   document.getElementById('checkin-dist').style.display=showDist?'':'none';
   document.getElementById('popup-cam-btn').style.display=showCam?'block':'none';
@@ -8833,7 +8843,7 @@ async function enterWalking(idx){
 }
 
 /* 前往各地點路上 Lucky 說的話（沒寫的用預設） */
-const NAV_SAY={_:'本喵陪你去，小心颱階～', duddell_street:'天快黑啦，去等街燈亮～'};
+const NAV_SAY={_:'本喵陪你去，小心臺階～', duddell_street:'天快黑啦，去等街燈亮～'};
 let _companionMilestone=null;
 let _companionTimer=null;
 
@@ -8952,7 +8962,9 @@ function _showArrivalOverlay(idx){
     if(!el.classList.contains('show')) return;
     const host=el.offsetParent||document.getElementById('app'), hr=host.getBoundingClientRect(), mr=map.getContainer().getBoundingClientRect();
     const pt=map.latLngToContainerPoint([t.lat,t.lng]);
-    el.style.left=(mr.left-hr.left+pt.x)+'px';
+    // 橫幅整條要留在畫面裡（左右各留 14px），錨點靠近邊緣時橫幅往內移
+    const half=(el.offsetWidth||320)/2, x=mr.left-hr.left+pt.x;
+    el.style.left=Math.max(14+half,Math.min(hr.width-14-half,x))+'px';
     el.style.top=(mr.top-hr.top+pt.y-78-14)+'px';   // 錨點高 78px，再留一點跳動空間
   };
   map.on('move zoom',place); place();
@@ -10436,7 +10448,10 @@ function syncProfile(){
   // 等級：註冊的新用戶 Lv.1、0 經驗；示範帳號維持原本的 Lv.22
   // 新註冊：Lv.1 萌新探索家；一般登入（老用戶）：Lv.22 金牌探索家
   const isNew=!!(acc&&acc.isNew);
-  const lv=isNew?1:22, exp=isNew?0:1160, need=isNew?100:12000;
+  // 每打卡一個地方 +40 經驗（新用戶）：100 經驗升一級，升級後需要的經驗再多一點
+  const done=(S.anchors||[]).filter(a=>a&&a.status==='done').length;
+  let lv=isNew?1:22, exp=isNew?0:1160, need=isNew?100:12000;
+  if(isNew){ exp=done*40; while(exp>=need){ exp-=need; lv++; need=Math.round(need*1.5/10)*10; } }
   document.querySelectorAll('#tab-ar .pf-lang .seg i').forEach(x=>x.onclick=()=>{ x.parentNode.querySelectorAll('i').forEach(y=>y.classList.toggle('on',y===x)); });
   const bd=document.getElementById('pf-badge'); if(bd) bd.classList.toggle('show',isNew);
   const L=document.getElementById('pf-lv'), E=document.getElementById('pf-exp'), B=document.getElementById('pf-bar-fill');
@@ -11038,13 +11053,14 @@ function djRender(focusToday,pop){
     go=`<button class="cp-btn cp-btn--solid cp-btn--lg" onclick="djSheet(true)">結束今天，生成日記</button><a onclick="djGoMap()">繼續探索</a>`;
   } else {
     if(!t.seen) tab+='<span class="nw">新</span>';
-    body=`<span class="st done">今天的日記${st==='stale'?'・有新打卡':'已生成'}</span><img class="pic" src="assets/recap/dj-thumb-0512.jpg" alt=""><h3>今天的漫步日記</h3><small class="m">${t.checkins.slice(0,t.endedCount).map(djPlaceName).join('・')}・${t.endedCount} 個貓點</small>
+    body=`<span class="st done">今天的日記${st==='stale'?'・有新打卡':'已生成'}</span><div class="pic dj-mini"><div class="dd dd512"></div></div><h3>今天的漫步日記</h3><small class="m">${t.checkins.slice(0,t.endedCount).map(djPlaceName).join('・')}・${t.endedCount} 個貓點</small>
       ${st==='stale'?`<div class="stale">結束後又打卡了 ${n-t.endedCount} 處，要放進今天的日記嗎？</div>`:''}`;
     go=st==='stale'?`<button class="cp-btn cp-btn--solid cp-btn--lg" onclick="djSheet(true,true)">重新整理日記</button><a onclick="djOpen('today')">先看原本的日記</a>`
       :`<button class="cp-btn cp-btn--solid cp-btn--lg" onclick="djOpen('today')">打開日記</button>`;
   }
   f.innerHTML=`<div class="tb">${tab}</div><div class="in">${body}</div><div class="go">${go}</div>`;
   track.appendChild(f);
+  { const mini=f.querySelector('.dj-mini .dd512'); if(mini) playDD512(mini,0,t.date,true); }   // 今天這張的縮圖＝今天真正的日記
   const N=track.children.length;
   for(let k=0;k<N;k++) dots.insertAdjacentHTML('beforeend','<i></i>');
   document.getElementById('dj-hint').style.display=N>1?'':'none';
