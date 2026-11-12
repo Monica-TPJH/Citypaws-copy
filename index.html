@@ -2900,7 +2900,7 @@
   #view-story-polyu .sp-flip{perspective:none;transform-style:flat;transition:none;}
   #view-story-polyu .sp-flip,#view-story-polyu .sp-flip.flipped{transform:none;}   /* 不能用 !important，不然翻面動畫會被蓋掉 */
   /* 卡圖左邊多了一截標籤，整張往左挪一點，讓卡身在畫面正中間（卡身在圖上 x 68–739 / 741） */
-  #view-story-polyu .sp-flip{translate:-.6% 0;}
+  #view-story-polyu .sp-flip{translate:-4.4% 0;}   /* 卡身左右留白一樣（左邊凸出的標頭不算） */
   /* 卡片整體小一點、往下一點：背面的拍立得不要頂到返回鍵；正反兩面同一個大小和位置 */
   #view-story-polyu .sp-flip{width:min(318px,calc(100vw - 72px),calc((var(--app-h,100vh) - 260px) * 741 / 1092)) !important;margin-top:56px;}
   #view-story-polyu .sp-face{backface-visibility:visible;-webkit-backface-visibility:visible;}
@@ -3782,7 +3782,8 @@
   .tl-card.gen>span.tl-h2{font-size:2.95cqw;top:7.9%;left:20.8%;letter-spacing:.07em;}
   .tl-card.gen>span.tl-h2.long{font-size:2.5cqw;letter-spacing:.04em;top:7.75%;}
   /* 卡片左邊多一個標頭凸出去，圖片置中時卡身看起來偏右：整張往左挪一點，讓卡身置中 */
-  .tl-card{translate:0 0;}   /* 標頭不要貼到螢幕左邊：少往左挪一點 */
+  /* 卡身置中、左邊凸出的標頭也不貼邊：卡片小一點（寬 346），再往左移，讓卡身左右留白一樣 */
+  #view-tale .tl-card{width:min(346px,calc(100vw - 56px),calc((var(--app-h,100vh) - 210px) * 741 / 1092));translate:-4.6% 0;}
   .tl-card.gen>p.tl-p{display:block !important;left:19.6%;top:50.75%;width:70.6%;font-size:4.14cqw;line-height:1.435;letter-spacing:.125em;color:#5E4D42;text-align:left;font-family:CPKai,CPKaiFull,'Kaiti TC',serif !important;font-weight:700 !important;-webkit-text-stroke:.45px #F7F3E8;paint-order:fill stroke;}   /* 故事內文：跟其他字一樣用顏楷，筆畫用紙色收細一點（不會太粗也不會太細） */   /* 故事內文：華康楷體 W5（顏楷太粗），顏色加深一點：字級、行距、字距、顏色 */
   .tl-card>img.tl-badge{display:none;position:absolute;left:79.1%;top:41.4%;width:13.2%;}
   .tl-card.gen:not(.own)>img.tl-badge{display:block;}
@@ -5204,7 +5205,7 @@
     <div class="sc2-bg" id="tl-bg"></div>
     <div class="tl-tip" id="tl-tip"><img id="tl-emo" src="assets/emoji/yay.png" alt=""><span id="tl-say"></span></div>
     <div class="tl-stage tl-intro" onclick="taleIntroTap()">
-      <img class="tl-eat" id="tl-eat" src="assets/story/tale/memo-eat.webp" alt="">
+      <img class="tl-eat" id="tl-eat" alt="">
       <div class="tl-say" id="tl-quote"></div>
     </div>
     <div class="tl-stage tl-story" onclick="taleTypeSkip()">
@@ -9916,6 +9917,13 @@ function typeText(el,text,ms,done){
   (function step(){ if(i>=chars.length) return ctl.finish(); el.innerHTML=punctHTML(chars.slice(0,++i).join('')); t=setTimeout(step,/[，。！？、]/.test(chars[i-1])?ms*4:ms); })();
   return ctl;
 }
+/* 開場動圖（吃菠蘿油、喝紅豆冰）：先抓成 blob 快取，地圖載入後就在背景預先下載 */
+const _taleAnim={};
+function taleAnimURL(u){
+  if(!_taleAnim[u]) _taleAnim[u]=fetch(u).then(r=>r.blob()).then(b=>URL.createObjectURL(b)).catch(()=>u);
+  return _taleAnim[u];
+}
+setTimeout(()=>{ ['assets/story/tale/memo-eat.webp','assets/story/tale/memo-redbean-ice.webp'].forEach(taleAnimURL); },4000);
 function openTale(idx){
   hideLuckyBubble();
   S.currentPopup=idx; if(S.targetIdx==null) S.targetIdx=idx;
@@ -9941,7 +9949,12 @@ function openTale(idx){
   eat.style.animation='none'; void eat.offsetWidth; eat.style.animation=''; eat.style.animationDelay='.5s';
   // 每個地點的開場動畫：預設是吃菠蘿油；紅豆冰（都爹利街）換成 Memo 喝紅豆冰
   const EAT_ANIM={duddell_street:'assets/story/tale/memo-redbean-ice.webp'};
-  eat.src=(EAT_ANIM[PLACES[idx].id]||'assets/story/tale/memo-eat.webp')+'?t='+Date.now();   // 動圖從頭播
+  // 換動圖時先藏起來，新的載好才顯示（不然網路慢時會先閃一下上一個地點的吃菠蘿油動畫）
+  eat.style.visibility='hidden';
+  eat.onload=()=>{ eat.style.visibility=''; };
+  // 動圖先下載一次存成 blob（不用每次都重新下載），每次換一個 #標記 讓它從第一格重播
+  const _eu=EAT_ANIM[PLACES[idx].id]||'assets/story/tale/memo-eat.webp';
+  taleAnimURL(_eu).then(u=>{ if(S.currentPopup===idx||S.targetIdx===idx) eat.src=u+'#'+Date.now(); });
   say.textContent=''; say.classList.remove('on');
   v.classList.add('show');
   clearTimeout(S._taleT);
